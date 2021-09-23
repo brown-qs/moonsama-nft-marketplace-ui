@@ -108,7 +108,7 @@ export const TokenOrder = ({
           variant="contained"
           color="primary"
         >
-          Fill
+          Take offer
         </Button>
       </TableCell>
     </TableRow>

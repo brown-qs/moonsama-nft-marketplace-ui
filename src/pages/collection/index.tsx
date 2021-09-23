@@ -21,6 +21,7 @@ import { isAddress } from '@ethersproject/address';
 import {
   StaticTokenData,
   useTokenStaticDataCallback,
+  useTokenStaticDataCallbackArray,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
@@ -28,6 +29,8 @@ import { useStyles } from './styles';
 import { IconButton, InputAdornment, TextField } from '@material-ui/core';
 import SearchIcon from '@mui/icons-material/SearchSharp';
 import { useForm } from "react-hook-form";
+import collections from '../../assets/data/collections';
+import { useMoonsamaAttrIdsCallback } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 
 const PAGE_SIZE = 10;
 
@@ -54,6 +57,25 @@ const CollectionPage = () => {
   };
 
   const getPaginatedItems = useTokenStaticDataCallback(asset);
+
+  // TODO: wire it to search result
+  /*
+  const searchItems = useTokenStaticDataCallbackArray()
+  const x = useMoonsamaAttrIdsCallback()
+  const f = x(['Black Bird', 'White Shades'])
+  console.log('MSATTR', f)
+  const m = searchItems(
+    f.map(num => {
+      return {
+        assetAddress: asset.assetAddress,
+        assetType: assetType,
+        assetId: num.toString(),
+        id: '000'
+      }
+    }
+  ))
+  console.log('MSATTR', m)
+  */
 
   const handleScrollToBottom = useCallback(() => {
     setTake((state) => (state += PAGE_SIZE));
@@ -118,7 +140,7 @@ const CollectionPage = () => {
         <GlitchText fontSize={48}>
           Collection {truncateHexString(address)}
         </GlitchText>
-        <Grid className={collectionStats} container spacing={1}>
+        {/*<Grid className={collectionStats} container spacing={1}>
             <Grid xl={3}>
               <div className={statItem}>1k <span>Items</span></div>
             </Grid>
@@ -131,7 +153,7 @@ const CollectionPage = () => {
             <Grid xl={3}>
               <div className={statItem}>1.2k MOVR <span>Traded</span></div>
             </Grid>
-        </Grid>
+        </Grid>*/}
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 2, md: 4 }} sx={{
           marginTop: '10px',
@@ -177,9 +199,9 @@ const CollectionPage = () => {
       </div>
       <Grid container spacing={1}>
         {collection.map(
-          (token) =>
+          (token, i) =>
             token && (
-              <Grid item key={token.staticData.asset.id} xl={3} md={3} sm={6} xs={12}>
+              <Grid item key={`${token.staticData.asset.id}-${i}`} xl={3} md={3} sm={6} xs={12}>
                 <TokenComponent {...token} />
               </Grid>
             )

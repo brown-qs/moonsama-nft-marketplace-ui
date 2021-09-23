@@ -211,8 +211,13 @@ export const BidDialog = () => {
     ppuError = 'Invalid price value';
   }
 
+  if (ppu.lt('0')) {
+    ppu = BigNumber.from('0')
+    ppuError = 'Invalid price value';
+  }
+
   if (orderType === OrderType.BUY) {
-    title = 'Create buy order';
+    title = 'Create buy offer';
     action = 'buy';
     availableLabel = 'Total requested';
 
@@ -240,6 +245,11 @@ export const BidDialog = () => {
         quantityError = undefined;
       } catch {
         quantity = BigNumber.from('0');
+        quantityError = 'Invalid quantity value';
+      }
+
+      if (quantity.lt('0')) {
+        quantity = BigNumber.from('0')
         quantityError = 'Invalid quantity value';
       }
 
@@ -277,6 +287,11 @@ export const BidDialog = () => {
         quantityError = 'Invalid quantity value';
       }
 
+      if (quantity.lt('0')) {
+        quantity = BigNumber.from('0')
+        quantityError = 'Invalid quantity value';
+      }
+
       // order amount in MOVR
       orderAmount = ppu && quantity ? ppu.mul(quantity) : BigNumber.from('0');
       amountToApprove = orderAmount;
@@ -295,7 +310,7 @@ export const BidDialog = () => {
       displayQuantity = quantity?.toString();
     }
   } else {
-    title = 'Create sell order';
+    title = 'Create sell offer';
     action = 'sell';
     availableLabel = 'Total available';
 
@@ -326,6 +341,11 @@ export const BidDialog = () => {
         quantityError = 'Invalid quantity value';
       }
 
+      if (quantity.lt('0')) {
+        quantity = BigNumber.from('0')
+        quantityError = 'Invalid quantity value';
+      }
+
       orderAmount = quantity;
       amountToApprove = orderAmount;
       brutto =
@@ -349,6 +369,11 @@ export const BidDialog = () => {
         quantityError = undefined;
       } catch {
         quantity = BigNumber.from('0');
+        quantityError = 'Invalid quantity value';
+      }
+
+      if (quantity.lt('0')) {
+        quantity = BigNumber.from('0')
         quantityError = 'Invalid quantity value';
       }
 
@@ -408,7 +433,7 @@ export const BidDialog = () => {
   const orderHash = calculateOrderHash(orderData);
   //console.log({ expiresAt, partialAllowed });
 
-  /*
+  /* */
   console.warn('ORDER', {
     askPerUnitDenominator: askPerUnitDenominator.toString(),
     askPerUnitNominator: askPerUnitNominator.toString(),
@@ -420,7 +445,7 @@ export const BidDialog = () => {
     amountToApprove: amountToApprove?.toString(),
     hasEnough,
   });
-  */
+  
 
   const { state: createOrderState, callback: createOrderCallback } =
     useCreateOrderCallback(orderData, {
@@ -477,7 +502,7 @@ export const BidDialog = () => {
           <div className={loadingContainer}>
             <CircularProgress />
             <div>
-              <Typography>Placing your order...</Typography>
+              <Typography>Placing your offer...</Typography>
               <Typography color="textSecondary" variant="h5">
                 Check your wallet for action
               </Typography>
@@ -830,7 +855,7 @@ export const BidDialog = () => {
               createOrderState !== CreateOrderCallbackState.VALID || !hasEnough
             }
           >
-            Place order
+            Place offer
           </Button>
         )}
         <Button className={formButton} onClick={handleClose} color="primary">

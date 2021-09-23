@@ -72,7 +72,7 @@ export const PurchaseDialog = () => {
     setOrderLoaded(true);
   }
 
-  const title = 'Fill order';
+  const title = 'Take offer';
   let symbol: string | undefined = 'MSAMA';
   let assetAddress: string | undefined;
   let assetId: string | undefined;
@@ -371,7 +371,7 @@ export const PurchaseDialog = () => {
       return (
         <div className={successContainer}>
           <SuccessIcon className={successIcon} />
-          <Typography>{`Fill order placed`}</Typography>
+          <Typography>{`Fill placed`}</Typography>
           <Typography color="primary">{orderHash}</Typography>
 
           {fillTx && (
@@ -580,7 +580,7 @@ export const PurchaseDialog = () => {
               fillOrderState !== FillOrderCallbackState.VALID || !hasEnough
             }
           >
-            Fill order
+            Take offer
           </Button>
         )}
 

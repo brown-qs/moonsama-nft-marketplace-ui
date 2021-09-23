@@ -46,14 +46,14 @@ export const Layout = ({ children }: LayoutProps) => {
                   <NavLink href="/collections" className={navItem}>
                     Collections
                   </NavLink>
-                  <NavLink href="/freshorders" className={navItem}>
-                    Latest orders
+                  <NavLink href="/freshoffers" className={navItem}>
+                    Latest offers
                   </NavLink>
                   <NavLink href="/freshtrades" className={navItem}>
                     Latest trades
                   </NavLink>
-                  <NavLink href="/myorders" className={navItem}>
-                    My orders
+                  <NavLink href="/myoffers" className={navItem}>
+                    My offers
                   </NavLink>
                   <NavLink href="/mycollection" className={navItem}>
                     My collection
@@ -76,14 +76,14 @@ export const Layout = ({ children }: LayoutProps) => {
                     <NavLink href="/collections" className={navItem}>
                       Collections
                     </NavLink>
-                    <NavLink href="/freshorders" className={navItemDrawer}>
-                      Latest orders
+                    <NavLink href="/freshoffers" className={navItemDrawer}>
+                      Latest offers
                     </NavLink>
                     <NavLink href="/freshtrades" className={navItemDrawer}>
                       Latest trades
                     </NavLink>
-                    <NavLink href="/myorders" className={navItemDrawer}>
-                      My orders
+                    <NavLink href="/myoffers" className={navItemDrawer}>
+                      My offers
                     </NavLink>
                     <NavLink href="/mycollection" className={navItemDrawer}>
                       My collection

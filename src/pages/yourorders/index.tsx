@@ -293,7 +293,7 @@ export const MyOrdersPage = () => {
         tabsClassName={tabs}
         tabs={[
           {
-            label: 'Your Orders',
+            label: 'Your Offers',
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}

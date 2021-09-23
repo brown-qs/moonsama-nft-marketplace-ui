@@ -56,6 +56,7 @@ import { useCurrencyLogo } from 'hooks/useCurrencyLogo/useCurrencyLogo';
 import { MOONSAMA_TRAITS, MOONSAMA_MAX_SUPPLY } from 'utils/constants';
 
 import LootBox from '../../assets/images/loot-box.png'
+import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
 
 const geTableHeader = () => {
   return (
@@ -76,6 +77,7 @@ const geTableHeader = () => {
 // TEST URL: http://localhost:3000/token/0xff3e85e33a8cfc73fe08f437bfaeadff7c95e285/0
 const TokenPage = () => {
   const { chainId, account } = useActiveWeb3React();
+  const whitelist = useWhitelistedAddresses() // REMOVEME later
   let { id, address, type } =
     useParams<{ id: string; address: string; type: string }>();
 
@@ -85,6 +87,10 @@ const TokenPage = () => {
     throw Error('Token type was not recognized');
 
   if (address.toLowerCase() === AddressZero) throw Error('Nonexistant token');
+
+  if (!whitelist.includes(address.toLowerCase())) { // REMOVEME later
+    throw Error('Unsupported token')
+  }
 
   if (assetType.valueOf() === StringAssetType.ERC20.valueOf())
     throw Error('ERC20 trades are not enabled yet');
@@ -428,7 +434,7 @@ const TokenPage = () => {
                   </div>
                 </div>
                 <div className={tradeRow}>
-                  <div className={formLabel}>Order Type:</div>
+                  <div className={formLabel}>Offer Type:</div>
                   <div
                     className={`${formValue} ${formValueTokenDetails}`}
                     style={{ marginLeft: 8 }}
@@ -472,7 +478,7 @@ const TokenPage = () => {
               variant="contained"
               color="primary"
             >
-              New buy order
+              New buy offer
             </Button>
             <Button
               onClick={() => {
@@ -484,7 +490,7 @@ const TokenPage = () => {
               color="primary"
               className={newSellButton}
             >
-              New sell order
+              New sell offer
             </Button>
             <Button
               onClick={() => {
@@ -531,7 +537,7 @@ const TokenPage = () => {
         tabsClassName={tabs}
         tabs={[
           {
-            label: 'Buy Orders',
+            label: 'Buy Offers',
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
@@ -540,7 +546,7 @@ const TokenPage = () => {
             ),
           },
           {
-            label: 'Sell Orders',
+            label: 'Sell Offers',
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
@@ -549,7 +555,7 @@ const TokenPage = () => {
             ),
           },
           {
-            label: 'Your Orders',
+            label: 'Your Offers',
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}

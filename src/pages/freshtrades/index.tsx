@@ -39,9 +39,11 @@ const FreshTradesPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      const data = await getPaginatedItems(PAGE_SIZE, take);
+      let data = await getPaginatedItems(PAGE_SIZE, take);
+      data = data.filter(x => x.staticData.asset.assetAddress.toLowerCase() === '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase()) // REMOVEME later
       setPageLoading(false);
       const isEnd = data.some(({ meta }) => !meta);
+      
 
       //console.log('IS END', {paginationEnded, isEnd, pieces, data})
 

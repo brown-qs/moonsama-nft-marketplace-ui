@@ -29,14 +29,14 @@ export const Routing = () => (
       <TransferDialog />
       <TokenPage />
     </Route>
-    <Route path="/freshorders">
+    <Route path="/freshoffers">
       <PurchaseDialog />
       <FreshOrdersPage />
     </Route>
     <Route path="/freshtrades">
       <FreshTradesPage />
     </Route>
-    <Route path="/myorders">
+    <Route path="/myoffers">
       <CancelDialog />
       <PurchaseDialog />
       <MyOrdersPage />
