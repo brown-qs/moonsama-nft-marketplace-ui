@@ -135,6 +135,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                 <Typography className={accordionHeader}>Price</Typography>
               </AccordionSummary>
               <AccordionDetails>
+
                 <Slider
                   getAriaLabel={() => 'Price range'}
                   value={priceRange}

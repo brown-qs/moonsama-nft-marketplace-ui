@@ -9,7 +9,7 @@ export const useStyles = makeStyles((theme) => ({
     height: '100%',
     maxWidth: '100%',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   applyFiltersButton: {
     width: '100%',

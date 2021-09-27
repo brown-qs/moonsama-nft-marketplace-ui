@@ -172,7 +172,7 @@ const CollectionPage = () => {
 
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
-          spacing={{ xs: 1, sm: 2, md: 4 }}
+          spacing={{ xs: 1, sm: 2, md: 8 }}
           sx={{
             marginTop: '10px',
             padding: '16px',
@@ -221,27 +221,34 @@ const CollectionPage = () => {
           {/*  </FormControl>*/}
           {/*</div>*/}
           <div>
-            <Filters onFiltersUpdate={handleFiltersUpdate} />
           </div>
         </Stack>
+
+        <Grid container spacing={6}>
+          <Grid item xs={12} md="auto">
+            <Filters onFiltersUpdate={handleFiltersUpdate} />
+          </Grid>
+          <Grid item xs={12} md={9}>
+            <Grid container spacing={1}>
+              {collection.map(
+                (token, i) =>
+                  token && (
+                    <Grid
+                      item
+                      key={`${token.staticData.asset.id}-${i}`}
+                      xl={2}
+                      md={2}
+                      sm={6}
+                      xs={12}
+                    >
+                      <TokenComponent {...token} />
+                    </Grid>
+                  )
+              )}
+            </Grid>
+          </Grid>
+        </Grid>
       </div>
-      <Grid container spacing={1}>
-        {collection.map(
-          (token, i) =>
-            token && (
-              <Grid
-                item
-                key={`${token.staticData.asset.id}-${i}`}
-                xl={3}
-                md={3}
-                sm={6}
-                xs={12}
-              >
-                <TokenComponent {...token} />
-              </Grid>
-            )
-        )}
-      </Grid>
       {pageLoading && (
         <div className={placeholderContainer}>
           <Loader />
