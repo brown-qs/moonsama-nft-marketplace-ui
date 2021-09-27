@@ -36,8 +36,6 @@ export const useMarketplaceBalances = (queries: BalanceQuery[]) => {
     true
   );
 
-  console.log({ queries });
-
   const getMulticallInput = (
     balance: Balance
   ): [FunctionFragment[], string, string, string[]][] => {
@@ -106,14 +104,10 @@ export const useMarketplaceBalances = (queries: BalanceQuery[]) => {
   const fetchMarketplaceBalances = useCallback(async () => {
     let calls: [any[], string, string, string[]][] = [];
 
-    //console.log('YOLO fetchMarketplaceBalances', { queries });
-
     const escrowBalances: Balance[] = await Promise.all(
       queries.map(async (query) => {
-        //console.log('1', { query });
         const tokenId = query.tokenId ? query.tokenId.toString() : '0';
         const tokenType = query.tokenType ?? StringAssetType.ERC20;
-        //console.log({ tokenId, tokenType });
         let escrowBalance: Balance = await escrowBalanceCore(
           query.userAddress,
           query.tokenAddress,
@@ -143,12 +137,9 @@ export const useMarketplaceBalances = (queries: BalanceQuery[]) => {
       })
     );
 
-    //console.log('YOLO escorBalances list', { escrowBalances });
-
     const results = await multiCallCore(multi, calls);
 
     if (!results) {
-      //console.log('YOLO fetchMarketplaceBalances', 'no graphql results');
       setBalances(escrowBalances);
       return;
     }
@@ -183,8 +174,6 @@ export const useMarketplaceBalances = (queries: BalanceQuery[]) => {
         calls = calls.slice(2);
       }
     }
-
-    //console.log('final fetchMarketplaceBalances', { final: escrowBalances });
 
     setBalances(escrowBalances);
   }, [chainId, queries]);

@@ -74,7 +74,6 @@ const CollectionPage = () => {
   ); //useTokenStaticDataCallback(asset)//
   /*
   const f = x(['Black Bird', 'White Shades'])
-  console.log('MSATTR', f)
   const m = searchItems(
     f.map(num => {
       return {
@@ -85,13 +84,11 @@ const CollectionPage = () => {
       }
     }
   ))
-  console.log('MSATTR', m)
   */
 
   const searchSize = filters?.selectedOrderType == undefined ? DEFAULT_PAGE_SIZE: SEARCH_PAGE_SIZE
 
   const handleScrollToBottom = useCallback(() => {
-    console.log('SCROLLBOTTOM');
     setTake((state) => (state += searchSize));
     setSearchCounter((state) => (state += 1));
   }, [searchSize]);
@@ -114,17 +111,14 @@ const CollectionPage = () => {
 
   useBottomScrollListener(handleScrollToBottom, { offset: 400, debounce: 300 });
 
-  console.log('before FETCH', { searchSize, address, take, paginationEnded, searchCounter, filters });
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      console.log('FETCH', { searchSize, address, take, paginationEnded });
+
       const data = await getItemsWithFilter(searchSize, BigNumber.from(take), setTake);
       const isEnd = !data || data.length == 0
       const pieces = data.filter(({ meta }) => !!meta);
       setPageLoading(false);
-
-      //console.log('IS END', {paginationEnded, isEnd, pieces, data})
 
       if (isEnd) {
         setPaginationEnded(true);
@@ -147,7 +141,6 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    console.log('FILTER', filters);
     setCollection([]);
     setTake(0);
     setFilters(filters);

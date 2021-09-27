@@ -78,7 +78,6 @@ export const useTokenStaticDataCallback = ({
         return [];
       }
 
-      //console.log('yolo tryMultiCallCore res', results);
       const staticData = processTokenStaticCallResults(assets, results);
 
       const metas = await fetchUri(staticData);
@@ -119,7 +118,6 @@ export const useTokenStaticDataCallbackArray = () => {
         return [];
       }
 
-      //console.log('yolo tryMultiCallCore res', results);
       const staticData = processTokenStaticCallResults(assets, results);
 
       const metas = await fetchUri(staticData);
@@ -143,14 +141,12 @@ const chooseAssets = (assetType: StringAssetType, assetAddress: string, offset: 
   let chosenAssets: Asset[];
 
   if (ids?.length > 0) {
-    //console.log('xxxx')
     if (offsetNum >= ids.length) {
       return [];
     }
     const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
     const chosenIds = ids.slice(offsetNum, to);
 
-    //console.log('xxxx', {ids, offsetNum, num, to, chosenIds})
     chosenAssets = chosenIds.map((x) => {
       return {
         assetId: x.toString(),
@@ -162,7 +158,6 @@ const chooseAssets = (assetType: StringAssetType, assetAddress: string, offset: 
   } else {
     const rnum = maxId && offsetNum + num < maxId ? num : (maxId ? maxId - offsetNum : num)
 
-    console.log('INDICES', {rnum, num, offsetNum, ids, maxId})
     if (rnum == 0) {
       return []
     }
@@ -176,8 +171,6 @@ const chooseAssets = (assetType: StringAssetType, assetAddress: string, offset: 
         id: getAssetEntityId(assetAddress, x),
       };
     });
-
-    console.log('INDICES 2', {chosenAssets, len: chosenAssets.length})
   }
 
   return chosenAssets
@@ -200,20 +193,10 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   const fetchTokenStaticData = useCallback(
     async (num: number, offset: BigNumber, setTake?: (take: number) => void) => {
       if (!assetAddress || !assetType) {
-        console.log({ assetAddress, assetType });
         return [];
       }
 
       let chosenAssets = chooseAssets(assetType, assetAddress, offset, num, ids, maxId)
-
-      console.log('SEARCH', {
-        assetAddress,
-        assetType,
-        ids,
-        num,
-        offset: offset?.toString(),
-        chosenAssets,
-      });
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         if (orders && orders.length !== assets.length) {
@@ -230,7 +213,6 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           return [];
         }
 
-        //console.log('yolo tryMultiCallCore res', results);
         const staticData = processTokenStaticCallResults(assets, results);
 
         const metas = await fetchUri(staticData);
@@ -275,8 +257,6 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         if (orders && orders.length > 0) {
           ordersFetch = ordersFetch.concat(orders)
         }
-
-        console.log('INDICES 3', {orders, ordersLength: orders.length, ordersFetch, ordersFetchLength: ordersFetch.length, sgAssets, num, pager: pager.toString(), ids, maxId})
 
         if (ordersFetch.length >= num) {
           canStop = true

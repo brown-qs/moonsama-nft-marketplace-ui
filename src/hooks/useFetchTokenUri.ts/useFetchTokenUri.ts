@@ -27,8 +27,6 @@ export function useFetchTokenUri(
         meta = rawmeta;
       }
 
-      //console.log('ONE META', {meta, rawmeta})
-
       if (meta) {
         meta.external_url = meta.external_url
           ? uriToHttp(meta.external_url, false)?.[0]
@@ -45,8 +43,6 @@ export function useFetchTokenUri(
     });
 
     const metas = await Promise.all(promises);
-
-    //console.log('METAS', metas)
 
     setMetas(metas);
   }, [uris, cb]);

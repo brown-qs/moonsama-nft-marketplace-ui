@@ -420,8 +420,6 @@ export const BidDialog = () => {
     return getRandomInt();
   }, [isBidDialogOpen]);
 
-  //console.log("SALT", salt)
-
   const orderData: CreateOrderData = {
     buyAsset: buyAssetContract,
     sellAsset: sellAssetContract,
@@ -431,7 +429,6 @@ export const BidDialog = () => {
   };
 
   const orderHash = calculateOrderHash(orderData);
-  //console.log({ expiresAt, partialAllowed });
 
   /* */
   console.warn('ORDER', {
@@ -478,7 +475,6 @@ export const BidDialog = () => {
   const showApproveFlow =
     approvalState === ApprovalState.NOT_APPROVED ||
     approvalState === ApprovalState.PENDING;
-  console.log('APPROVE FLOW', { showApproveFlow, approvalState, hasEnough });
 
   const renderBody = () => {
     if (!orderLoaded) {

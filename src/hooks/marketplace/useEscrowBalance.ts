@@ -44,7 +44,6 @@ export const escrowBalanceCore = async (
 ) => {
   const tId = tokenId ? tokenId.toString() : '0';
   const id = `${tokenAddress.toLowerCase()}-${tId.toString()}-${userAddress.toLowerCase()}`;
-  console.log({ blockNumber, tId, id });
 
   /*
     const result = blockNumber
@@ -53,8 +52,6 @@ export const escrowBalanceCore = async (
     */
 
   const result = await request(SUBGRAPH_URL, QUERY_ESCROW_BALANCE, { id });
-  //console.log(result);
-  //console.debug('YOLO getEscrowBalance', result);
 
   const eb = result?.escrowBalance;
 

@@ -42,8 +42,6 @@ export const useFees = (assets: (Partial<Asset> | undefined)[]) => {
 
     const results = await tryMultiCallCore(multi, inputs, false);
 
-    //console.log('FEES', { assets, inputs, results });
-
     if (!results) {
       setFees([]);
       return;
@@ -51,7 +49,6 @@ export const useFees = (assets: (Partial<Asset> | undefined)[]) => {
 
     const fees: Fee[] =
       results?.map((res: any[], i: number) => {
-        //console.log('feeeeeeeeeee', { res });
         return {
           asset: assets[i],
           recipient: res?.[0] ?? AddressZero,

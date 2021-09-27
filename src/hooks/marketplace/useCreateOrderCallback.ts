@@ -74,7 +74,6 @@ export function useCreateOrderCallback(
 } {
   const { account, chainId, library } = useActiveWeb3React();
 
-  //console.log('YOLO', { account, chainId, library });
   const contract = useMarketplaceV1Contract(true);
 
   const inputParams = useCreateOrderArguments(createOrderData, strategyData);
@@ -126,8 +125,6 @@ export function useCreateOrderCallback(
           parameters: inputParams,
           methodName,
         };
-
-        console.log(call);
 
         const gasEstimate = await contract.estimateGas[methodName](
           ...args,

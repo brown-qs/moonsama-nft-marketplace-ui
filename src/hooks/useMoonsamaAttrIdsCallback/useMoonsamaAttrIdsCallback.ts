@@ -16,7 +16,6 @@ export const useMoonsamaAttrIds = (attributes?: string[]) => {
         return currentValue.filter((x) => previousValue.includes(x));
       }, []);
     const sorted = attrIds.sort((a, b) => a - b);
-    console.log({ attrIds, sorted, attributes });
     return sorted;
   }, [amap, JSON.stringify(attributes)]);
 };
@@ -37,7 +36,7 @@ export const useMoonsamaAttrIdsCallback = () => {
           return currentValue.filter((x) => previousValue.includes(x));
         }, []);
       const sorted = attrIds.sort((a, b) => a - b);
-      console.log({ attrIds, sorted, attributes });
+
       return sorted;
     },
     [amap]

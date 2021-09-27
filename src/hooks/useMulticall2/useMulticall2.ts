@@ -38,9 +38,6 @@ export const useMulticall2Raw = async (
 ) => {
   const multi = useMulticall2Contract(true);
 
-  console.log(calldata);
-  console.log(multi);
-
   const [result, setResult] = useState<any | undefined>();
 
   const multiCall2 = useCallback(async () => {
@@ -50,11 +47,9 @@ export const useMulticall2Raw = async (
       return;
     }
     try {
-      //console.log(await multi.getBlockNumber());
       const res = asStatic
         ? await multi.callStatic.aggregate(calldata)
         : await multi.aggregate(calldata);
-      //console.log(res);
       setResult(res);
     } catch (e) {
       console.error('Error calling multicall 2', e);
@@ -79,8 +74,6 @@ export const multiCallCore = async (
     return undefined;
   }
   try {
-    //console.log('YOLO calls', { calls });
-
     const [, res] = await multi.callStatic.aggregate(
       calls.map((call, i: number) => {
         const itf = new Interface(call[0]);
@@ -95,7 +88,7 @@ export const multiCallCore = async (
       const itf = new Interface(calls[i][0]);
       return itf.decodeFunctionResult(calls[i][2], resfrag);
     });
-    console.log({ retval });
+
     return retval;
   } catch (e) {
     console.error('Error calling multicall 2', e);
@@ -114,8 +107,6 @@ export const tryMultiCallCore = async (
     return undefined;
   }
   try {
-    //console.log('YOLO calls', { calls });
-
     const retarray = await multi.callStatic.tryAggregate(
       requireSuccess,
       calls.map((call, i: number) => {

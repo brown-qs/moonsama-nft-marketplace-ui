@@ -35,8 +35,6 @@ export const TokenOwned = ({
 
   const { chainId } = useActiveWeb3React();
 
-  //console.log('FRESH', {asset, action, actionColor})
-
   const handleImageClick = () => {
     push(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
   };

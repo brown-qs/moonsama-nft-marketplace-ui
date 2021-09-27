@@ -12,7 +12,6 @@ export default function uriToHttp(
     return [];
   }
   const protocol = uri.split(':')[0].toLowerCase();
-  //console.log('URI FETCH', { uri, tryHttpToHttps, protocol });
   switch (protocol) {
     case 'https':
       return [uri];

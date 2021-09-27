@@ -22,8 +22,6 @@ export const useLastTradedPrice = ({
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
 
-    //console.log({assetEntityId});
-
     const query = QUERY_LAST_TRADED_PRICE(assetEntityId);
     //console.error({query, SUBGRAPH_URL})
     const response = await request(SUBGRAPH_URL, query);
@@ -65,8 +63,6 @@ export const useLastTradedPriceOnce = ({
 
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
-
-    //console.log({assetEntityId});
 
     const query = QUERY_LAST_TRADED_PRICE(assetEntityId);
     //console.error({query, SUBGRAPH_URL})

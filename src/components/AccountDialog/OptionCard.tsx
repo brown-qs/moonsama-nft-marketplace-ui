@@ -24,7 +24,7 @@ export default function OptionCard({
   active?: boolean;
   id: string;
 }) {
-  console.log({ icon });
+
   const styles = useStyles();
   const content = (
     <div className={styles.optionElementContainer}>

@@ -168,7 +168,6 @@ export const useTokenBasicData = (assets: Asset[]) => {
       setBasicDatas([]);
       return;
     }
-    //console.log('yolo tryMultiCallCore res', results);
     const x = processResults(assets, results, account);
 
     setBasicDatas(x);

@@ -56,7 +56,6 @@ export const PurchaseDialog = () => {
   const { dialogContainer, loadingContainer, successIcon, successContainer } =
     useStyles();
 
-  //console.log({ orderLoaded, purchaseData });
   const handleClose = () => {
     setLoading(false);
     setPurchaseDialogOpen(false);
@@ -302,14 +301,6 @@ export const PurchaseDialog = () => {
     netto = userget.sub(protocolFee).sub(royaltyFee);
   }
 
-  console.log('fee', {
-    showFee,
-    royaltyFee,
-    protocolFee,
-    isGiveAssetErc20OrNative,
-    isGetAssetErc20OrNative,
-  });
-
   const {
     state: fillOrderState,
     callback: fillOrderCallback,
@@ -333,16 +324,6 @@ export const PurchaseDialog = () => {
   const showApproveFlow =
     approvalState === ApprovalState.NOT_APPROVED ||
     approvalState === ApprovalState.PENDING;
-
-  /*
-  console.log('approveflow', {
-    showApproveFlow,
-    approvalState,
-    fillOrderState,
-    fillSubmitted,
-    error,
-  });
-  */
 
   const {
     divider,

@@ -58,7 +58,6 @@ export function useCancelOrderCallback(orderHash?: string): {
 } {
   const { account, chainId } = useActiveWeb3React();
 
-  //console.log('YOLO', { account, chainId });
   const contract = useMarketplaceV1Contract(true);
 
   const inputParams = useCancelOrderArguments(orderHash);
@@ -86,8 +85,6 @@ export function useCancelOrderCallback(orderHash?: string): {
           parameters: inputParams,
           methodName,
         };
-
-        console.log(call);
 
         const gasEstimate = await contract.estimateGas[methodName](
           ...args,

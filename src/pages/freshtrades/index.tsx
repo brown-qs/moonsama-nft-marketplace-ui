@@ -65,10 +65,6 @@ const FreshTradesPage = () => {
       setPageLoading(false);
       const isEnd = data.some(({ meta }) => !meta);
 
-      //console.log('IS END', {paginationEnded, isEnd, pieces, data})
-
-      //console.log('FRESH', {data, PAGE_SIZE, take, isEnd})
-
       if (isEnd) {
         const pieces = data.filter(({ meta }) => !!meta);
         setPaginationEnded(true);
@@ -95,12 +91,11 @@ const FreshTradesPage = () => {
   const handleMouseMove = (event: any): void => {
     const x = event.pageX;
     const y = event.pageY;
-    console.log(event);
+
     updateRotation(x, y);
   };
 
   const updateRotation = (x: number, y: number) => {
-    console.log(x, y);
     if (!!glassRef.current && !!canvasRef.current) {
       const yAxisRotation =
         (x - window.innerWidth / 8) * (80 / window.innerWidth);

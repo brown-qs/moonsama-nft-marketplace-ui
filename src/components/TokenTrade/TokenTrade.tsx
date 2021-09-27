@@ -48,8 +48,6 @@ export const TokenTrade = ({
   const action = ot == OrderType.BUY ? 'BUY' : 'SELL';
   const actionColor = ot == OrderType.BUY ? 'green' : '#b90e0e';
 
-  //console.log('FRESH', {asset, action, actionColor})
-
   const handleImageClick = () => {
     push(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
   };

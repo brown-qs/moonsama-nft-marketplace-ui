@@ -31,8 +31,6 @@ export const useLatestOrders = ({
   const blockNumber = useBlockNumber();
   const { account } = useActiveWeb3React();
 
-  //console.log('useLatestOrders', blockNumber);
-
   const [result, setResult] = useState<LatestOrdersResults>({});
 
   const fetchAssetOrders = useCallback(async () => {

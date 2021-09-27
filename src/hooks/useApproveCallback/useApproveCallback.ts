@@ -44,7 +44,6 @@ export function useAllowance(
   const type = assetType ?? StringAssetType.ERC20;
 
   const allowanceCheck = useCallback(async () => {
-    console.log('useAllowance', { spender, account, type });
     if (!spender) {
       setAllowance(undefined);
       return;
@@ -240,7 +239,6 @@ export function useApproveCallback(
       if (!erc1155) {
         return;
       }
-      console.log({ assetType, assetAddress, assetId, account });
       const estimatedGas = await erc1155.estimateGas
         .setApprovalForAll(operator, true)
         .catch((e: Error) => {

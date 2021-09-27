@@ -20,7 +20,6 @@ const Web3ReactProviderNetworkSSR = ({
   try {
     Web3ReactProviderNetwork = createWeb3ReactRoot(NetworkContextName);
   } catch {
-    console.log('FUUCK');
     return <>{children}</>;
   }
   */

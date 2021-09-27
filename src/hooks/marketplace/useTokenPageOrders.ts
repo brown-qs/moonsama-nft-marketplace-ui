@@ -37,14 +37,10 @@ export const useTokenPageOrders = ({
   //const account = '0x72b4c097dfff258790168c6ff5c987860a0003c5';
   num = num ?? DEFAULT_ORDERBOOK_PAGINATION;
 
-  //console.log('useTokenPageOrders', blockNumber);
-
   const [result, setResult] = useState<TokenPageOrderResults>({});
 
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
-
-    //console.log(assetEntityId);
 
     const query = QUERY_TOKEN_PAGE_ORDERS(
       true,

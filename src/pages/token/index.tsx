@@ -94,8 +94,6 @@ const TokenPage = () => {
 
   if (assetType.valueOf() === StringAssetType.ERC20.valueOf())
     throw Error('ERC20 trades are not enabled yet');
-
-  //console.log('ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', id);
   if (!id) {
     if (assetType.valueOf() !== StringAssetType.ERC20.valueOf()) {
       throw Error('Token ID was not given');
@@ -160,10 +158,6 @@ const TokenPage = () => {
   const balanceData = useTokenBasicData(assets);
   const metas = useFetchTokenUri(staticData);
 
-  //console.log('METAS', {metas, staticData})
-
-  //console.error('ERRRORORS', {asset, assets, staticData, balanceData, metas, chainId, account})
-
   const currencyLogo = useCurrencyLogo(asset.assetAddress);
 
   const isErc20 = asset.assetType.valueOf() === StringAssetType.ERC20.valueOf();
@@ -186,8 +180,6 @@ const TokenPage = () => {
   let totalSupplyString =
     balanceData?.[0]?.totalSupply?.toString() ??
     (asset.assetType.valueOf() === StringAssetType.ERC721 ? '1' : undefined);
-
-  //console.log('data', { balanceData, staticData, assetMeta });
 
   const transformedMetaData = assetMeta?.description
     ?.replace(/\s*,\s*/g, ',')

@@ -64,6 +64,5 @@ export const useFileType = (uri?: string) => {
     getFileType();
   }, [url]);
 
-  //console.log({ fileType, getMediaType, mediaUrl });
   return { fileType, getMediaType, mediaUrl, isLoading };
 };

@@ -37,7 +37,6 @@ export const useTokenStaticData = (assets: Asset[]) => {
       setDatas([]);
       return;
     }
-    //console.log('yolo tryMultiCallCore res', results);
     const x = processTokenStaticCallResults(assets, results);
 
     setDatas(x);

@@ -56,7 +56,6 @@ export function useTransferCallback(query: TransferRequest | undefined): {
       assetId,
     });
 
-    console.log({ currentBalance });
     return currentBalance.lt(amount)
       ? TransferState.INVALID
       : TransferState.VALID;
@@ -114,7 +113,7 @@ export function useTransferCallback(query: TransferRequest | undefined): {
       if (!erc721) {
         return;
       }
-      console.log({ account, to, assetId });
+
       const estimatedGas = await erc721.estimateGas
         .transferFrom(account, to, assetId)
         .catch((e: Error) => {

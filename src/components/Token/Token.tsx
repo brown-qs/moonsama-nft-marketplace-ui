@@ -53,7 +53,6 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
   const getOrderCB = useAssetOrdersCallback(asset.assetAddress, asset.assetId, false, true)
 
   useEffect(() => {
-    console.log('useEffect run!')
     const fetch = async () => {
       const os: Order[] = await getOrderCB()
       const o: Order | undefined = os.reduce((prev: Order| undefined, current: Order| undefined) => {
@@ -66,7 +65,6 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
         }
         return current
       }, undefined)
-      console.log('useEffect run fetch', {os, o})
       if(o) {
         setFetchedOrer(o)
       }
@@ -86,9 +84,7 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
       ? 'green'
       : '#b90e0e';
   */
-  //console.log('STATIC',{staticData})
 
-  console.log('ORDERTYPE', {orderType, original: finalOrder?.orderType})
   const color =
     orderType === OrderType.BUY
       ? 'green'

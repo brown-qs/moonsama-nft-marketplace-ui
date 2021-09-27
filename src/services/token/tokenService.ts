@@ -64,6 +64,5 @@ const types: ('nft' | 'collection')[] = ['nft', 'collection'];
 export const checkType = async (
   address?: string
 ): Promise<'nft' | 'collection'> => {
-  //console.log(address);
   return types[getRandomInt(0, 1)];
 };

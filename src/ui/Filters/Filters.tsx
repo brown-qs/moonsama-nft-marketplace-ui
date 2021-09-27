@@ -11,6 +11,8 @@ import { Chip } from '@material-ui/core';
 import { MOONSAMA_TRAITS } from 'utils/constants';
 import FilterIcon from '@mui/icons-material/FilterListSharp';
 import { OrderType } from 'utils/subgraph';
+import { useMediaQuery } from 'beautiful-react-hooks';
+import { MOBILE_BREAKPOINT } from '../../constants';
 
 export interface Filters {
   priceRange: number[];
@@ -37,6 +39,10 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     priceRangeWrapper,
     filtersTitle,
   } = useStyles();
+
+  const isMobile = useMediaQuery(
+    `(max-width: ${MOBILE_BREAKPOINT}px)`
+  );
 
   const handleApplyFilters = () => {
     onFiltersUpdate({
@@ -72,21 +78,21 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
 
   return (
     <>
-      <Button
-        onClick={() => setIsDrawerOpened(true)}
-        startIcon={<FilterIcon />}
-        variant="outlined"
-        color="primary"
-      >
-        Filter
-      </Button>
-      <Drawer
-        anchor="left"
-        hideBackdrop
-        open={isDrawerOpened}
-        onClose={() => setIsDrawerOpened(false)}
-        onOpen={() => setIsDrawerOpened(true)}
-      >
+      {/*<Button*/}
+      {/*  onClick={() => setIsDrawerOpened(true)}*/}
+      {/*  startIcon={<FilterIcon />}*/}
+      {/*  variant="outlined"*/}
+      {/*  color="primary"*/}
+      {/*>*/}
+      {/*  Filter*/}
+      {/*</Button>*/}
+      {/*<Drawer*/}
+      {/*  anchor="left"*/}
+      {/*  hideBackdrop*/}
+      {/*  open={isDrawerOpened}*/}
+      {/*  onClose={() => setIsDrawerOpened(false)}*/}
+      {/*  onOpen={() => setIsDrawerOpened(true)}*/}
+      {/*>*/}
         <Typography variant="h6" className={filtersTitle}>
           Filters
         </Typography>
@@ -187,7 +193,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
             </Button>
           </div>
         </div>
-      </Drawer>
+      {/*</Drawer>*/}
     </>
   );
 };

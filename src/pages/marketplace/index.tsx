@@ -29,12 +29,8 @@ const MarketplacePage = () => {
   /*
   const { account } = useActiveWeb3React();
 
-  
-  console.log(account);
-
   const s = useERC20Contract('0xDC5b69374207a18e75F7cdCf5176CA63911e690d');
   const ss = useERC20Contract('0x1369eA55a479CC2A334ACa55e250DC5161677442');
-  console.log(s, ss);
   
   const x = useMulticall2Raw([
     {
@@ -57,8 +53,6 @@ const MarketplacePage = () => {
       userAddress: account as string,
     },
   ]);
-  console.log('MARKETPLACE BALANCE', x);
-  
 
   const cod: CreateOrderData = {
     seller: account as string,
@@ -91,7 +85,6 @@ const MarketplacePage = () => {
   if (status === ApprovalState.APPROVED) {
     creatOrder.callback?.().then(console.log)
   } else {
-    console.log('YOLO approval status', {status})
     approve()
   }
   */

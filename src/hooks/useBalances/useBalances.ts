@@ -95,7 +95,6 @@ export const useBalances = (assets: (Partial<Asset> | undefined)[]) => {
 
     const bs = results.map((result, i) => {
       if (assets[i]?.assetType?.valueOf() === StringAssetType.ERC721) {
-        //console.log('yolllo', results[i]);
         return result?.[0] === account
           ? BigNumber.from('1')
           : result?.[0]
