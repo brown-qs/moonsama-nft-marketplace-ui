@@ -7,6 +7,11 @@ export const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     padding: theme.spacing(1.5),
     borderRadius: 0,
+    transition: 'all 0.2s ease-in-out',
+
+    '&:hover': {
+      transform: 'scale(1.05)'
+    }
   },
   imageContainer: {
     width: '100%',
