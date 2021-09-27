@@ -16,7 +16,7 @@ import { Account } from 'components';
 
 import { MAX_WIDTH_TO_SHOW_NAVIGATION } from '../../constants';
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ fullWidth = false, children }: LayoutProps) => {
   const { logo, nav, navItem, buttonContainer, navItemDrawer } = useStyles();
   const showRegularMenu = useMediaQuery(
     `(max-width: ${MAX_WIDTH_TO_SHOW_NAVIGATION}px)`
@@ -100,7 +100,11 @@ export const Layout = ({ children }: LayoutProps) => {
           </Grid>
         </Container>
       </Header>
-      <Container maxWidth="lg">{children}</Container>
+      {fullWidth ? (
+        <Container maxWidth={false}>{children}</Container>
+      ) : (
+        <Container maxWidth="lg">{children}</Container>
+      )}
       <Footer />
     </>
   );

@@ -1,5 +1,4 @@
 import { AppProviders } from 'providers/AppProvider';
-import { Layout } from 'components';
 import { AccountDialog, PurchaseDialog, BidDialog } from 'components';
 import { Routing } from 'pages';
 import { CancelDialog } from 'components/CancelDialog/CancelDialog';
@@ -9,10 +8,7 @@ function MyApp() {
   return (
     <AppProviders>
       <AccountDialog />
-
-      <Layout>
-        <Routing />
-      </Layout>
+       <Routing />
     </AppProviders>
   );
 }
