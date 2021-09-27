@@ -236,8 +236,8 @@ const CollectionPage = () => {
                     <Grid
                       item
                       key={`${token.staticData.asset.id}-${i}`}
-                      xl={2}
-                      md={2}
+                      xl={3}
+                      md={3}
                       sm={6}
                       xs={12}
                     >

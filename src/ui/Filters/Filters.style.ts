@@ -31,6 +31,7 @@ export const useStyles = makeStyles((theme) => ({
   accordionContent: {
     maxHeight: '250px',
     overflowY: 'auto',
+    textAlign: 'left',
   },
   filterChip: {
     border: '1px solid #c5c5c5 !important',
@@ -48,4 +49,11 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     fontSize: '12px',
   },
+  priceInput: {
+    width: '40% !important',
+
+    '& .MuiOutlinedInput-root': {
+      width: '100% !important'
+    }
+  }
 }));

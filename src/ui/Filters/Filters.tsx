@@ -7,12 +7,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Slider from '@mui/material/Slider';
 import { Button, Drawer } from 'ui';
 import { useStyles } from './Filters.style';
-import { Chip } from '@material-ui/core';
+import { Chip, IconButton, InputAdornment, TextField } from '@material-ui/core';
 import { MOONSAMA_TRAITS } from 'utils/constants';
 import FilterIcon from '@mui/icons-material/FilterListSharp';
 import { OrderType } from 'utils/subgraph';
 import { useMediaQuery } from 'beautiful-react-hooks';
 import { MOBILE_BREAKPOINT } from '../../constants';
+import Stack from '@mui/material/Stack';
+import SearchIcon from '@mui/icons-material/SearchSharp';
 
 export interface Filters {
   priceRange: number[];
@@ -38,6 +40,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     filterChip,
     priceRangeWrapper,
     filtersTitle,
+    priceInput,
   } = useStyles();
 
   const isMobile = useMediaQuery(
@@ -135,30 +138,47 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                 <Typography className={accordionHeader}>Price</Typography>
               </AccordionSummary>
               <AccordionDetails>
-
-                <Slider
-                  getAriaLabel={() => 'Price range'}
-                  value={priceRange}
-                  onChange={handlePriceRangeChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={400}
-                  sx={{
-                    "& .MuiSlider-thumb":{
-                      color: "#710021",
-                    },
-                    "& .MuiSlider-track": {
-                      color: '#710021'
-                    },
-                    "& .MuiSlider-rail": {
-                      color: '#c5c5c5'
-                    }
-                  }}
-                />
-                <div className={priceRangeWrapper}>
-                  <div>{`${priceRange[0]} MOVR`}</div>
-                  <div>{`${priceRange[1]} MOVR`}</div>
-                </div>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={{ xs: 1, sm: 2, md: 8 }}
+                  justifyContent="flex-end"
+                  alignItems="center"
+                >
+                  <TextField
+                    className={priceInput}
+                    placeholder="Min"
+                    variant="outlined"
+                  />
+                  <div>TO</div>
+                  <TextField
+                    className={priceInput}
+                    placeholder="Max"
+                    variant="outlined"
+                  />
+                </Stack>
+                {/*<Slider*/}
+                {/*  getAriaLabel={() => 'Price range'}*/}
+                {/*  value={priceRange}*/}
+                {/*  onChange={handlePriceRangeChange}*/}
+                {/*  valueLabelDisplay="auto"*/}
+                {/*  min={0}*/}
+                {/*  max={400}*/}
+                {/*  sx={{*/}
+                {/*    "& .MuiSlider-thumb":{*/}
+                {/*      color: "#710021",*/}
+                {/*    },*/}
+                {/*    "& .MuiSlider-track": {*/}
+                {/*      color: '#710021'*/}
+                {/*    },*/}
+                {/*    "& .MuiSlider-rail": {*/}
+                {/*      color: '#c5c5c5'*/}
+                {/*    }*/}
+                {/*  }}*/}
+                {/*/>*/}
+                {/*<div className={priceRangeWrapper}>*/}
+                {/*  <div>{`${priceRange[0]} MOVR`}</div>*/}
+                {/*  <div>{`${priceRange[1]} MOVR`}</div>*/}
+                {/*</div>*/}
               </AccordionDetails>
             </Accordion>
             <Accordion defaultExpanded square className={filterAccordion}>
