@@ -6,7 +6,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import { Button } from 'ui';
+import { Button, PriceBox } from 'ui';
 import Grid from '@mui/material/Grid';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState } from 'react';
@@ -56,6 +56,7 @@ export const MintListItem = ({ collection, meta, salt }: MintListItemProps) => {
 
   const isErc20 = collection.type.valueOf() === StringAssetType.ERC20.valueOf();
   const subcollection = collection.subcollections;
+  const color = '#b90e0e';
 
   return (
     <Grid
@@ -78,69 +79,38 @@ export const MintListItem = ({ collection, meta, salt }: MintListItemProps) => {
           </div>
         </div>
         <CardContent>
-          <Typography
-            className={cardTitle}
-            variant="body2"
-            color="textSecondary"
-            component="div"
-          >
-            <div className={collectionName}>{collection.display_name}</div>
-            {/* <div className={collectionSymbol}>{collection.symbol}</div> */}
-          </Typography>
-          {/* <div className={collectionType}>{collection.type}</div> */}
-          {/* {collection?.address && chainId && (
-            <ExternalLink
-              href={getExplorerLink(chainId, collection.address, 'address')}
-            >
-              {truncateHexString(collection.address)}↗
-            </ExternalLink>
-          )} */}
+          <div className={collectionType}>{collection.display_name}</div>
         </CardContent>
 
-        {/* <Collapse in={isCollectionExpanded} timeout="auto" unmountOnExit> */}
         <CardContent style={{ padding: '8px 16px' }}>
           <Typography paragraph className={collectionDescription}>
             {meta?.description}
           </Typography>
-          {/* {meta?.external_link && (
-              <ExternalLink href={meta?.external_link}>
-                External site↗
-              </ExternalLink>
-            )} */}
         </CardContent>
-        {/* </Collapse> */}
-        {/* <CardActions disableSpacing style={{ maxHeight: 0 }}>
-          <IconButton
-            className={isCollectionExpanded ? expandOpen : expand}
-            onClick={() => handleExpandClick()}
-            aria-expanded={isCollectionExpanded}
-            aria-label="show more"
-            style={{ marginTop: '-32px' }}
-          >
-            <ExpandMoreIcon />
-          </IconButton>
-        </CardActions> */}
 
         <CardContent style={{ padding: '8px 16px' }}>
+
+
+          {/* <PriceBox margin={false} size="small" color={color}>
+            1 MOVR
+          </PriceBox> */}
           <Typography paragraph className={collectionDescription}>
-            Mint condition description
+            WhiteListed / Public
           </Typography>
-          {/* {meta?.external_link && (
-              <ExternalLink href={meta?.external_link}>
-                External site↗
-              </ExternalLink>
-            )} */}
+          <Typography paragraph className={collectionDescription}>
+            Available Mints  100/200
+          </Typography>
         </CardContent>
 
         <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            style={{ margin: '8px 16px'}}
-            fullWidth
-          >
-            Mint
-          </Button>
+          variant="contained"
+          color="primary"
+          size="large"
+          style={{ margin: '8px 16px' }}
+          fullWidth
+        >
+          Mint for 1 MOVR
+        </Button>
       </Card>
     </Grid>
   );
