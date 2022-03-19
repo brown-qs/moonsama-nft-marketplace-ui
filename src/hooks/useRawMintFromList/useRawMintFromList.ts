@@ -1,7 +1,7 @@
 import { useActiveWeb3React } from 'hooks';
 import { useMemo } from 'react';
 
-import collectionsList from '../../assets/data/collections';
+import mintList from '../../assets/data/mints';
 
 import * as yup from 'yup';
 import { StringAssetType } from 'utils/subgraph';
@@ -22,7 +22,7 @@ export type AuctionParams = {
   deadline: string;
 };
 
-export type RawCollection = {
+export type RawMint = {
   chainId: number;
   address: string;
   display_name: string;
@@ -46,18 +46,18 @@ export type RawCollection = {
   transferDisabled?: boolean;
 };
 
-export type RawCollectionList = {
+export type RawMintList = {
   name: string;
-  collections: RawCollection[];
+  collections: RawMint[];
 };
 
-const collectionListSchema = yup.object<RawCollectionList>({
+const collectionListSchema = yup.object<RawMintList>({
   name: yup.string().required(),
   collections: yup
     .array()
     .of(
       yup
-        .object<RawCollection>({
+        .object<RawMint>({
           min_items: yup.number().required(),
           chainId: yup.number().required(),
           floorDisplay: yup.boolean().notRequired().default(false),
@@ -102,42 +102,20 @@ const collectionListSchema = yup.object<RawCollectionList>({
     .required(),
 });
 
-// returns a variable indicating the state of the approval and a function which approves if necessary or early returns
-export function useRawCollectionsFromList(): RawCollection[] {
+
+
+export function useRawMintFromList(): RawMint[] {
   const { chainId } = useActiveWeb3React();
   const list = useMemo(() => {
     if (!chainId) {
       return [];
     }
-    const rawList = collectionListSchema.cast(collectionsList);
+    const rawList = collectionListSchema.cast(mintList);
     return rawList?.collections.filter((x) => x.chainId === chainId) ?? [];
   }, [chainId]);
 
   return list;
 }
 
-export function useRawcollection(address: string) {
-  const { chainId } = useActiveWeb3React();
-  const collections = useRawCollectionsFromList();
-  const collection = useMemo(() => {
-    const collection = collections.find(
-      (collection) =>
-        collection.address.toLowerCase() === address?.toLowerCase()
-    );
-    return collection;
-  }, [chainId, address]);
 
-  return collection;
-}
 
-export function useAuction(address: string, tokenId: string) {
-  const x = useRawcollection(address.toLowerCase());
-
-  if (!x?.auction) {
-    return undefined;
-  }
-
-  const found = (x.auction.ids ?? []).find((id) => id === tokenId);
-
-  return found ? x.auction : undefined;
-}
