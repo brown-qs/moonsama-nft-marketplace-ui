@@ -130,6 +130,20 @@ export function useRawcollection(address: string) {
   return collection;
 }
 
+export function useMintCollectionsFromList(): RawCollection[] {
+  const { chainId } = useActiveWeb3React();
+  const list = useMemo(() => {
+    if (!chainId) {
+      return [];
+    }
+    const rawList = collectionListSchema.cast(collectionsList);
+    return rawList?.collections.filter((x) => x.chainId === chainId) ?? [];
+  }, [chainId]);
+
+  return list;
+}
+
+
 export function useAuction(address: string, tokenId: string) {
   const x = useRawcollection(address.toLowerCase());
 
