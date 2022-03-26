@@ -91,7 +91,7 @@ export const collections = {
       display_name: '???',
       floorDisplay: false,
       minId: 1,
-      maxId: 61,
+      maxId: 62,
       idSearchOn: true,
       decimals: 0,
       symbol: '???',
@@ -263,7 +263,7 @@ export const collections = {
       floorDisplay: false,
       symbol: 'MEMBASSY',
       minId: 1,
-      maxId: 3,
+      maxId: 4,
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
@@ -282,6 +282,20 @@ export const collections = {
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-blvck',
     },
+    /*
+    {
+      chainId: 1285,
+      address: '0x582d2daf854ac11ffce8e25408f9524fb40ece00',
+      display_name: 'Exosama Waifus',
+      floorDisplay: true,
+      minId: 0,
+      maxId: 11,
+      idSearchOn: true,
+      symbol: 'EXOWAIFUS',
+      type: 'ERC721',
+      contractURI: 'ipfs://QmVXrWtbRzUQRe1JC5y5ZqVvji94go2hm98ou28rJcxW9H'
+    },
+    */
   ],
 };
 
