@@ -5,14 +5,16 @@ import { useAccountDialog, useActiveWeb3React, useClasses } from 'hooks';
 import { truncateAddress } from 'utils';
 import Identicon from 'components/Identicon/Identicon';
 import { Activity } from 'react-feather';
-import { useMediaQuery } from 'beautiful-react-hooks';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWalletSharp';
 import { styles } from './Account.styles';
 
 export const Account = () => {
   const { account, error } = useActiveWeb3React();
   const { setAccountDialogOpen } = useAccountDialog();
-  const hideAddress = useMediaQuery(`(max-width: 500px)`);
+  const theme = useTheme()
+  const hideAddress = useMediaQuery(theme.breakpoints.down('sm'));
 
   const showError = error ? true : false;
   const errMessage =
@@ -21,7 +23,6 @@ export const Account = () => {
   const { button } = useClasses(styles);
 
   return (
-    <>
       <Button
         className={button}
         size="medium"
@@ -54,6 +55,5 @@ export const Account = () => {
           'Connect'
         )}
       </Button>
-    </>
   );
 };

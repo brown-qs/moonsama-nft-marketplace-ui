@@ -11,8 +11,9 @@ import {
   WalletConnectConnector,
   UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
 } from '@web3-react/walletconnect-connector';
-import { CHAIN_ID, DEFAULT_CHAIN, PERMISSIONED_CHAINS, POLLING_INTERVAL, RPC_URLS } from '../constants';
+import { DEFAULT_CHAIN, PERMISSIONED_CHAINS, POLLING_INTERVAL, RPC_URLS } from '../constants';
 
+import MetamaskIcon from '../assets/images/metamask.png';
 // if (typeof RPC_URL === 'undefined') {
 //   throw new Error(`REACT_APP_RPC_URL must be a defined environment variable`);
 // }
@@ -67,6 +68,7 @@ export interface WalletInfo {
   primary?: true;
   mobile?: true;
   mobileOnly?: true;
+  icon: string
 }
 
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
@@ -78,6 +80,8 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     href: null,
     color: '#010101',
     primary: true,
+    //mobile: true,
+    icon: ''
   },
   METAMASK: {
     connector: injected,
@@ -86,6 +90,8 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D',
+    mobile: true,
+    icon: MetamaskIcon
   },
   // WALLET_CONNECT: {
   //   connector: walletconnect,

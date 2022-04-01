@@ -109,7 +109,6 @@ export const Layout = ({ children }: LayoutProps) => {
                   </Box>
                 </Drawer>
               )}
-
               <ConnectedNetwork />
               <Account />
             </Grid>

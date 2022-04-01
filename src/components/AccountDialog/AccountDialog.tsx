@@ -195,6 +195,7 @@ export const AccountDialog = () => {
     return Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
+      console.log('Option: ', {isMobile, key, option, isMetamask, ww3: !!window.web3, we: !!window.ethereum})
       if (isMobile) {
         //disable portis on mobile for now
         //if (option.connector === portis) {
@@ -216,7 +217,7 @@ export const AccountDialog = () => {
               link={option.href}
               header={option.name}
               subheader={null}
-              icon={require('../../assets/images/' + option.iconName)}
+              icon={option.icon}
             />
           );
         }
