@@ -51,6 +51,12 @@ export const mints = {
       contractURI: 'ipfs://QmPhFz5mKCtndGLLZBwGockGAWz7o7nef4Kgf37gYsTid5',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft',
+      whitelist: [
+        {
+          address: '0x16b0Cc5A6B31F56331f2A19ec5cc770fEbFb7A72',
+          maxMint: 1,
+        },
+      ]
     },
   ],
 };

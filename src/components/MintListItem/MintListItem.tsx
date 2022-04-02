@@ -13,29 +13,63 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { appStyles } from '../../app.styles';
 import { mintListStyles } from './MintListItem.style';
-import {
-  RawMint,
-} from 'hooks/useRawMintFromList/useRawMintFromList';
-import {
-  CollectionMeta,
-} from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
+import { RawMint } from 'hooks/useRawMintFromList/useRawMintFromList';
+import { CollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
+import { MintCollectionInfo } from 'hooks/useFetchMintConditions/useFetchMintConditions';
 import { ExternalLink, Media } from 'components';
 import { getExplorerLink, truncateHexString } from 'utils';
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { StringAssetType } from '../../utils/subgraph';
+import { useMintCallback } from 'hooks/useMintCallback/useMintCallback';
+
+import { MerkleTree } from '@kleros/merkle-tree';
+import { keccak256 } from '@ethersproject/keccak256';
+import { defaultAbiCoder } from '@ethersproject/abi';
 
 export type MintListItemProps = {
-  collection: RawMint
-  meta: CollectionMeta | undefined,
-  salt: number
-}
+  collection: RawMint;
+  meta: CollectionMeta | undefined;
+  salt: number;
+  mintInfo: MintCollectionInfo | undefined;
+};
 
-export const MintListItem = ({ collection, meta, salt }: MintListItemProps) => {
-  const { chainId } = useActiveWeb3React();
-  console.log('this runs', chainId)
+export const MintListItem = ({
+  collection,
+  meta,
+  salt,
+  mintInfo,
+}: MintListItemProps) => {
+  const { chainId, account } = useActiveWeb3React();
+  let userMaxMint = 0;
+  if (chainId && account) {
+    const me = collection.whitelist.find((member) => member.address == account);
+    if (me) userMaxMint = me.maxMint;
+    else userMaxMint = mintInfo?.whitelistGuarded ? 0 : 1;
+  }
+  console.log('this runs', chainId);
   const [isCollectionExpanded, setExpanded] = useState(false);
-  console.log('this runs', isCollectionExpanded)
-  console.log(chainId, isCollectionExpanded)
+  console.log('this runs', isCollectionExpanded);
+  console.log(chainId, isCollectionExpanded);
+
+  let leaves: string[] = collection.whitelist.map((member) =>
+    MerkleTree.makeLeafNode(member.address, member.maxMint)
+  );
+  const tree = new MerkleTree(leaves);
+  let merkleProof;
+  try {
+    merkleProof = tree.getHexProof(
+      MerkleTree.makeLeafNode(account ?? '', userMaxMint)
+    )[0];
+  } catch (e) {
+    console.log(e, 'merkle proof error');
+  }
+
+  const mintCallback = useMintCallback({
+    tokenAddress: collection.address,
+    userMaxMint,
+    mintCost: mintInfo?.mintCost,
+    merkleProof,
+  });
 
   const handleExpandClick = () => {
     setExpanded(!isCollectionExpanded);
@@ -89,17 +123,23 @@ export const MintListItem = ({ collection, meta, salt }: MintListItemProps) => {
         </CardContent>
 
         <CardContent style={{ padding: '8px 16px' }}>
-
-
           {/* <PriceBox margin={false} size="small" color={color}>
             1 MOVR
           </PriceBox> */}
           <Typography paragraph className={collectionDescription}>
-            WhiteListed / Public
+            {mintInfo?.whitelistGuarded ? 'WhiteListed' : 'Public'}
           </Typography>
           <Typography paragraph className={collectionDescription}>
-            Available Mints  100/200
+            Available Mints: {mintInfo?.mintedCount}/{mintInfo?.maxMintable}
+            {}
           </Typography>
+          {userMaxMint > 0 && (
+            <Typography paragraph className={collectionDescription}>
+              Available Mints For Account: {mintInfo?.mintedCountUser}/
+              {userMaxMint}
+              {}
+            </Typography>
+          )}
         </CardContent>
 
         <Button
@@ -108,8 +148,11 @@ export const MintListItem = ({ collection, meta, salt }: MintListItemProps) => {
           size="large"
           style={{ margin: '8px 16px' }}
           fullWidth
+          onClick={() => {
+            mintCallback.callback?.();
+          }}
         >
-          Mint for 1 MOVR
+          Mint for {mintInfo?.mintCost} MOVR
         </Button>
       </Card>
     </Grid>

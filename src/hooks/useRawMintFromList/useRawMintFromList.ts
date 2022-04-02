@@ -44,6 +44,7 @@ export type RawMint = {
   floorDisplay?: boolean;
   ordersDisabled?: boolean;
   transferDisabled?: boolean;
+  whitelist: any[];
 };
 
 export type RawMintList = {
@@ -96,6 +97,7 @@ const collectionListSchema = yup.object<RawMintList>({
               ids: yup.array().of(yup.string().required()).required(),
             })
             .optional(),
+          whitelist: yup.array().required(),
         })
         .required()
     )

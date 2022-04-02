@@ -124,3 +124,13 @@ export function useWorkbenchContract(
     withSignerIfPossible
   );
 }
+export function useMintDistributorContract(
+  withSignerIfPossible = true
+): Contract | null {
+  const { chainId } = useActiveWeb3React();
+  return useContract(
+    chainId ? WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined,
+    WORKBENCH_ABI,
+    withSignerIfPossible
+  );
+}

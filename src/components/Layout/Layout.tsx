@@ -69,6 +69,9 @@ export const Layout = ({ children }: LayoutProps) => {
                   <NavLink href="/mynfts" className={navItem}>
                     My NFTs
                   </NavLink>
+                  <ExternalLink href="https://minecraft-metaverse.moonsama.com" className={navItem}>
+                    Bridge↗
+                  </ExternalLink>
                   <ExternalLink href="https://wiki.moonsama.com" className={navItem}>
                     Docs↗
                   </ExternalLink>
