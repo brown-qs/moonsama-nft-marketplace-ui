@@ -16,7 +16,7 @@ export type MintData = {
   tokenAddress: string;
   userMaxMint: number;
   merkleProof?: string;
-  mintCost: number;
+  mintCost?: number;
 };
 
 export function useMintCallback(craftData: MintData): {
