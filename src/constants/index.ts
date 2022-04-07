@@ -65,6 +65,10 @@ export const WORKBENCH_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: '0xb9AbB5fd9eFe40ec95655122012e2b6267B99754'
 };
 
+export const ExoDistributor_ADDRESSES: { [chainId: number]: string } = {
+  [ChainId.MOONRIVER]: '0xF3dA82d1eAf12603AeFE423CeF425c2B408ABE4e'
+};
+
 export enum SUPPORTED_CONTRACTS {
   'ENS_RESOLVER' = 'ENS_RESOLVER',
 }

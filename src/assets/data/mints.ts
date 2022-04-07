@@ -40,8 +40,8 @@ export const mints = {
   collections: [
     {
       chainId: 1285,
-      address: '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a',
-      display_name: 'Moonsama',
+      address: '0x6B5efbb96D8702ba062c89D1e6D4971aF2246cba',
+      display_name: 'TestERC721',
       floorDisplay: true,
       minId: 1,
       maxId: 1000,
@@ -55,6 +55,10 @@ export const mints = {
         {
           address: '0x16b0Cc5A6B31F56331f2A19ec5cc770fEbFb7A72',
           maxMint: 1,
+        },
+        {
+          address: '0xCB8FFA74972dB00627fEE9fE77426eAF79eb734F',
+          maxMint: 2,
         },
       ]
     },

@@ -15,7 +15,7 @@ export enum MintCallbackState {
 export type MintData = {
   tokenAddress: string;
   userMaxMint: number;
-  merkleProof?: string;
+  merkleProof?: string[];
   mintCost?: number;
 };
 

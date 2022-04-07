@@ -14,11 +14,9 @@ import { MintListItem } from 'components/MintListItem/MintListItem';
 export const MintListPage = () => {
   const { chainId } = useActiveWeb3React();
   const rawCollections = useRawMintFromList();
+  const collections: RawMint[] = rawCollections ?? [];
   const metas = useFetchCollectionMeta(rawCollections);
   const mintConditions = useFetchMintConditions(rawCollections);
-  const collections: RawMint[] = rawCollections ?? [];
-
-  console.log('this runs', collections);
   return collections && collections.length > 0 ? (
     <>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
@@ -30,6 +28,7 @@ export const MintListPage = () => {
             <MintListItem
               collection={collection}
               salt={i}
+              key={i}
               meta={metas[i]}
               mintInfo={mintConditions[i]}
             />

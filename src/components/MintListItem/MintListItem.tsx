@@ -1,30 +1,18 @@
-import {
-  Card,
-  CardActions,
-  CardContent,
-  Collapse,
-  IconButton,
-  Typography,
-} from '@mui/material';
-import { Button, PriceBox } from 'ui';
+import { Card, CardContent, Typography } from '@mui/material';
+import { Button } from 'ui';
 import Grid from '@mui/material/Grid';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { appStyles } from '../../app.styles';
 import { mintListStyles } from './MintListItem.style';
 import { RawMint } from 'hooks/useRawMintFromList/useRawMintFromList';
 import { CollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
 import { MintCollectionInfo } from 'hooks/useFetchMintConditions/useFetchMintConditions';
-import { ExternalLink, Media } from 'components';
-import { getExplorerLink, truncateHexString } from 'utils';
+import { Media } from 'components';
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { StringAssetType } from '../../utils/subgraph';
 import { useMintCallback } from 'hooks/useMintCallback/useMintCallback';
 
 import { MerkleTree } from '@kleros/merkle-tree';
-import { keccak256 } from '@ethersproject/keccak256';
-import { defaultAbiCoder } from '@ethersproject/abi';
+import { Fraction } from 'utils/Fraction';
 
 export type MintListItemProps = {
   collection: RawMint;
@@ -46,10 +34,6 @@ export const MintListItem = ({
     if (me) userMaxMint = me.maxMint;
     else userMaxMint = mintInfo?.whitelistGuarded ? 0 : 1;
   }
-  console.log('this runs', chainId);
-  const [isCollectionExpanded, setExpanded] = useState(false);
-  console.log('this runs', isCollectionExpanded);
-  console.log(chainId, isCollectionExpanded);
 
   let leaves: string[] = collection.whitelist.map((member) =>
     MerkleTree.makeLeafNode(member.address, member.maxMint)
@@ -59,7 +43,7 @@ export const MintListItem = ({
   try {
     merkleProof = tree.getHexProof(
       MerkleTree.makeLeafNode(account ?? '', userMaxMint)
-    )[0];
+    );
   } catch (e) {
     console.log(e, 'merkle proof error');
   }
@@ -71,26 +55,8 @@ export const MintListItem = ({
     merkleProof,
   });
 
-  const handleExpandClick = () => {
-    setExpanded(!isCollectionExpanded);
-  };
-
-  const { expand, expandOpen } = useClasses(appStyles);
-  const {
-    mediaContainer,
-    cardTitle,
-    collectionName,
-    collectionSymbol,
-    collectionType,
-    card,
-    collectionDescription,
-  } = useClasses(mintListStyles);
-
-  //console.warn('META', { meta });
-
-  const isErc20 = collection.type.valueOf() === StringAssetType.ERC20.valueOf();
-  const subcollection = collection.subcollections;
-  const color = '#b90e0e';
+  const { mediaContainer, collectionType, card, collectionDescription } =
+    useClasses(mintListStyles);
 
   return (
     <Grid
@@ -123,37 +89,46 @@ export const MintListItem = ({
         </CardContent>
 
         <CardContent style={{ padding: '8px 16px' }}>
-          {/* <PriceBox margin={false} size="small" color={color}>
-            1 MOVR
-          </PriceBox> */}
           <Typography paragraph className={collectionDescription}>
             {mintInfo?.whitelistGuarded ? 'WhiteListed' : 'Public'}
           </Typography>
           <Typography paragraph className={collectionDescription}>
-            Available Mints: {mintInfo?.mintedCount}/{mintInfo?.maxMintable}
+            Available Mints: {mintInfo?.mintedCount.toString()}/
+            {mintInfo?.maxMintable.toString()}
             {}
           </Typography>
           {userMaxMint > 0 && (
             <Typography paragraph className={collectionDescription}>
-              Available Mints For Account: {mintInfo?.mintedCountUser}/
-              {userMaxMint}
+              Available Mints For Account:{' '}
+              {mintInfo?.mintedCountUser.toString()}/{userMaxMint}
               {}
             </Typography>
           )}
         </CardContent>
 
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          style={{ margin: '8px 16px' }}
-          fullWidth
-          onClick={() => {
-            mintCallback.callback?.();
-          }}
-        >
-          Mint for {mintInfo?.mintCost} MOVR
-        </Button>
+        {userMaxMint > 0 &&
+        mintInfo?.mintedCountUser?.toString()! <= userMaxMint.toString() ? (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            style={{ margin: '8px 16px' }}
+            fullWidth
+            onClick={() => {
+              mintCallback.callback?.();
+            }}
+          >
+            Mint for {Fraction.from(mintInfo?.mintCost, 18)?.toFixed(2)} MOVR
+          </Button>
+        ) : userMaxMint > 0 ? (
+          <Typography paragraph className={collectionType}  style={{ padding: '8px 16px' }}>
+            You reached max count!
+          </Typography>
+        ) : (
+          <Typography paragraph className={collectionType}  style={{ padding: '8px 16px' }}>
+            You are not in whitelist!
+          </Typography>
+        )}
       </Card>
     </Grid>
   );
