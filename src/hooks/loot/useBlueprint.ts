@@ -59,17 +59,19 @@ export function useBlueprint(
   }, [
     account,
     chainId,
-    contract
+    contract,
+    blueprintId
   ]);
 
   useEffect(() => {
-    if(contract && chainId) { 
+    if(contract && chainId && blueprintId) { 
         cb();
     }
   }, [
       contract,
       chainId,
-      blockumber
+      blockumber,
+      blueprintId
   ]);
 
   return blueprint

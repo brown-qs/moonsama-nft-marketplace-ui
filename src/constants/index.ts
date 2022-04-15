@@ -1,5 +1,3 @@
-import { StringAssetType } from "utils/subgraph";
-
 export const CHAIN_ID = parseInt(process.env.REACT_APP_CHAIN_ID ?? '1285', 10);
 
 export const NetworkContextName = 'NETWORK';
@@ -112,14 +110,3 @@ export const IPFS_GATEWAYS = [
 ];
 
 export const MAX_WIDTH_TO_SHOW_NAVIGATION = 1044;
-
-export const LOOTBOX_CRAFTING = {
-  blueprintId: '2',
-  lootboxId: '0xd335417999ff2b9b59737244e554370264b3f877-1-1',
-  blueprintOutput: {
-    assetAddress: '0xd335417999ff2b9b59737244e554370264b3f877'.toLowerCase(),
-    assetId: '1',
-    assetType: StringAssetType.ERC1155,
-    id: 'asd'
-  }
-}

@@ -16,6 +16,8 @@ export type Reward = {
     assetType: StringAssetType;
     tokenURI: string;
     meta?: any;
+    name?: string;
+    rarity?: string;
 }
 
 export enum LootboxOpenStatus {

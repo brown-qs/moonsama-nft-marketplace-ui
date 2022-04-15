@@ -1,17 +1,9 @@
 import Grid from '@mui/material/Grid';
 import { TokenLootbox as TokenLootboxComponent } from '../../components';
-import { LOOTBOX_CRAFTING } from '../../constants';
 import { useClasses } from 'hooks';
-import { Asset } from 'hooks/marketplace/types';
-import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { GlitchText, Loader } from 'ui';
-import {
-  getAssetEntityId,
-  StringAssetType
-} from 'utils/subgraph';
 import { styles } from './styles';
-import { useBlueprint } from 'hooks/loot/useBlueprint';
 
 
 const WorkbenchPage = () => {
