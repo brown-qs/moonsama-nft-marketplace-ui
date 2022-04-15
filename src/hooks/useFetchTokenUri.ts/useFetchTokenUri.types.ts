@@ -20,7 +20,8 @@ export type TokenMeta = {
   plot?: any;
   marketplace?: any;
   artist?: string;
-  rarity?: string
+  rarity?: string;
+  artist_url?: string;
 };
 
 export type TokenData = {

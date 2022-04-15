@@ -40,7 +40,7 @@ export function useFetchTokenUri(
       if (meta) {
         meta.external_url = meta.external_url
           ? uriToHttp(meta.external_url, false)?.[0]
-          : undefined;
+          : (meta.external_link ? uriToHttp(meta.external_link, false)?.[0] : undefined);
         meta.image = meta.image ? uriToHttp(meta.image, false)?.[0] : undefined;
         meta.animation_url = meta.animation_url
           ? uriToHttp(meta.animation_url, false)?.[0]
@@ -48,6 +48,9 @@ export function useFetchTokenUri(
         meta.youtube_url = meta.youtube_url
           ? uriToHttp(meta.youtube_url, false)?.[0]
           : undefined;
+        meta.artist_url = meta.artist_url
+          ? uriToHttp(meta.artist_url, false)?.[0]
+          : meta.external_url;
       }
       return meta;
     });

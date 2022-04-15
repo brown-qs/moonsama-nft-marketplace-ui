@@ -39,7 +39,6 @@ import { usePurchaseDialog } from '../../hooks/usePurchaseDialog/usePurchaseDial
 import {
   getAssetEntityId,
   getDisplayQuantity,
-  StrategyMap,
   StringAssetType,
   stringToOrderType,
   stringToStringAssetType,
@@ -248,6 +247,9 @@ const TokenPage = () => {
     '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase();
   const minecraftskin = getMinecraftSkinUrl(assetMeta?.attributes);
 
+  const ordersDisabled = (rawCollection?.ordersDisabled ?? false) || (rawCollection?.ordersDisabledFor?.includes(asset?.assetId ?? '') ?? false);
+  const transferDisabled = (rawCollection?.transferDisabled ?? false) || (rawCollection?.transferDisabledFor?.includes(asset?.assetId ?? '') ?? false);
+
   const getTableBody = (
     orders: Order[] | undefined | null,
     orderType?: OrderType
@@ -260,9 +262,6 @@ const TokenPage = () => {
               id,
               seller,
               createdAt,
-              strategyType,
-              sellAsset,
-              buyAsset,
               quantityLeft,
               askPerUnitDenominator,
               askPerUnitNominator,
@@ -553,10 +552,10 @@ const TokenPage = () => {
           <Typography>{assetMeta?.description}</Typography>
         )}
 
-        {assetMeta?.external_url && assetMeta?.artist && (
+        {assetMeta?.artist_url && assetMeta?.artist && (
           <Box className={artist}>
             <Typography color="textSecondary" variant="subtitle1">
-              Made by <ExternalLink href={assetMeta.external_url} fontSize='14px'>{assetMeta.artist}</ExternalLink>
+              Made by <ExternalLink href={assetMeta.artist_url} fontSize='14px'>{assetMeta.artist}</ExternalLink>
             </Typography>
           </Box>
         )}
@@ -627,7 +626,7 @@ const TokenPage = () => {
             className={buttonsContainer}
             style={{ justifyContent: 'space-around' }}
           >
-            {!rawCollection?.ordersDisabled &&
+            {!ordersDisabled &&
               !!ordersMap?.sellOrders &&
               ordersMap?.sellOrders.length > 0 &&
               (ordersMap.sellOrders[0].onlyTo === AddressZero ||
@@ -652,7 +651,7 @@ const TokenPage = () => {
                   Buy now
                 </Button>
               )}
-            {!rawCollection?.ordersDisabled && ((!isOwner && isErc721) || !isErc721) && (
+            {!ordersDisabled && ((!isOwner && isErc721) || !isErc721) && (
               <Button
                 onClick={() => {
                   setBidDialogOpen(true);
@@ -673,7 +672,7 @@ const TokenPage = () => {
                 Make an offer
               </Button>
             )}
-            {!rawCollection?.ordersDisabled && isOwner && (
+            {!ordersDisabled && isOwner && (
               <Button
                 onClick={() => {
                   setBidDialogOpen(true);
@@ -695,7 +694,7 @@ const TokenPage = () => {
                 New sell offer
               </Button>
             )}
-            {!rawCollection?.transferDisabled && isOwner && (
+            {!transferDisabled && isOwner && (
               <Button
                 onClick={() => {
                   setTransferDialogOpen(true);

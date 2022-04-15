@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RawCollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { useFetchUrlCallback } from 'hooks/useFetchUrlCallback/useFetchUrlCallback';
 import uriToHttp from 'utils/uriToHttp';
-import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 
 export type CollectionMeta = {
   name: string;
