@@ -36,6 +36,10 @@ export function useTransactionAdder(): (
     craft?: {
       blueprintId: string;
       amount: string;
+    },
+    burn?: {
+      assetAddress: string;
+      assetId: string;
     }
     claim?: { recipient: string };
   }
@@ -53,7 +57,8 @@ export function useTransactionAdder(): (
         fill,
         cancel,
         transfer,
-        craft
+        craft,
+        burn
       }: {
         summary?: string;
         claim?: { recipient: string };
@@ -78,6 +83,10 @@ export function useTransactionAdder(): (
         craft?: {
           blueprintId: string;
           amount: string;
+        };
+        burn?: {
+          assetAddress: string;
+          assetId: string;
         }
       } = {}
     ) => {
@@ -99,7 +108,8 @@ export function useTransactionAdder(): (
           fill,
           cancel,
           transfer,
-          craft
+          craft,
+          burn
         })
       );
     },
@@ -188,6 +198,28 @@ export function useHasPendingApproval(
       }),
     [allTransactions, spender, tokenAddress, tokenType]
   );
+}
+
+export function usePendingBurnTx(assetAddress?: string, assetId?: string): {
+  burnSubmitted: boolean;
+  burnTx: TransactionDetails | undefined;
+} {
+  const allTransactions = useAllTransactions();
+  useIsTransactionPending()
+
+  // get the txn if it has been submitted
+  const burnTx = useMemo(() => {
+    const txIndex = Object.keys(allTransactions).find((hash) => {
+      const tx = allTransactions[hash];
+      return tx.burn && assetAddress && tx.burn.assetAddress === assetAddress && assetId && tx.burn.assetId === assetId;
+    });
+    const tx = txIndex && allTransactions[txIndex]
+      ? allTransactions[txIndex]
+      : undefined;
+    return tx
+  }, [allTransactions]);
+
+  return { burnSubmitted: Boolean(burnTx), burnTx };
 }
 
 export function useSubmittedOrderTx(orderHash?: string): {

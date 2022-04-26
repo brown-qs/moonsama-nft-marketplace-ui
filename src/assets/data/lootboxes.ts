@@ -18,6 +18,7 @@ export type LootboxDataType = {
     notEnoughLink: string,
     conditionsText: string
     craftText: string,
+    burnText: string,
     openText: string,
     openDialogText: string,
     video: string,
@@ -39,7 +40,8 @@ export const LOOTBOXES: LootboxDataType[] = [
         notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
         conditionsText: 'The Moonsama Council requires the presentation of a resource sacrifice',
         craftText: 'Craft one',
-        openText: 'Open one',
+        burnText: 'Pry it open..',
+        openText: 'Pop up the lid',
         openDialogText: 'Click to open',
         video: box1Video,
         imageUnopened: box1imageUnopened
@@ -58,6 +60,7 @@ export const LOOTBOXES: LootboxDataType[] = [
         notEnoughLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/11',
         conditionsText: 'Box is granted to whomever presents a fitting key',
         craftText: 'See if your key matches',
+        burnText: 'Pry it open..',
         openText: 'Pop up the lid',
         openDialogText: 'Click to open',
         video: box2Video,

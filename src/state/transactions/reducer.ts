@@ -32,6 +32,10 @@ export interface TransactionDetails {
     asset: Asset;
     amount: BigNumber;
   };
+  burn?: {
+    assetAddress: string;
+    assetId: string;
+  }
   summary?: string;
   receipt?: SerializableTransactionReceipt;
   lastCheckedBlockNumber?: number;
@@ -65,6 +69,7 @@ export default createReducer(initialState, (builder) =>
             fill,
             cancel,
             transfer,
+            burn
           },
         }
       ) => {
@@ -78,6 +83,7 @@ export default createReducer(initialState, (builder) =>
           fill,
           cancel,
           transfer,
+          burn
         });
         if (transactions[chainId]?.[hash]) {
           throw Error('Attempted to add existing transaction.');
@@ -92,6 +98,7 @@ export default createReducer(initialState, (builder) =>
           fill,
           cancel,
           transfer,
+          burn,
           addedTime: now(),
         };
         transactions[chainId] = txs;

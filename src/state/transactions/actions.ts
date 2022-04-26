@@ -40,6 +40,10 @@ export const addTransaction = createAction<{
   craft?: {
     blueprintId: string;
     amount: string;
+  },
+  burn?: {
+    assetAddress: string;
+    assetId: string;
   }
   summary?: string;
 }>('transactions/addTransaction');

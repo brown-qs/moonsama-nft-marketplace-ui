@@ -63,6 +63,10 @@ export const WORKBENCH_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: '0xb9AbB5fd9eFe40ec95655122012e2b6267B99754'
 };
 
+export const BURN_SEMAPHORE_ADDRESSES: { [chainId: number]: string } = {
+  [ChainId.MOONRIVER]: '0x854beFcc72D6cdFcDC29bF0606756d0A25536755'
+};
+
 export enum SUPPORTED_CONTRACTS {
   'ENS_RESOLVER' = 'ENS_RESOLVER',
 }

@@ -1,5 +1,6 @@
 import { Contract } from '@ethersproject/contracts';
 import {
+  BURN_SEMAPHORE_ADDRESSES,
   ChainId,
   MARKETPLACE_V1_ADDRESS,
   MULTICALL_NETWORKS,
@@ -17,7 +18,7 @@ import {
 import { MULTICALL2_ABI } from 'abi/multicall';
 import { ERC1155_ABI, ERC20_ABI, ERC721_ABI } from 'abi/token';
 import { useActiveWeb3React } from 'hooks';
-import { WORKBENCH_ABI } from 'abi/loot';
+import { BURN_SEMAPHORE_ABI, WORKBENCH_ABI } from 'abi/loot';
 
 export const useContract = (
   address: string | undefined,
@@ -121,6 +122,17 @@ export function useWorkbenchContract(
   return useContract(
     chainId ? WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined,
     WORKBENCH_ABI,
+    withSignerIfPossible
+  );
+}
+
+export function useBurnSemaphoreContract(
+  withSignerIfPossible = true
+): Contract | null {
+  const { chainId } = useActiveWeb3React();
+  return useContract(
+    chainId ? BURN_SEMAPHORE_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined,
+    BURN_SEMAPHORE_ABI,
     withSignerIfPossible
   );
 }

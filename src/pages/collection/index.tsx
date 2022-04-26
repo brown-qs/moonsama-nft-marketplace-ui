@@ -29,7 +29,6 @@ import {
   getDisplayUnitPrice,
 } from 'utils/subgraph';
 import { styles } from './styles';
-import { Order } from 'hooks/marketplace/types';
 
 
 import { useFloorOrder } from 'hooks/useFloorOrder/useFloorOrder';
@@ -81,12 +80,7 @@ const CollectionPage = () => {
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const {
     placeholderContainer,
-    collectionStats,
-    statItem,
-    container,
-    select,
-    selectLabel,
-    dropDown,
+    container
   } = useClasses(styles);
   const { register, handleSubmit } = useForm();
 

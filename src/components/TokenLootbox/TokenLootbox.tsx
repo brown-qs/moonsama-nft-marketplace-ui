@@ -2,7 +2,7 @@
 import { GlitchText, NavLink, Dialog } from 'ui';
 import { truncateHexString } from 'utils';
 import { styles } from './TokenLootbox.styles';
-import { Fraction } from 'utils/Fraction';
+import { Fraction, Rounding } from 'utils/Fraction';
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
 import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData';
@@ -13,9 +13,9 @@ import {
 } from '../../utils/subgraph';
 import { useBlueprint } from 'hooks/loot/useBlueprint'
 import { Asset } from 'hooks/marketplace/types';
-import { useState, useRef, SyntheticEvent } from 'react';
+import { useState, useRef, SyntheticEvent, useEffect, useMemo } from 'react';
 import { useAllowances } from 'hooks/useApproveCallback/useApproveCallback';
-import { useLootboxOpen, OpenData, RewardData } from 'hooks/loot/useLootboxOpen';
+import { useLootboxOpen, OpenData, RewardData, LootboxOpenStatus } from 'hooks/loot/useLootboxOpen';
 import { WORKBENCH_ADDRESSES, ChainId } from '../../constants';
 import { BigNumber } from '@ethersproject/bignumber';
 import { CraftCallbackState, useCraftCallback } from 'hooks/loot/useCraftCallback';
@@ -27,6 +27,8 @@ import { DoDisturb } from '@mui/icons-material';
 import DialogUI from '@mui/material/Dialog';
 
 import { LootboxDataType, LOOTBOXES } from '../../assets/data/lootboxes'
+import { BurnCallbackState, useBurnSemaphore } from 'hooks/loot/useBurnSemaphore';
+import { useBlockNumber } from 'state/application/hooks';
 
 
 export const TokenLootbox = () => {
@@ -46,6 +48,7 @@ export const TokenLootbox = () => {
   } = styleClasses;
 
   const defaultBoxIndex = LOOTBOXES.length - 1
+  const blocknumber = useBlockNumber()
 
   const theme = useTheme();
 
@@ -56,18 +59,37 @@ export const TokenLootbox = () => {
 
   const [tabValue, setTabValue] = useState<number>(defaultBoxIndex);
   const [lootboxData, setLootboxData] = useState<LootboxDataType>(LOOTBOXES[defaultBoxIndex]);
+  const [lootboxStatus, setLootboxStatus] = useState<LootboxOpenStatus>(LootboxOpenStatus.NO_BURN_PROOF);
+  const [burnSubmitted, setBurnSubmitted] = useState<boolean>(false);
 
   const handleTabValueChange = (event: SyntheticEvent, newTabValue: number) => {
     setTabValue(newTabValue);
     setLootboxData(LOOTBOXES[newTabValue])
   };
 
+  const { openCallback, confirmCallback } = useLootboxOpen({ lootboxId: lootboxData.lootboxId } as OpenData);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      const [rewardData,] = await openCallback?.() ?? [undefined, undefined]
+      if (rewardData?.status && rewardData?.status !== lootboxStatus) {
+        setLootboxStatus(rewardData.status)
+        if (rewardData?.status === LootboxOpenStatus.NO_BURN_PROOF) {
+          setBurnSubmitted(false)
+        }
+      }
+    }
+    if (openCallback) {
+      checkStatus()
+    }
+  }, [openCallback, blocknumber, lootboxStatus])
+
+
   const blueprint = useBlueprint(lootboxData.blueprintId); // 2 for prod
   const craftCallback = useCraftCallback({ amount: '1', blueprintId: lootboxData.blueprintId })
+  const burnCallback = useBurnSemaphore({assetAddress: lootboxData.blueprintOutput.assetAddress, assetId: lootboxData.blueprintOutput.assetId})
 
   let asset: Asset = lootboxData.blueprintOutput
-
-  const openCallback = useLootboxOpen({ lootboxId: lootboxData.lootboxId })
 
   const balanceData = useTokenBasicData([asset as Asset]);
   const decimals = decimalOverrides[asset?.assetAddress] ?? balanceData?.[0]?.decimals ?? 0;
@@ -75,18 +97,18 @@ export const TokenLootbox = () => {
 
   let userBalanceString = isFungible
     ? Fraction.from(
-      balanceData?.[0]?.userBalance?.toString() ?? '0',
-      decimals
-    )?.toFixed(2) ?? '0'
+        balanceData?.[0]?.userBalance?.toString() ?? '0',
+        decimals
+      )?.toFixed(2) ?? '0'
     : balanceData?.[0]?.userBalance?.toString() ?? '0';
   userBalanceString = account ? userBalanceString : '0';
 
   let totalSupplyString = balanceData?.[0]?.totalSupply
     ? isFungible
       ? Fraction.from(
-        balanceData?.[0]?.totalSupply?.toString() ?? '0',
-        decimals
-      )?.toFixed(2) ?? '0'
+          balanceData?.[0]?.totalSupply?.toString() ?? '0',
+          decimals
+        )?.toFixed(2) ?? '0'
       : balanceData?.[0]?.totalSupply?.toString()
     : asset?.assetType.valueOf() === StringAssetType.ERC721
       ? '1'
@@ -97,6 +119,8 @@ export const TokenLootbox = () => {
   const lootboxStaticData = useTokenStaticData([asset as Asset]);
   const lootboxMeta = useFetchTokenUri(lootboxStaticData)?.[0];
 
+  //const openDisabled = userBalanceString === '0'
+  //const openButtonString = 
 
   const inputAssets = blueprint?.inputs.map(input => ({
     id: input.assetAddress + input.assetId,
@@ -112,20 +136,20 @@ export const TokenLootbox = () => {
 
   const items = inputAssets?.map((asset, i) => {
     const decimals = decimalOverrides[asset.assetAddress] ?? inputsBalanceData?.[i]?.decimals ?? 0;
-    //console.log({ decimals })
     const isFungible = decimals > 0;
     const target = isFungible
       ? Fraction.from(
-        asset.amount?.toString() ?? '0',
-        decimals
-      )?.toSignificant(5) ?? '0'
+          asset.amount?.toString() ?? '0',
+          decimals
+        )?.toSignificant(5) ?? '0'
       : asset.amount?.toString() ?? '0';
     const name = inputMetas[i]?.name ? inputMetas[i]?.name : '';
     return {
       asset,
       target,
       name,
-      decimals
+      decimals,
+      isFungible
     }
   }) ?? []
 
@@ -135,6 +159,19 @@ export const TokenLootbox = () => {
     }) ?? [],
     account ?? undefined
   )
+
+  const formattedUserBalances = inputsBalanceData?.map((ibd, index) => {
+    const item = items?.[index];
+    console.log('DEBUG', {item, ibd})
+    return item?.isFungible
+      ? Fraction.from(
+          ibd?.userBalance?.toString() ?? '0',
+          (item?.decimals ?? 18)
+        )?.toFixed(0, undefined, Rounding.ROUND_DOWN) ?? '0'
+      : ibd?.userBalance?.toString() ?? '0';
+  })
+
+  console.log('DEBUG', {formattedUserBalances})
 
   let approvalNeeded = false
   allowances?.map((allowance, i) => {
@@ -155,8 +192,6 @@ export const TokenLootbox = () => {
 
   console.log('lootbox debug', { userHasEnough, inputsBalanceData, approvalNeeded, allowances, items, inputAssets })
 
-
-  const { callback } = useLootboxOpen({ lootboxId: lootboxData.lootboxId } as OpenData);
   const openVidRef = useRef<any>(null)
   const [videoPlay, setvideoPlay] = useState(false)
   const [openError, setOpenError] = useState<string | undefined>(undefined)
@@ -167,8 +202,51 @@ export const TokenLootbox = () => {
   const rarityClass1 = styleClasses[`${openResult?.rewards[1].rarity ?? 'common'}Loot`]
   const rarityClass2 = styleClasses[`${openResult?.rewards[2].rarity ?? 'common'}Loot`]
 
+  const buttonSelector = useMemo(() => {
+    if (lootboxStatus === LootboxOpenStatus.NO_BURN_PROOF) {
+      return (
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={async () => {
+            if (burnCallback?.callback) {
+                try {
+                  setBurnSubmitted(true)
+                  await burnCallback?.callback?.()
+                } catch (err) {
+                  console.error('Burn transaction failiure', err)
+                  setBurnSubmitted(false)
+                }
+              }
+          }}
+          disabled={userBalanceString === '0' || burnCallback.state === BurnCallbackState.INVALID || burnCallback.state === BurnCallbackState.LOADING || burnSubmitted}
+        >
+          {lootboxData.burnText}
+        </Button>
+      )
+    }
 
-  //console.log({ openError })
+    if (lootboxStatus === LootboxOpenStatus.MINT_DISPATCHED || lootboxStatus === LootboxOpenStatus.MINT_BUSY || lootboxStatus === LootboxOpenStatus.NEEDS_USER_CONFIRMATION) {
+      return (
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={() => {
+            if (openCallback)
+              openCallback().then((res) => {
+                console.log(res)
+                setOpenBoxDialogOpen(true)
+                setBurnSubmitted(false)
+              })
+            }
+          }
+        >
+          {lootboxData.openText}
+        </Button>
+      )
+    }
+
+  }, [lootboxStatus, userBalanceString, burnCallback.state, burnCallback.callback, lootboxData.burnText, lootboxData.openText, openCallback])
 
   return (
     <Paper className={container}>
@@ -211,20 +289,7 @@ export const TokenLootbox = () => {
         className={buttonsContainer}
         style={{ justifyContent: 'space-around' }}
       >
-        <Button
-          variant="contained"
-          color="warning"
-          onClick={() => {
-            if (callback)
-              callback().then((res) => {
-                console.log(res)
-                setOpenBoxDialogOpen(true)
-              })
-          }}
-          disabled={userBalanceString === '0'}
-        >
-          {lootboxData.openText}
-        </Button>
+        {buttonSelector}
       </Box>
 
       <div>
@@ -250,7 +315,7 @@ export const TokenLootbox = () => {
           style={{ justifyContent: 'space-around' }}
         >
           <Typography color="textSecondary" variant="subtitle1" key={index}>
-            {`${item?.target} ${item?.name}`}
+            {`${item?.target}/${formattedUserBalances?.[index]} ${item?.name}`}
           </Typography>
         </Box>
         )}
@@ -341,7 +406,7 @@ export const TokenLootbox = () => {
                     try {
                       await craftCallback?.callback?.()
                     } catch (err) {
-                      console.error('Craft trasaction failiure', err)
+                      console.error('Craft transaction failiure', err)
                     }
                   }}
                   disabled={craftCallback.state === CraftCallbackState.INVALID || availableToMint === '0'}
@@ -362,6 +427,7 @@ export const TokenLootbox = () => {
           setConfirmButtonShow(false)
           setOpenError(undefined)
           setOpenResult(undefined)
+          setBurnSubmitted(false)
         }}
         maxWidth="lg"
       >
@@ -375,8 +441,8 @@ export const TokenLootbox = () => {
                 let rewardData
                 let error: Error | undefined
                 try {
-                  if (openCallback?.callback) {
-                    const res = await openCallback?.callback?.()
+                  if (openCallback) {
+                    const res = await openCallback?.()
                     rewardData = res[0]
                     error = res[1]
                   } else {
@@ -402,7 +468,11 @@ export const TokenLootbox = () => {
             >
               <GlitchText
                 style={{ width: '100%', color: 'white' }}
-                variant="h1">
+                variant="h1"
+                onClick={async () => {
+                  confirmCallback?.()
+                }}
+              >
                 {lootboxData.openDialogText}
               </GlitchText>
             </Button>}
@@ -444,11 +514,13 @@ export const TokenLootbox = () => {
             {confirmButtonShow && <>
               <Box style={{ display: 'flex', padding: theme.spacing(2) }}><Typography variant="body2">Loot landing in your wallet soon. You will not be able to open a new box in the meantime.</Typography></Box>
               <Button onClick={() => {
+                confirmCallback?.()
                 setvideoPlay(false)
                 setOpenBoxDialogOpen(false)
                 setConfirmButtonShow(false)
                 setOpenError(undefined)
                 setOpenResult(undefined)
+                setBurnSubmitted(false)
               }} variant="contained"
                 color="primary"
                 style={{ padding: theme.spacing(2) }}
