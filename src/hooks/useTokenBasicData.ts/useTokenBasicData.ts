@@ -7,6 +7,7 @@ import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React'
 import { useCallback, useEffect, useState } from 'react';
 import { Asset } from 'hooks/marketplace/types';
 import { AddressZero } from '@ethersproject/constants';
+import { useBlockNumber } from 'state/application/hooks';
 
 export interface BasicTokenData {
   asset: Asset;
@@ -65,6 +66,7 @@ export const processResults = (
 
 export const useTokenBasicData = (assets: Asset[]) => {
   const { chainId, account } = useActiveWeb3React();
+  const blockNumber = useBlockNumber()
   const multi = useMulticall2Contract();
 
   const [datas, setBasicDatas] = useState<BasicTokenData[] | undefined>();
@@ -195,7 +197,7 @@ export const useTokenBasicData = (assets: Asset[]) => {
     if (chainId && multi) {
       fetchBasicDatas();
     }
-  }, [chainId, multi, account, JSON.stringify(assets)]);
+  }, [chainId, multi, account, JSON.stringify(assets), blockNumber]);
 
   return datas;
 };

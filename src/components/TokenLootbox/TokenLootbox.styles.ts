@@ -71,24 +71,24 @@ export const styles = (theme: Theme) => ({
     background: '#111',
     backgroundSize: 'cover',
   },
-  mr: {
-    marginRight: theme.spacing(0.5),
-  },
-  price: {
+  detailContainer: {
     display: 'flex',
     alignItems: 'center',
-    marginTop: theme.spacing(0.5),
+    marginTop: theme.spacing(3),
+  },
+  detailContainerNoMT: {
+    display: 'flex',
+    alignItems: 'center',
   },
   buttonsContainer: {
     display: 'flex',
     justifyContent: 'center',
-    // marginTop: theme.spacing(4),
+    marginTop: theme.spacing(4),
     flexDirection: 'column',
     gap: 16,
   },
   name: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(5),
     fontWeight: fontWeight.bolder,
     lineHeight: 1,
     letterSpacing: '-.02em',
@@ -108,4 +108,16 @@ export const styles = (theme: Theme) => ({
       color: 'black',
     },
   },
+  boldText: {
+    fontWeight: fontWeight.bolder
+  },
+  lootboxOpenButton: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    flexDirection: 'column',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });

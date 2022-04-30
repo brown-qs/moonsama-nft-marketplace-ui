@@ -38,7 +38,7 @@ const WorkbenchPage = () => {
           item
           xs={12}
           md={6}
-          lg={3}
+          lg={4}
         >
           <TokenLootboxComponent />
         </Grid>
