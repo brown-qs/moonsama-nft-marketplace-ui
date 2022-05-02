@@ -88,7 +88,7 @@ export const Layout = ({ children }: LayoutProps) => {
                     <NavLink href="/collections" className={navItemDrawer}>
                       Collections
                     </NavLink>
-                    <NavLink href="/workbench" className={navItem}>
+                    <NavLink href="/workbench" className={navItemDrawer}>
                       Workbench
                     </NavLink>
                     <NavLink href="/freshoffers" className={navItemDrawer}>
