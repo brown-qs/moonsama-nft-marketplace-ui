@@ -609,7 +609,7 @@ const TokenPage = () => {
                     }}
                   >
                     <span className={assetActionsBidTokenAmount}>
-                      {Fraction.from(ltp?.unitPrice, 18)?.toFixed(0)}{' '}
+                      {Fraction.from(ltp?.unitPrice, 18)?.toFixed(4)}{' '}
                       {approvedPaymentCurrency.symbol}
                     </span>
                     {/** TODO USD PRICE 
