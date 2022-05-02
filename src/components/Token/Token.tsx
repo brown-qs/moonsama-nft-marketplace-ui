@@ -19,6 +19,7 @@ import { useAssetOrdersCallback } from 'hooks/marketplace/useAssetOrders';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useClasses } from 'hooks';
+import { orderFilter } from 'utils/marketplace';
 
 export interface TokenData {
   meta: TokenMeta | undefined;
@@ -56,10 +57,10 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
   const currency = useApprovedPaymentCurrency(asset);
 
   useEffect(() => {
-    console.log('useEffect run!');
+    //console.log('useEffect run!');
     const fetch = async () => {
       const os: Order[] = await getOrderCB();
-      const o: Order | undefined = os.reduce(
+      const o: Order | undefined = os.filter(order => orderFilter(order, undefined)).reduce(
         (prev: Order | undefined, current: Order | undefined) => {
           if (prev && current) {
             if (prev.pricePerUnit.lt(current.pricePerUnit)) {
