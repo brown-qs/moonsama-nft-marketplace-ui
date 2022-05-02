@@ -28,7 +28,6 @@ import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
 import { useActiveWeb3React, useClasses } from '../../hooks';
 import { styles } from './styles';
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
 type SortDirection = 'asc' | 'desc';
 
 const PAGE_SIZE = 10;
@@ -82,7 +81,7 @@ const ExtendedTableHeader = ({ handleSort, sortDirection, sortBy }:
 };
 
 const FreshOrdersPage = () => {
-  const { chainId } = useActiveWeb3React();
+  const { chainId, account } = useActiveWeb3React();
 
   const [buyOrders, setBuyOrders] = useState<
     {
@@ -306,7 +305,7 @@ const FreshOrdersPage = () => {
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                   <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(sellOrders?.filter(order => orderFilter(order.order)))}
+                  {getTableBody(sellOrders?.filter(order => orderFilter(order.order, account)))}
                 </Table>
               ),
             },
@@ -315,7 +314,7 @@ const FreshOrdersPage = () => {
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                   <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(buyOrders?.filter(order => orderFilter(order.order)))}
+                  {getTableBody(buyOrders?.filter(order => orderFilter(order.order, account)))}
                 </Table>
               ),
             },

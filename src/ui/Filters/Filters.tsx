@@ -25,7 +25,7 @@ interface Props {
 
 export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<number[]>([1, 400]);
+  const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined

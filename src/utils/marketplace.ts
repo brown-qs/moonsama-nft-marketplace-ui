@@ -349,8 +349,8 @@ export function sanityCheckStrategy(
   return true;
 }
 
-export const orderFilter = (order: Order): boolean => {
-  return order.seller !== order.onlyTo && (order.expiresAt === '115792089237316195423570985008687907853269984665640564039457584007913129639935' || marketplaceDateParse(order.expiresAt) > Date.now() )
+export const orderFilter = (order: Order, account?: string | null | undefined): boolean => {
+  return order.seller !== order.onlyTo && (order.onlyTo === AddressZero || order.onlyTo === account?.toLowerCase()) && (order.expiresAt === '115792089237316195423570985008687907853269984665640564039457584007913129639935' || marketplaceDateParse(order.expiresAt) > Date.now() )
 }
 
 export const marketplaceDateParse = (marketplaceDate: string) => {

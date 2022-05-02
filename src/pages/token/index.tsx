@@ -752,7 +752,7 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.buyOrders?.filter(orderFilter), OrderType.BUY)}
+                {getTableBody(ordersMap?.buyOrders?.filter(order => orderFilter(order, account)), OrderType.BUY)}
               </Table>
             ),
           },
@@ -761,7 +761,7 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.sellOrders?.filter(orderFilter), OrderType.SELL)}
+                {getTableBody(ordersMap?.sellOrders?.filter(order => orderFilter(order, account)), OrderType.SELL)}
               </Table>
             ),
           },
