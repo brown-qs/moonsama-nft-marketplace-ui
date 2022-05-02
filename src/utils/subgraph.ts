@@ -288,6 +288,16 @@ export const getDisplayUnitPrice = (
     : '?';
 };
 
+export const getLastTradedPrice = (
+  decimals: number,
+  unitPrice?: BigNumber,
+) => {
+  if (!unitPrice) {
+    return undefined;
+  }
+  return unitPrice.mul(parseUnits('1', decimals)).div(parseUnits('1', 18));
+};
+
 export const getDisplayQuantity = (
   decimals: number,
   orderType?: OrderType,

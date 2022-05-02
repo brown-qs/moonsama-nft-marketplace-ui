@@ -45,6 +45,7 @@ import {
   formatExpirationDateString,
   getDisplayUnitPrice,
   OrderType,
+  getLastTradedPrice,
 } from '../../utils/subgraph';
 import { styles } from './styles';
 import { useLastTradedPrice } from 'hooks/marketplace/useLastTradedPrice';
@@ -609,7 +610,7 @@ const TokenPage = () => {
                     }}
                   >
                     <span className={assetActionsBidTokenAmount}>
-                      {Fraction.from(ltp?.unitPrice, 18)?.toFixed(4)}{' '}
+                      {Fraction.from(getLastTradedPrice(decimals, ltp?.unitPrice), 18)?.toFixed(4)}{' '}
                       {approvedPaymentCurrency.symbol}
                     </span>
                     {/** TODO USD PRICE 
