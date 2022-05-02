@@ -57,6 +57,7 @@ import { getMinecraftSkinUrl } from 'utils/meta';
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { RARITY_COLORS } from 'constants/colors';
+import { orderFilter } from '../../utils/marketplace';
 
 const geTableHeader = () => {
   return (
@@ -751,7 +752,7 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.buyOrders, OrderType.BUY)}
+                {getTableBody(ordersMap?.buyOrders?.filter(orderFilter), OrderType.BUY)}
               </Table>
             ),
           },
@@ -760,7 +761,7 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.sellOrders, OrderType.SELL)}
+                {getTableBody(ordersMap?.sellOrders?.filter(orderFilter), OrderType.SELL)}
               </Table>
             ),
           },

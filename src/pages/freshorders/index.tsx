@@ -1,14 +1,14 @@
 import { Chip, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { Order } from 'hooks/marketplace/types';
-import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
+import { Order } from '../../hooks/marketplace/types';
+import { TokenMeta } from '../../hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import {
   useLatestBuyOrdersForTokenWithStaticCallback,
   useLatestSellOrdersForTokenWithStaticCallback,
 } from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
-import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
-import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
+import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList/useRawCollectionsFromList';
+import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
+import { useWhitelistedAddresses } from '../../hooks/useWhitelistedAddresses/useWhitelistedAddresses';
 import { useCallback, useEffect, useState } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import {
@@ -23,6 +23,7 @@ import {
   TableRow,
   Tabs,
 } from 'ui';
+import { orderFilter } from '../../utils/marketplace';
 import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
 import { useActiveWeb3React, useClasses } from '../../hooks';
 import { styles } from './styles';
@@ -305,7 +306,7 @@ const FreshOrdersPage = () => {
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                   <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(sellOrders)}
+                  {getTableBody(sellOrders?.filter(order => orderFilter(order.order)))}
                 </Table>
               ),
             },
@@ -314,7 +315,7 @@ const FreshOrdersPage = () => {
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                   <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(buyOrders)}
+                  {getTableBody(buyOrders?.filter(order => orderFilter(order.order)))}
                 </Table>
               ),
             },

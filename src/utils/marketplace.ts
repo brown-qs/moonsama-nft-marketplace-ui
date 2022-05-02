@@ -5,6 +5,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { StringAssetType } from './subgraph';
 import { AddressZero } from '@ethersproject/constants';
 import { isAddress } from '@ethersproject/address';
+import { Order } from '../hooks/marketplace/types';
 
 export enum AssetType {
   UNKNOWN = 0,
@@ -346,4 +347,12 @@ export function sanityCheckStrategy(
   }
 
   return true;
+}
+
+export const orderFilter = (order: Order): boolean => {
+  return order.seller !== order.onlyTo && (order.expiresAt === '115792089237316195423570985008687907853269984665640564039457584007913129639935' || marketplaceDateParse(order.expiresAt) > Date.now() )
+}
+
+export const marketplaceDateParse = (marketplaceDate: string) => {
+  return Number.parseInt(marketplaceDate) * 1000
 }
