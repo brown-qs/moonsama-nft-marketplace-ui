@@ -213,6 +213,8 @@ export const parseLastTradedPrice = (
     orderType: stringToStringOrderType(data.orderType),
     amount: BigNumber.from(data.amount),
     user: data.user.id,
+    askPerUnitDenominator: BigNumber.from(data.askPerUnitDenominator),
+    askPerUnitNominator: BigNumber.from(data.askPerUnitNominator)
   };
 };
 
@@ -295,7 +297,9 @@ export const getLastTradedPrice = (
   if (!unitPrice) {
     return undefined;
   }
-  return unitPrice.mul(parseUnits('1', decimals)).div(parseUnits('1', 18));
+  const val = parseUnits('1', decimals).mul(unitPrice)//.div(parseUnits('1', 18))
+  console.log('UNIT PRICE', {decimals, unitPrice: unitPrice?.toString(), mul: parseUnits('1', decimals).toString(), div: parseUnits('1', 18).toString(), val: val.toString()})
+  return val
 };
 
 export const getDisplayQuantity = (

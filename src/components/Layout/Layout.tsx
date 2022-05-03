@@ -1,4 +1,5 @@
 import MenuIcon from '@mui/icons-material/Menu';
+import { Stack } from '@mui/material';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -26,8 +27,8 @@ export const Layout = ({ children }: LayoutProps) => {
     <>
       <Header>
         <Container style={{ padding: '0 15px' }} maxWidth={false}>
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid item xl={3} className={nav}>
+          <Stack direction='row' alignItems="center" justifyContent="space-between">
+            <Grid item xl={2} className={nav}>
               {showRegularMenu && (
                 <IconButton onClick={() => setIsDrawerOpened(true)}>
                   <MenuIcon />
@@ -39,10 +40,10 @@ export const Layout = ({ children }: LayoutProps) => {
                 </div>
               </NavLink>
             </Grid>
-            <Grid item className={buttonContainer}>
+            <Stack direction='row' justifyContent='flex-end' className={buttonContainer}>
               {!showRegularMenu ? (
-                <Box
-                  style={{ display: 'flex' }}
+                <Stack
+                  direction={'row'}
                   onClick={() => setIsDrawerOpened(false)}
                 >
                   {/*<NavLink href="/auctions" className={navItem}>
@@ -76,7 +77,7 @@ export const Layout = ({ children }: LayoutProps) => {
                   {/*<NavLink href="/explore" className={navItem}>
                   Explore
                 </NavLink>*/}
-                </Box>
+                </Stack>
               ) : (
                 <Drawer
                   open={isDrawerOpened}
@@ -117,8 +118,8 @@ export const Layout = ({ children }: LayoutProps) => {
               )}
               <ConnectedNetwork />
               <Account />
-            </Grid>
-          </Grid>
+            </Stack>
+          </Stack>
         </Container>
       </Header>
       <Container maxWidth="xl">{children}</Container>

@@ -610,7 +610,13 @@ const TokenPage = () => {
                     }}
                   >
                     <span className={assetActionsBidTokenAmount}>
-                      {Fraction.from(getLastTradedPrice(decimals, ltp?.unitPrice), 18)?.toFixed(4)}{' '}
+                      {getDisplayUnitPrice(
+                        decimals,
+                        4,
+                        stringToOrderType(ltp.orderType.valueOf()),
+                        ltp.askPerUnitNominator,
+                        ltp.askPerUnitDenominator
+                      )}{' '}
                       {approvedPaymentCurrency.symbol}
                     </span>
                     {/** TODO USD PRICE 

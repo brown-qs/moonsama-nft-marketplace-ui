@@ -20,6 +20,8 @@ export const styles = (theme: Theme) => ({
   navItem: {
     margin: '0 15px',
     textDecoration: 'none !important',
+    flexShrink: 0
+    
   },
   navItemDrawer: {
     display: 'block',
