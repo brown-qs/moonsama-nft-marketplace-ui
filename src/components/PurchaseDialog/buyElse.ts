@@ -21,7 +21,7 @@ export const buyElse = (
   let feeAsset: Asset | undefined;
   let showFee = false;
 
-  console.log('FILL-BUY-ELSE');
+  // console.log('FILL-BUY-ELSE');
 
   // input is in wei
   try {

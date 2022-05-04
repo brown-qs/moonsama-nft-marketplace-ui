@@ -36,7 +36,7 @@ export const useMarketplaceBalances = (queries: BalanceQuery[]) => {
     true
   );
 
-  console.log({ queries });
+  // console.log({ queries });
 
   const getMulticallInput = (
     balance: Balance

@@ -77,12 +77,12 @@ export const TokenLootbox = () => {
     const checkStatus = async () => {
       const [rewardData,] = await openCallback?.() ?? [undefined, undefined]
       // if there was a change..
-      console.log('LOOTBOX DEBUG STATE', {rewardData})
+      // console.log('LOOTBOX DEBUG STATE', {rewardData})
       if (!!rewardData?.status && rewardData?.status !== lootboxStatus) {
-        console.log('LOOTBOX DEBUG STATE', 'status changed', rewardData?.status)
+        // console.log('LOOTBOX DEBUG STATE', 'status changed', rewardData?.status)
         setLootboxStatus(rewardData.status)
         if (rewardData.status === LootboxOpenStatus.NO_BURN_PROOF) {
-          console.log('LOOTBOX DEBUG STATE', 'setBurnSubmitted false')
+          // console.log('LOOTBOX DEBUG STATE', 'setBurnSubmitted false')
           setBurnSubmitted(false)
         }
       }
@@ -181,7 +181,7 @@ export const TokenLootbox = () => {
 
   const formattedUserBalances = inputsBalanceData?.map((ibd, index) => {
     const item = items?.[index];
-    console.log('DEBUG', { item, ibd })
+    // console.log('DEBUG', { item, ibd })
     return item?.isFungible
       ? Fraction.from(
         ibd?.userBalance?.toString() ?? '0',
@@ -190,7 +190,7 @@ export const TokenLootbox = () => {
       : ibd?.userBalance?.toString() ?? '0';
   })
 
-  console.log('DEBUG', { formattedUserBalances })
+  // console.log('DEBUG', { formattedUserBalances })
 
   let approvalNeeded = false
   allowances?.map((allowance, i) => {
@@ -214,7 +214,7 @@ export const TokenLootbox = () => {
   const notAvailableLink = noMoreLeftToMint ? lootboxData.noMoreLink : lootboxData.notEnoughLink
   const openInProgress = LootboxOpenStatus.NO_BURN_PROOF !== lootboxStatus
 
-  console.log('lootbox debug', { userHasEnough, inputsBalanceData, approvalNeeded, allowances, items, inputAssets })
+  // console.log('lootbox debug', { userHasEnough, inputsBalanceData, approvalNeeded, allowances, items, inputAssets })
 
   const openVidRef = useRef<any>(null)
   const [videoPlay, setVideoPlay] = useState(false)
@@ -226,7 +226,7 @@ export const TokenLootbox = () => {
   const rarityClass1 = styleClasses[`${openResult?.rewards[1].rarity ?? 'common'}Loot`]
   const rarityClass2 = styleClasses[`${openResult?.rewards[2].rarity ?? 'common'}Loot`]
 
-  console.log('LOOTBOX DEBUG status check', {lootboxStatus})
+  // console.log('LOOTBOX DEBUG status check', {lootboxStatus})
 
   return (
     <Paper className={container}>

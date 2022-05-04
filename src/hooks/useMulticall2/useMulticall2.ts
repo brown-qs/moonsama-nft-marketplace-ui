@@ -38,8 +38,8 @@ export const useMulticall2Raw = async (
 ) => {
   const multi = useMulticall2Contract(true);
 
-  console.log(calldata);
-  console.log(multi);
+  // console.log(calldata);
+  // console.log(multi);
 
   const [result, setResult] = useState<any | undefined>();
 
@@ -95,7 +95,7 @@ export const multiCallCore = async (
       const itf = new Interface(calls[i][0]);
       return itf.decodeFunctionResult(calls[i][2], resfrag);
     });
-    console.log({ retval });
+    // console.log({ retval });
     return retval;
   } catch (e) {
     console.error('Error calling multicall 2', e);

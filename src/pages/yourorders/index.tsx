@@ -129,7 +129,7 @@ export const MyOrdersPage = () => {
             const expiration = formatExpirationDateString(expiresAt);
             const sellerShort = truncateHexString(seller);
             const ot = stringToOrderType(orderType);
-            console.log(ot);
+            // console.log(ot);
             const orderAsset = ot === OrderType.BUY ? buyAsset : sellAsset;
 
             const currency = approvedPaymentCurrencyCallback(orderAsset);
@@ -138,7 +138,7 @@ export const MyOrdersPage = () => {
               decimalOverrides[orderAsset.assetAddress.toLowerCase()] ??
               staticDatas?.[i]?.decimals ??
               0;
-            console.log('yada', { decimals, decimalOverrides });
+            // console.log('yada', { decimals, decimalOverrides });
 
             const displayUnitPrice = getDisplayUnitPrice(
               decimals,
@@ -156,12 +156,12 @@ export const MyOrdersPage = () => {
               askPerUnitDenominator
             );
 
-            console.log({
-              displayUnitPrice,
-              ot,
-              askPerUnitNominator,
-              askPerUnitDenominator,
-            });
+            // console.log({
+            //   displayUnitPrice,
+            //   ot,
+            //   askPerUnitNominator,
+            //   askPerUnitDenominator,
+            // });
 
             return (
               <TableRow

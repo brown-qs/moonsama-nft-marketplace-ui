@@ -254,7 +254,7 @@ export const BidDialog = () => {
 
     // buy- quantity input field is Ether
     if (isAssetFungible) {
-      console.log('BID-BUY-FUNGIBLE');
+      // console.log('BID-BUY-FUNGIBLE');
       meat = buyFungible({
         decimals,
         ppu,
@@ -262,7 +262,7 @@ export const BidDialog = () => {
         feeValue: fee?.value,
       });
     } else {
-      console.log('BID-BUY-NON-FUNGIBLE');
+      // console.log('BID-BUY-NON-FUNGIBLE');
       meat = buyElse({
         decimals,
         ppu,
@@ -293,7 +293,7 @@ export const BidDialog = () => {
 
     // sell- quantity input field is Ether
     if (isAssetFungible) {
-      console.log('BID-SELL-FUNGIBLE');
+      // console.log('BID-SELL-FUNGIBLE');
       meat = sellFungible({
         decimals,
         ppu,
@@ -301,7 +301,7 @@ export const BidDialog = () => {
         feeValue: fee?.value,
       });
     } else {
-      console.log('BID-SELL-NON_FUNGIBLE');
+      // console.log('BID-SELL-NON_FUNGIBLE');
       meat = sellElse({
         decimals,
         ppu,

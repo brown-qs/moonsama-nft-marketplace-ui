@@ -18,7 +18,7 @@ export const CollectionListPage = () => {
   const metas = useFetchCollectionMeta(rawCollections);
   const collections: RawCollection[] = rawCollections ?? [];
 
-  console.log('this runs', collections)
+  // console.log('this runs', collections)
   return collections && collections.length > 0 ? (
     <>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>

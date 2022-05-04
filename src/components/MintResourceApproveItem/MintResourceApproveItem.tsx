@@ -32,7 +32,7 @@ export const MintResourceApproveItem = ({assetAddress, assetId, assetType, amoun
     transferButton
   } = useClasses(styles);
 
-  console.log(approvalState, )
+  // console.log(approvalState, )
 
   const formattedAmount = Fraction.from(
         amount?.toString() ?? '0',

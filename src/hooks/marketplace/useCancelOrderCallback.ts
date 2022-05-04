@@ -87,7 +87,7 @@ export function useCancelOrderCallback(orderHash?: string): {
           methodName,
         };
 
-        console.log(call);
+        // console.log(call);
 
         const gasEstimate = await contract.estimateGas[methodName](
           ...args,

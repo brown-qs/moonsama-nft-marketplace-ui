@@ -227,7 +227,7 @@ export const PurchaseDialog = () => {
 
       // we buy into a sell order, which is an NFT
     } else {
-      console.log('buyELSE', partialAllowed);
+      // console.log('buyELSE', partialAllowed);
       meat = buyElse(
         ppu,
         total,
@@ -296,15 +296,15 @@ export const PurchaseDialog = () => {
     netto = userGet.sub(protocolFee).sub(royaltyFee);
   }
 
-  console.log('fee', {
-    showFee,
-    royaltyFee,
-    protocolFee,
-    isGiveAssetPayment,
-    giveAssetDecimals,
-    isGetAssetPayment,
-    getAssetDecimals,
-  });
+  // console.log('fee', {
+  //   showFee,
+  //   royaltyFee,
+  //   protocolFee,
+  //   isGiveAssetPayment,
+  //   giveAssetDecimals,
+  //   isGetAssetPayment,
+  //   getAssetDecimals,
+  // });
 
   const {
     state: fillOrderState,
@@ -557,13 +557,13 @@ export const PurchaseDialog = () => {
                       value={inputAmountText}
                       setValue={setInputAmountText}
                       setMaxValue={() => {
-                        console.log('maaax', total?.toString());
-                        console.log(
-                          Fraction.from(
-                            total?.toString() ?? '0',
-                            giveAssetDecimals
-                          )?.toFixed(giveAssetDecimals)
-                        );
+                        // console.log('maaax', total?.toString());
+                        // console.log(
+                        //   Fraction.from(
+                        //     total?.toString() ?? '0',
+                        //     giveAssetDecimals
+                        //   )?.toFixed(giveAssetDecimals)
+                        // );
                         setInputAmountText(
                           Fraction.from(
                             total?.toString() ?? '0',
@@ -644,13 +644,13 @@ export const PurchaseDialog = () => {
                       value={inputAmountText}
                       setValue={setInputAmountText}
                       setMaxValue={() => {
-                        console.log('maaax', total?.toString());
-                        console.log(
-                          Fraction.from(
-                            total?.toString() ?? '0',
-                            getAssetDecimals
-                          )?.toFixed(getAssetDecimals)
-                        );
+                        // console.log('maaax', total?.toString());
+                        // console.log(
+                        //   Fraction.from(
+                        //     total?.toString() ?? '0',
+                        //     getAssetDecimals
+                        //   )?.toFixed(getAssetDecimals)
+                        // );
                         setInputAmountText(
                           Fraction.from(
                             total?.toString() ?? '0',

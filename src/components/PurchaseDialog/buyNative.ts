@@ -21,7 +21,7 @@ export const buyNative = (
   let feeAsset: Asset | undefined;
   let showFee = false;
 
-  console.log('FILL-BUY-NATIVE');
+  // console.log('FILL-BUY-NATIVE');
 
   // input amount to buy is in ether
   try {

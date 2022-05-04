@@ -122,15 +122,16 @@ const CollectionPage = () => {
 
   const handleScrollToBottom = useCallback(() => {
     if (pageLoading) return;
-    console.log('SCROLLBOTTOM');
+    // console.log('SCROLLBOTTOM');
     setTake((state) => (state += searchSize));
     setSearchCounter((state) => (state += 1));
   }, [searchSize]);
 
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
+      localStorage.setItem('search_tokenID', tokenID);
       if (!!tokenID) {
-        console.log('shhin', tokenID)
+        // console.log('shhin', tokenID)
         setPaginationEnded(true);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
@@ -161,7 +162,7 @@ const CollectionPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      console.log('FETCH', { searchSize, address, take, paginationEnded });
+      // console.log('FETCH', { searchSize, address, take, paginationEnded });
       const data = await getItemsWithFilterAndSort(
         searchSize,
         BigNumber.from(take),
@@ -201,7 +202,7 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    console.log('FILTER', filters);
+    // console.log('FILTER', filters);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -251,6 +252,10 @@ const CollectionPage = () => {
     true
   );
 
+  const getInitSearchTokenID = () => {
+    return localStorage.getItem('search_tokenID') ?? '';
+  }
+
   return (
     <>
       <div className={container}>
@@ -273,6 +278,7 @@ const CollectionPage = () => {
               <TextField
                 placeholder="Search by token ID"
                 variant="outlined"
+                // value={getInitSearchTokenID()}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="start">

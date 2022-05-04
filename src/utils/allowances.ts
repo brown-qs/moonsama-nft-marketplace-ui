@@ -97,7 +97,7 @@ export const processTokenAllowanceCalls = (
             return
         }
 
-        console.log('allowance', results)
+        // console.log('allowance', results)
         if (query.assetType.valueOf() === StringAssetType.ERC20) {
             res.push({
                 allowance: results[i + offset]?.[0],

@@ -11,7 +11,7 @@ export default function useAddNetworkToMetamaskCb(): { addNetwork: (chainId: Cha
   const { ethereum } = window;
 
   const addNetwork = useCallback(async (chainId: ChainId) => {
-    console.log('NETWORK called', chainId, library?.provider.isMetaMask)
+    // console.log('NETWORK called', chainId, library?.provider.isMetaMask)
     //if (library && library.provider.isMetaMask && library.provider.request) {
     if (ethereum && ethereum.request) {
       if (!chainId) {
@@ -23,7 +23,7 @@ export default function useAddNetworkToMetamaskCb(): { addNetwork: (chainId: Cha
         setSuccess(false)
         return
       }
-      console.log('NETWORK', network, chainId)
+      // console.log('NETWORK', network, chainId)
       try {
         console.debug('NETWORK check')
         await ethereum.request({

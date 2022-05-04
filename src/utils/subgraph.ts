@@ -298,7 +298,7 @@ export const getLastTradedPrice = (
     return undefined;
   }
   const val = parseUnits('1', decimals).mul(unitPrice)//.div(parseUnits('1', 18))
-  console.log('UNIT PRICE', {decimals, unitPrice: unitPrice?.toString(), mul: parseUnits('1', decimals).toString(), div: parseUnits('1', 18).toString(), val: val.toString()})
+  // console.log('UNIT PRICE', {decimals, unitPrice: unitPrice?.toString(), mul: parseUnits('1', decimals).toString(), div: parseUnits('1', 18).toString(), val: val.toString()})
   return val
 };
 

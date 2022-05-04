@@ -73,7 +73,7 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
         },
         undefined
       );
-      console.log('useEffect run fetch', { os, o });
+      // console.log('useEffect run fetch', { os, o });
       if (o) {
         setFetchedOrer(o);
       }

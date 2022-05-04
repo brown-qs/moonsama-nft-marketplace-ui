@@ -29,7 +29,7 @@ const MyNFTsPage = () => {
     const getCollectionById = async () => {
       setPageLoading(true);
       const data = await getPaginatedItems(account ?? AddressZero);
-      console.log("data", data);
+      // console.log("data", data);
       setPageLoading(false);
       setCollection(data);
     };

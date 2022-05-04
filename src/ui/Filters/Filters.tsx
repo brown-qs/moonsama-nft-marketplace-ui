@@ -59,12 +59,12 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     event: Event,
     newValue: number | number[]
   ) => {
-    console.log('click', newValue);
+    // console.log('click', newValue);
     setPriceRange(newValue as number[]);
   };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
-    console.log(event.target.value);
+    // console.log(event.target.value);
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
@@ -77,7 +77,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
 
     const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
 
-    console.log('click', newRange);
+    // console.log('click', newRange);
 
     if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
       setPriceRange(newRange);

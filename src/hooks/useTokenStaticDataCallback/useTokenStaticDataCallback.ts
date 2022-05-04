@@ -173,7 +173,7 @@ const chooseAssets = (
     else
       chosenIds = [...ids].reverse().slice(offsetNum, to);
 
-    console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
+    // console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
       return {
         assetId: x.toString(),
@@ -186,7 +186,7 @@ const chooseAssets = (
     const rnum =
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
 
-    console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
+    // console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
     if (rnum == 0) {
       return [];
     }
@@ -206,7 +206,7 @@ const chooseAssets = (
       };
     });
 
-    console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
+    // console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
   }
 
   return chosenAssets;
@@ -218,7 +218,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   filter: Filters | undefined,
   sortBy: SortOption,
 ) => {
-  console.log("useTokenStaticDataCallbackArrayWithFilter", {assetAddress, assetType, filter, subcollectionId})
+  // console.log("useTokenStaticDataCallbackArrayWithFilter", {assetAddress, assetType, filter, subcollectionId})
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
 
@@ -237,8 +237,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
     for (let i=minId; i<=maxId; i++) ids.push(i);
   }
 
-  console.log("ids", ids)
-  console.log("coll", coll)
+  // console.log("ids", ids)
+  // console.log("coll", coll)
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -250,15 +250,15 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       setTake?: (take: number) => void
     ) => {
       if (!assetAddress || !assetType) {
-        console.log({ assetAddress, assetType });
+        // console.log({ assetAddress, assetType });
         return [];
       }
 
-      console.log({offset})
+      // console.log({offset})
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        console.log('fetch statistics');
-        console.log('assets', assets);
+        // console.log('fetch statistics');
+        // console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
@@ -273,13 +273,13 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           return [];
         }
 
-        console.log('yolo tryMultiCallCore res', results);
+        // console.log('yolo tryMultiCallCore res', results);
         const staticData = processTokenStaticCallResults(assets, results);
-        console.log('staticData', { staticData });
+        // console.log('staticData', { staticData });
 
         const metas = await fetchUri(staticData);
 
-        console.log("metas",metas);
+        // console.log("metas",metas);
 
         return metas.map((x, i) => {
           return {
@@ -325,29 +325,29 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType) {
-          console.log('DEFAULT SEARCH', {
-            assetAddress,
-            assetType,
-            ids,
-            num,
-            offset: offset?.toString(),
-            chosenAssets,
-          });
+          // console.log('DEFAULT SEARCH', {
+          //   assetAddress,
+          //   assetType,
+          //   ids,
+          //   num,
+          //   offset: offset?.toString(),
+          //   chosenAssets,
+          // });
     
-          console.log('no price range');
+          // console.log('no price range');
           const statics = await fetchStatics(chosenAssets);
-          console.log('statistics', statics);
+          // console.log('statistics', statics);
           return statics;
         }
 
-        console.log('SEARCH', {
-          assetAddress,
-          assetType,
-          ids,
-          num,
-          offset: offset?.toString(),
-          chosenAssets,
-        });
+        // console.log('SEARCH', {
+        //   assetAddress,
+        //   assetType,
+        //   ids,
+        //   num,
+        //   offset: offset?.toString(),
+        //   chosenAssets,
+        // });
 
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
@@ -368,7 +368,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           );
 
           const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
-          console.log('YOLO getOrders', result);
+          // console.log('YOLO getOrders', result);
           const orders = result?.orders;
 
           //console.debug('YOLO getOrders', { orders });
@@ -377,17 +377,17 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             ordersFetch = ordersFetch.concat(orders);
           }
 
-          console.log('INDICES 3', {
-            orders,
-            ordersLength: orders.length,
-            ordersFetch,
-            ordersFetchLength: ordersFetch.length,
-            sgAssets,
-            num,
-            pager: pager.toString(),
-            ids,
-            maxId,
-          });
+          // console.log('INDICES 3', {
+          //   orders,
+          //   ordersLength: orders.length,
+          //   ordersFetch,
+          //   ordersFetchLength: ordersFetch.length,
+          //   sgAssets,
+          //   num,
+          //   pager: pager.toString(),
+          //   ids,
+          //   maxId,
+          // });
 
           if (ordersFetch.length >= num) {
             canStop = true;
@@ -420,7 +420,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           offset.toNumber(), num);
 
         const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
-        console.log('YOLO getOrders', result);
+        // console.log('YOLO getOrders', result);
         const orders = result?.orders;
 
         //console.debug('YOLO getOrders', { orders });
@@ -447,7 +447,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      console.log('final rfesult', result)
+      // console.log('final rfesult', result)
       return result;
     },
     [

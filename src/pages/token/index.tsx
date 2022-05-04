@@ -91,7 +91,7 @@ const TokenPage = () => {
   if (address.toLowerCase() === AddressZero) throw Error('Nonexistant token');
 
   if (!whitelist.includes(address.toLowerCase())) {
-    console.log({ whitelist, address });
+    // console.log({ whitelist, address });
     // REMOVEME later
     throw Error('Unsupported token');
   }
@@ -214,7 +214,7 @@ const TokenPage = () => {
 
   const isOwner = userBalanceString !== '0' && userBalanceString !== '0.0';
 
-  console.log('yoyoyo', { ...balanceData?.[0] });
+  // console.log('yoyoyo', { ...balanceData?.[0] });
   let totalSupplyString = balanceData?.[0]?.totalSupply
     ? isFungible
       ? Fraction.from(

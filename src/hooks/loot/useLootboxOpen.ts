@@ -46,7 +46,7 @@ export function useLootboxOpen(
 
   return useMemo(() => {
 
-    console.log('DEBUG useMemo', {account, chainId, lootboxId})
+    // console.log('DEBUG useMemo', {account, chainId, lootboxId})
     if (!account || !chainId || !lootboxId) {
       return {
         openCallback: undefined,
@@ -68,7 +68,7 @@ export function useLootboxOpen(
               difficulty: '745944601324485'
             }
           });
-          console.log('LOOTBOX DEBUG STATE INNER', resp)
+          // console.log('LOOTBOX DEBUG STATE INNER', resp)
 
           const metas = await tokenURICB(resp.data.rewards)
           resp.data.rewards = resp.data.rewards?.map((x, i) => {
@@ -81,7 +81,7 @@ export function useLootboxOpen(
         } catch (e) {
           const err = e as AxiosError;
           console.error('Error opening the box. Try again later.')
-          console.log('LOOTBOX DEBUG STATE INNER', 'error', err.response?.data)
+          // console.log('LOOTBOX DEBUG STATE INNER', 'error', err.response?.data)
           return [undefined, new Error(err.response?.data?.message ?? 'Error')]
         }
       },
