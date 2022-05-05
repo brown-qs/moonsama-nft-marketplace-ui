@@ -5,10 +5,6 @@ import { useClasses } from 'hooks';
 import React, { useState } from 'react';
 import { styles } from './Sort.style';
 
-interface Props {
-  onSortUpdate: (option: SortOption) => void;
-}
-
 export enum SortOption {
   UNSELECTED = 0,
   PRICE_ASC = 1,
@@ -17,7 +13,12 @@ export enum SortOption {
   TOKEN_ID_DESC = 4,
 }
 
-export const Sort = ({ onSortUpdate }: Props) => {
+interface Props {
+  onSortUpdate: (option: SortOption) => void;
+  defaultSort: SortOption;
+}
+
+export const Sort = ({ onSortUpdate, defaultSort }: Props) => {
   const { sortElement} = useClasses(styles);
 
   const handleApplySort = (event:any) => {
@@ -30,7 +31,7 @@ export const Sort = ({ onSortUpdate }: Props) => {
       variant="outlined"
       color="primary"
       IconComponent={SortSharp}
-      defaultValue={SortOption.TOKEN_ID_ASC}
+      defaultValue={defaultSort}
       inputProps={{
         name: 'sort',
         id: 'uncontrolled-native',

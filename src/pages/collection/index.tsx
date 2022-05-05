@@ -202,13 +202,13 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    // console.log('FILTER', filters);
     setCollection([]);
     setTake(0);
     setFilters(filters);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
+    localStorage.setItem('search_filters', String(filters));
   }, []);
 
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
@@ -218,6 +218,7 @@ const CollectionPage = () => {
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
+    localStorage.setItem('search_sortBy', JSON.stringify(sortBy));
   }, []);
 
 
@@ -256,6 +257,11 @@ const CollectionPage = () => {
     return localStorage.getItem('search_tokenID') ?? '';
   }
 
+  const getInitSortBy = () => {
+    const sortByStr:string = localStorage.getItem('search_sortBy') ?? '';
+    return sortByStr == '' ? SortOption.TOKEN_ID_ASC : parseInt(sortByStr) as SortOption;
+  }
+
   return (
     <>
       <div className={container}>
@@ -278,7 +284,7 @@ const CollectionPage = () => {
               <TextField
                 placeholder="Search by token ID"
                 variant="outlined"
-                // value={getInitSearchTokenID()}
+                // defaultValue={getInitSearchTokenID()}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="start">
@@ -307,6 +313,7 @@ const CollectionPage = () => {
           <div>
             <Sort
               onSortUpdate={handleSortUpdate}
+              defaultSort={getInitSortBy()}
             />
           </div>
         </Stack>
