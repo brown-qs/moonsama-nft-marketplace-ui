@@ -91,7 +91,7 @@ export const collections = {
       display_name: '???',
       floorDisplay: false,
       minId: 1,
-      maxId: 67,
+      maxId: 69,
       idSearchOn: true,
       decimals: 0,
       symbol: '???',
