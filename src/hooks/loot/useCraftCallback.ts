@@ -15,6 +15,7 @@ export enum CraftCallbackState {
 export type CraftData = {
     blueprintId: string,
     amount: string;
+    version?: string
 }
 
 export function useCraftCallback(
@@ -27,7 +28,7 @@ export function useCraftCallback(
   const { account, chainId, library } = useActiveWeb3React();
 
   //console.log('YOLO', { account, chainId, library });
-  const contract = useWorkbenchContract(true);
+  const contract = useWorkbenchContract(craftData?.version, true);
 
   const addTransaction = useTransactionAdder();
 

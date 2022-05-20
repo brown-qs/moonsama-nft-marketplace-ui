@@ -16,7 +16,7 @@ import { Asset } from 'hooks/marketplace/types';
 import { useState, useRef, SyntheticEvent, useEffect } from 'react';
 import { useAllowances } from 'hooks/useApproveCallback/useApproveCallback';
 import { useLootboxOpen, OpenData, RewardData, LootboxOpenStatus } from 'hooks/loot/useLootboxOpen';
-import { WORKBENCH_ADDRESSES, ChainId } from '../../constants';
+import { WORKBENCH_ADDRESSES, WORKBENCHV2_ADDRESSES, ChainId } from '../../constants';
 import { BigNumber } from '@ethersproject/bignumber';
 import { CraftCallbackState, useCraftCallback } from 'hooks/loot/useCraftCallback';
 import { Box, Button, Grow, Link, Paper, Typography, useTheme } from '@mui/material';
@@ -107,9 +107,11 @@ export const TokenLootbox = () => {
     setBurnSubmitted(false)
   }
 
-  const blueprint = useBlueprint(lootboxData.blueprintId); // 2 for prod
-  const craftCallback = useCraftCallback({ amount: '1', blueprintId: lootboxData.blueprintId })
+  const blueprint = useBlueprint(lootboxData.blueprintId, lootboxData.version); // 2 for prod
+  const craftCallback = useCraftCallback({ amount: '1', blueprintId: lootboxData.blueprintId, version: lootboxData.version })
   const burnCallback = useBurnSemaphore({ assetAddress: lootboxData.blueprintOutput.assetAddress, assetId: lootboxData.blueprintOutput.assetId })
+
+  console.log('blueprint', {blueprint})
 
   let asset: Asset = lootboxData.blueprintOutput
 
@@ -172,9 +174,10 @@ export const TokenLootbox = () => {
     }
   }) ?? []
 
+  const operator = lootboxData.version === 'V1' ? WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER] : WORKBENCHV2_ADDRESSES[chainId ?? ChainId.MOONRIVER]
   const allowances = useAllowances(
     inputAssets?.map(x => {
-      return { ...x, operator: WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER] }
+      return { ...x, operator }
     }) ?? [],
     account ?? undefined
   )
@@ -262,7 +265,7 @@ export const TokenLootbox = () => {
           </Typography>
       </Box>
 
-      <Box
+      {!lootboxData.openSectionDisabled && <Box
         className={buttonsContainer}
         style={{ justifyContent: 'space-around' }}
       >
@@ -293,14 +296,14 @@ export const TokenLootbox = () => {
         >
           {lootboxData.openText}
         </Button>}
-      </Box>
+      </Box>}
 
       <div>
         <GlitchText
           variant="h1"
           className={name}
         >
-          Get a box
+          {lootboxData.craftTitle}
         </GlitchText>
 
         <Box className={detailContainer}>
@@ -350,6 +353,7 @@ export const TokenLootbox = () => {
                 {...item.asset}
                 assetName={item.name}
                 decimals={item.decimals}
+                operator={operator}
               />
             );
           })
@@ -368,7 +372,7 @@ export const TokenLootbox = () => {
       <Box className={detailContainer} style={{ justifyContent: 'space-around' }}>
         {
           <Typography color="textSecondary" variant="body2">
-            {`${availableToMint} boxes`}
+            {`${availableToMint} ${lootboxData.availableOutputLabel}`}
           </Typography>
         }
       </Box>

@@ -29,6 +29,7 @@ export type BlueprintData = {
 
 export function useBlueprint(
   blueprintId: string,
+  version?: string
 ): BlueprintData | undefined {
   const { account, chainId } = useActiveWeb3React();
 
@@ -37,10 +38,11 @@ export function useBlueprint(
   const [blueprint, setBlueprint] = useState<BlueprintData | undefined>(undefined)
 
   //console.log('YOLO', { account, chainId, library });
-  const contract = useWorkbenchContract(true);
+  const contract = useWorkbenchContract(version, true);
 
   const cb = useCallback(async () => {
       const blueprint = await contract?.blueprint(blueprintId)
+      console.log('blueprint debug', !!contract, blueprint)
       if (!!blueprint) {
           setBlueprint({
               inputs: blueprint.inputs.map((x: any, i: number) => {

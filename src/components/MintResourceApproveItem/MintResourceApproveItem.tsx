@@ -10,7 +10,7 @@ import { useActiveWeb3React, useClasses } from 'hooks';
 import { WORKBENCH_ADDRESSES, ChainId } from '../../constants';
 import { Fraction } from 'utils/Fraction';
 
-export const MintResourceApproveItem = ({assetAddress, assetId, assetType, amount, assetName, decimals}: AllowanceQuery & { amount?: string | BigNumber, assetName?: string, decimals: number }) => {
+export const MintResourceApproveItem = ({assetAddress, assetId, assetType, amount, assetName, decimals, operator}: AllowanceQuery & { amount?: string | BigNumber, assetName?: string, decimals: number }) => {
   const {chainId} = useActiveWeb3React()
   
   const [approvalState, approveCallback] = useApproveCallback({
@@ -18,7 +18,7 @@ export const MintResourceApproveItem = ({assetAddress, assetId, assetType, amoun
     assetId,
     assetType,
     amountToApprove: amount,
-    operator: WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER]
+    operator
   });
 
   const showApproveFlow =

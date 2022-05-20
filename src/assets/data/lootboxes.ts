@@ -12,7 +12,8 @@ export type LootboxDataType = {
         assetAddress: string,
         assetId: string,
         assetType: StringAssetType,
-        id: string
+        id: string,
+        amount: string
     },
     notEnoughText: string,
     notEnoughLink: string,
@@ -24,11 +25,17 @@ export type LootboxDataType = {
     openText: string,
     openDialogText: string,
     video: string,
-    imageUnopened: string
+    imageUnopened: string,
+    openSectionDisabled?: boolean,
+    selectInputAmountPossible?: boolean,
+    version: string,
+    craftTitle: string,
+    availableOutputLabel: string
 }
 
 export const LOOTBOXES: LootboxDataType[] = [
     {
+        version: 'V1',
         blueprintId: '2',
         lootboxId: '0xd335417999ff2b9b59737244e554370264b3f877-1-1',
         name: 'S1 Sama Box',
@@ -36,7 +43,8 @@ export const LOOTBOXES: LootboxDataType[] = [
             assetAddress: '0xd335417999ff2b9b59737244e554370264b3f877'.toLowerCase(),
             assetId: '1',
             assetType: StringAssetType.ERC1155,
-            id: '-'
+            id: '-',
+            amount: '1'
         },
         notEnoughText: 'Not enough resources',
         notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
@@ -47,10 +55,13 @@ export const LOOTBOXES: LootboxDataType[] = [
         burnText: '"Push to open"',
         openText: 'The lid is loose',
         openDialogText: 'Click to open',
+        craftTitle: 'Get a box',
+        availableOutputLabel: 'boxes',
         video: box1Video,
         imageUnopened: box1imageUnopened
     },
     {
+        version: 'V1',
         blueprintId: '3',
         lootboxId: '0xd335417999ff2b9b59737244e554370264b3f877-2-1',
         name: 'S1 Reward Box',
@@ -58,7 +69,8 @@ export const LOOTBOXES: LootboxDataType[] = [
             assetAddress: '0xd335417999ff2b9b59737244e554370264b3f877'.toLowerCase(),
             assetId: '2',
             assetType: StringAssetType.ERC1155,
-            id: '-'
+            id: '-',
+            amount: '1'
         },
         notEnoughText: `You need a fitting key`,
         notEnoughLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/11',
@@ -69,6 +81,63 @@ export const LOOTBOXES: LootboxDataType[] = [
         burnText: 'Turn the key',
         openText: 'The lid is loose',
         openDialogText: 'Click to open',
+        craftTitle: 'Get a box',
+        availableOutputLabel: 'boxes',
+        video: box2Video,
+        imageUnopened: box2imageUnopened
+    },
+    {
+        blueprintId: '2',
+        openSectionDisabled: true,
+        version: 'V2',
+        lootboxId: '0x19bda58205cea54a4e73579402687145a50dffd7-2-1',
+        name: 'Moonrod',
+        blueprintOutput: {
+            assetAddress: '0x1974eEAF317Ecf792ff307F25A3521C35eECde86'.toLowerCase(),
+            assetId: '70',
+            assetType: StringAssetType.ERC1155,
+            id: '-',
+            amount: '1'
+        },
+        notEnoughText: `Not enough resources`,
+        notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
+        noMoreText: `No more Moonrod is available`,
+        noMoreLink: '/token/ERC1155/0x1974eEAF317Ecf792ff307F25A3521C35eECde86/70',
+        conditionsText: 'Moonrod of the highest quality. Best available tool for catching a fish.. should you have enough resources to afford it.',
+        craftText: 'Craft Moonrod',
+        burnText: '',
+        openText: '',
+        openDialogText: '',
+        craftTitle: 'Craft',
+        availableOutputLabel: 'Moonrods',
+        video: box2Video,
+        imageUnopened: box2imageUnopened
+    },
+    {
+        blueprintId: '1',
+        openSectionDisabled: true,
+        selectInputAmountPossible: true,
+        version: 'V2',
+        lootboxId: '0x19bda58205cea54a4e73579402687145a50dffd7-1-1',
+        name: 'Fish bait',
+        blueprintOutput: {
+            assetAddress: '0x1b30a3b5744e733d8d2f19f0812e3f79152a8777'.toLowerCase(),
+            assetId: '14',
+            assetType: StringAssetType.ERC1155,
+            id: '-',
+            amount: '1000000000000000000'
+        },
+        notEnoughText: `Not enough grains`,
+        notEnoughLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/10',
+        noMoreText: `No more bait is available`,
+        noMoreLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/14',
+        conditionsText: 'Fish love bread. Bread makes good bait. Bread is made from wheat grains.',
+        craftText: 'Make bait',
+        burnText: '',
+        openText: '',
+        openDialogText: '',
+        craftTitle: 'Make',
+        availableOutputLabel: 'baits',
         video: box2Video,
         imageUnopened: box2imageUnopened
     }
