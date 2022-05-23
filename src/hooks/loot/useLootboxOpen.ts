@@ -7,6 +7,7 @@ import { useFetchTokenUriCallback } from 'hooks/useFetchTokenUri.ts/useFetchToke
 
 export type OpenData = {
   lootboxId: string
+  amount?: string
 }
 
 export type Reward = {
@@ -44,10 +45,13 @@ export function useLootboxOpen(
 
   const { lootboxId } = data
 
+  const amount = data.amount ? data.amount : '1'
+
+
   return useMemo(() => {
 
     console.log('DEBUG useMemo', {account, chainId, lootboxId})
-    if (!account || !chainId || !lootboxId) {
+    if (!account || !chainId || !lootboxId || !amount) {
       return {
         openCallback: undefined,
         confirmCallback: undefined
@@ -63,7 +67,7 @@ export function useLootboxOpen(
             url: `${'https://samabox-api.moonsama.com/api/v1'}/lootbox/open`,
             data: {
               lootboxId,
-              amount: '1',
+              amount: amount,
               recipient: account,
               difficulty: '745944601324485'
             }
@@ -111,5 +115,6 @@ export function useLootboxOpen(
     lootboxId,
     account,
     chainId,
+    amount
   ]);
 }

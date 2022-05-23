@@ -296,7 +296,7 @@ export const PurchaseDialog = () => {
     netto = userGet.sub(protocolFee).sub(royaltyFee);
   }
 
-  console.log('fee', {
+  console.log('debug fill fee', {
     showFee,
     royaltyFee,
     protocolFee,
@@ -340,7 +340,7 @@ export const PurchaseDialog = () => {
   });
   */
 
-  console.warn('FILL', {
+  console.warn('debug FILL', {
     hasEnough,
     buyer: account?.toString(),
     quantity: quantity?.toString(),
@@ -369,7 +369,6 @@ export const PurchaseDialog = () => {
     button,
     //
     row,
-    col,
     //
     formBox,
     formLabel,

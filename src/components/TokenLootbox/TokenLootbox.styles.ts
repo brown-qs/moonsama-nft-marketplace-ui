@@ -25,28 +25,28 @@ export const styles = (theme: Theme) => ({
     boxSizing: 'border-box',
   },
   commonLoot: {
-      backgroundColor: "#222222EE",
-      boxShadow: '#AAAAAA 0 0 1rem',
+    backgroundColor: "#222222EE",
+    boxShadow: '#AAAAAA 0 0 1rem',
   },
 
   uncommonLoot: {
-      backgroundColor: "#1b331bEE",
-      boxShadow: '#55FF55 0 0 1rem',
+    backgroundColor: "#1b331bEE",
+    boxShadow: '#55FF55 0 0 1rem',
   },
 
   rareLoot: {
-      backgroundColor: "#0b3652EE",
-      boxShadow: '#22AAFF 0 0 1rem',
+    backgroundColor: "#0b3652EE",
+    boxShadow: '#22AAFF 0 0 1rem',
   },
 
   epicLoot: {
-      backgroundColor: "#23182eEE",
-      boxShadow: '#AA55FF 0 0 1rem 0.125rem',
+    backgroundColor: "#23182eEE",
+    boxShadow: '#AA55FF 0 0 1rem 0.125rem',
   },
 
   legendaryLoot: {
-      backgroundColor: "#2e1906EE",
-      boxShadow: '#FFAA55 0 0 1rem 0.25rem',
+    backgroundColor: "#2e1906EE",
+    boxShadow: '#FFAA55 0 0 1rem 0.25rem',
   },
   imageContainer: {
     width: '100%',
@@ -95,7 +95,7 @@ export const styles = (theme: Theme) => ({
     [theme.breakpoints.down('md')]: {
       textAlign: 'center',
     },
-  },  
+  },
   newSellButton: {
     '&:hover': {
       backgroundColor: '#dcdcdc',
@@ -119,5 +119,25 @@ export const styles = (theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  amountTextInput: {
+    color: '#dcdcdc',
+    '& label.Mui-focused': {
+      color: '#dcdcdc',
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: '#dcdcdc',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#dcdcdc',
+      },
+      '&:hover fieldset': {
+        borderColor: '#dcdcdc',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#dcdcdc',
+      },
+    },
   }
 });

@@ -19,7 +19,7 @@ import { useLootboxOpen, OpenData, RewardData, LootboxOpenStatus } from 'hooks/l
 import { WORKBENCH_ADDRESSES, WORKBENCHV2_ADDRESSES, ChainId } from '../../constants';
 import { BigNumber } from '@ethersproject/bignumber';
 import { CraftCallbackState, useCraftCallback } from 'hooks/loot/useCraftCallback';
-import { Box, Button, Grow, Link, Paper, Typography, useTheme } from '@mui/material';
+import { Box, Button, Grow, Link, Paper, Stack, Typography, useTheme } from '@mui/material';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { Media, MintResourceApproveItem } from 'components';
@@ -29,6 +29,7 @@ import DialogUI from '@mui/material/Dialog';
 import { LootboxDataType, LOOTBOXES } from '../../assets/data/lootboxes'
 import { BurnCallbackState, useBurnSemaphore } from 'hooks/loot/useBurnSemaphore';
 import { useBlockNumber } from 'state/application/hooks';
+import TextField from '@material-ui/core/TextField';
 
 
 export const TokenLootbox = () => {
@@ -47,7 +48,8 @@ export const TokenLootbox = () => {
     lootboxResultContainer,
     boldText,
     detailContainerNoMT,
-    lootboxOpenButton
+    lootboxOpenButton,
+    amountTextInput
   } = styleClasses;
 
   const defaultBoxIndex = LOOTBOXES.length - 1
@@ -65,10 +67,20 @@ export const TokenLootbox = () => {
   const [lootboxStatus, setLootboxStatus] = useState<LootboxOpenStatus>(LootboxOpenStatus.NO_BURN_PROOF);
   const [burnSubmitted, setBurnSubmitted] = useState<boolean>(false);
 
+  const [amountPickerDialogOpen, setAmountPickerDialogOpen] = useState<boolean>(false)
+
+  const [chosenAmount, setChosenAmount] = useState<string>('1');
+
   const handleTabValueChange = (event: SyntheticEvent, newTabValue: number) => {
     setTabValue(newTabValue);
     setLootboxData(LOOTBOXES[newTabValue])
     setLootboxStatus(LootboxOpenStatus.NO_BURN_PROOF)
+  };
+
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value) {
+      setChosenAmount(event.target.value);
+    }
   };
 
   const { openCallback, confirmCallback } = useLootboxOpen({ lootboxId: lootboxData.lootboxId } as OpenData);
@@ -77,7 +89,7 @@ export const TokenLootbox = () => {
     const checkStatus = async () => {
       const [rewardData,] = await openCallback?.() ?? [undefined, undefined]
       // if there was a change..
-      console.log('LOOTBOX DEBUG STATE', {rewardData})
+      console.log('LOOTBOX DEBUG STATE', { rewardData })
       if (!!rewardData?.status && rewardData?.status !== lootboxStatus) {
         console.log('LOOTBOX DEBUG STATE', 'status changed', rewardData?.status)
         setLootboxStatus(rewardData.status)
@@ -107,11 +119,18 @@ export const TokenLootbox = () => {
     setBurnSubmitted(false)
   }
 
+  const onAmountDialogClose = (event: any, reason: string) => {
+    if (amountPickerDialogOpen) {
+      setAmountPickerDialogOpen(false)
+    }
+    setChosenAmount('1')
+  }
+
   const blueprint = useBlueprint(lootboxData.blueprintId, lootboxData.version); // 2 for prod
-  const craftCallback = useCraftCallback({ amount: '1', blueprintId: lootboxData.blueprintId, version: lootboxData.version })
+  const craftCallback = useCraftCallback({ amount: chosenAmount, blueprintId: lootboxData.blueprintId, version: lootboxData.version })
   const burnCallback = useBurnSemaphore({ assetAddress: lootboxData.blueprintOutput.assetAddress, assetId: lootboxData.blueprintOutput.assetId })
 
-  console.log('blueprint', {blueprint})
+  console.log('blueprint', { blueprint })
 
   let asset: Asset = lootboxData.blueprintOutput
 
@@ -229,7 +248,7 @@ export const TokenLootbox = () => {
   const rarityClass1 = styleClasses[`${openResult?.rewards[1].rarity ?? 'common'}Loot`]
   const rarityClass2 = styleClasses[`${openResult?.rewards[2].rarity ?? 'common'}Loot`]
 
-  console.log('LOOTBOX DEBUG status check', {lootboxStatus})
+  console.log('LOOTBOX DEBUG status check', { lootboxStatus })
 
   return (
     <Paper className={container}>
@@ -260,9 +279,9 @@ export const TokenLootbox = () => {
       </GlitchText>
 
       <Box className={detailContainerNoMT} style={{ justifyContent: 'space-around' }}>
-          <Typography color="textSecondary" variant="body2">
-            {`Owned ${userBalanceString}${openInProgress ? `/(1)`: ''}${totalSupplyString ? ` of ${totalSupplyString}` : ''}`}
-          </Typography>
+        <Typography color="textSecondary" variant="body2">
+          {`Owned ${userBalanceString}${openInProgress ? `/(1)` : ''}${totalSupplyString ? ` of ${totalSupplyString}` : ''}`}
+        </Typography>
       </Box>
 
       {!lootboxData.openSectionDisabled && <Box
@@ -307,22 +326,22 @@ export const TokenLootbox = () => {
         </GlitchText>
 
         <Box className={detailContainer}>
-            <Typography color="textSecondary" variant="subtitle1" className={boldText}>
-              {`Notes:`}
-            </Typography>
+          <Typography color="textSecondary" variant="subtitle1" className={boldText}>
+            {`Notes:`}
+          </Typography>
         </Box>
 
         <Box className={detailContainer} style={{ justifyContent: 'space-around' }}>
-            <Typography color="textSecondary" variant="body2">
-              {`${lootboxData.conditionsText}`}
-            </Typography>
+          <Typography color="textSecondary" variant="body2">
+            {`${lootboxData.conditionsText}`}
+          </Typography>
         </Box>
 
 
         <Box className={detailContainer}>
-            <Typography color="textSecondary" variant="subtitle1" className={boldText}>
-              {`Cost:`}
-            </Typography>
+          <Typography color="textSecondary" variant="subtitle1" className={boldText}>
+            {`Cost:`}
+          </Typography>
         </Box>
 
         {items?.map((item, index) => <Box
@@ -419,13 +438,7 @@ export const TokenLootbox = () => {
                   style={{ background: 'green' }}
                   variant="contained"
                   color="primary"
-                  onClick={async () => {
-                    try {
-                      await craftCallback?.callback?.()
-                    } catch (err) {
-                      console.error('Craft transaction failiure', err)
-                    }
-                  }}
+                  onClick={() => setAmountPickerDialogOpen(true)}
                   disabled={craftCallback.state === CraftCallbackState.INVALID || availableToMint === '0'}
                 >
                   {lootboxData.craftText}
@@ -433,6 +446,51 @@ export const TokenLootbox = () => {
               </Box>
         }
       </div>
+
+      <DialogUI
+        className={dialogContainer}
+        fullWidth={true}
+        open={amountPickerDialogOpen}
+        onClose={onAmountDialogClose}
+        maxWidth="xs"
+        style={{borderRadius: '0'}}
+      >
+        <Stack spacing={theme.spacing(1)} style={{borderRadius: 0}}>
+          <Typography color="textSecondary" variant="body2">
+            {`Amount:`}
+          </Typography>
+          <TextField
+            disabled={!(lootboxData.selectInputAmountPossible ?? false)}
+            color='secondary'
+            variant='outlined'
+            onChange={handleAmountChange}
+            style={{ alignSelf: 'center', color: 'white' }}
+            value={chosenAmount}
+            className={amountTextInput}
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', style: { color: 'white', paddingTop: theme.spacing(1) } }}
+          />
+          <Box
+            className={buttonsContainer}
+            style={{ justifyContent: 'space-around', borderRadius: 0 }}
+          >
+            <Button
+              style={{ background: 'green', borderRadius: 0 }}
+              variant="contained"
+              color="primary"
+              onClick={async () => {
+                try {
+                  await craftCallback?.callback?.()
+                } catch (err) {
+                  console.error('Craft transaction failiure', err)
+                }
+              }}
+              disabled={craftCallback.state === CraftCallbackState.INVALID || availableToMint === '0'}
+            >
+              {lootboxData.craftText}
+            </Button>
+          </Box>
+        </Stack>
+      </DialogUI>
 
       <DialogUI
         className={dialogContainer}
