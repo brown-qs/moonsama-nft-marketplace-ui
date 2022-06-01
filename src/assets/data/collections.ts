@@ -109,7 +109,7 @@ export const collections = {
       ordersDisabledFor: ['11'],
       symbol: 'MMAF',
       minId: 1,
-      maxId: 14,
+      maxId: 15,
       idSearchOn: true,
       type: 'ERC1155',
       contractURI: 'ipfs://Qmc97e79xzzrdNuU3RumGXcK5FYh8PWTb6GyxxHMyRvUYm',
@@ -265,7 +265,7 @@ export const collections = {
       floorDisplay: false,
       symbol: 'MEMBASSY',
       minId: 1,
-      maxId: 8,
+      maxId: 10,
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
