@@ -14,6 +14,7 @@ export const styles = (theme: Theme) => ({
     [theme.breakpoints.down('md')]: {
       maxWidth: 'unset',
     },
+    position: 'relative'
   },
   image: {
     width: '100%',
