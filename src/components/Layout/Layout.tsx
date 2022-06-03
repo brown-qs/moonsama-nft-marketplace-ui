@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import WhiteLogo from 'assets/images/logo-white.svg';
+import WhiteLogo from 'assets/images/moonsama-white.svg';
 import { useMediaQuery } from 'beautiful-react-hooks';
 import { Account } from 'components';
 import { ConnectedNetwork } from 'components/ConnectedNetwork/ConnectedNetwork';

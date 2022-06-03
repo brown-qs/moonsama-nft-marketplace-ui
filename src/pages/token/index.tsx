@@ -460,7 +460,7 @@ const TokenPage = () => {
         className={imageContainer}
       >
         <Media uri={assetMeta?.image} className={image} />
-        <Stack direction="row" spacing={1} alignItems="center" justifyContent={'center'}>
+        { rawCollection?.hasVersion2 && <Stack direction="row" spacing={1} alignItems="center" justifyContent={'center'}>
           <Typography>1.0</Typography>
           <Switch
             checked={metaVersion}
@@ -477,7 +477,7 @@ const TokenPage = () => {
             }}
           />
           <Typography>2.0</Typography>
-        </Stack>
+        </Stack>}
       </Grid>
       <Grid
         pl={{ lg: 3, md: 3 }}
