@@ -1,9 +1,10 @@
 import { AddressZero } from '@ethersproject/constants';
-import { Chip, Typography } from '@mui/material';
+import { Chip, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
+import Switch from '@mui/material/Switch'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
@@ -17,7 +18,7 @@ import { useFetchTokenUri } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri';
 import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData';
 import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
 import { useTransferDialog } from 'hooks/useTransferDialog/useTransferDialog';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Button,
@@ -156,6 +157,7 @@ const TokenPage = () => {
   const { setCancelData, setCancelDialogOpen } = useCancelDialog();
 
   const { setTransferData, setTransferDialogOpen } = useTransferDialog();
+  const [metaVersion, setMetaVersion] = useState<boolean>(false);
 
   const assets = useMemo(() => {
     return [asset];
@@ -168,8 +170,9 @@ const TokenPage = () => {
 
   const staticData = useTokenStaticData(assets);
   const balanceData = useTokenBasicData(assets);
-  const metas = useFetchTokenUri(staticData);
+  const metas = useFetchTokenUri(staticData, metaVersion);
   const decimalOverrides = useDecimalOverrides();
+
 
   //console.log('METAS', {metas, staticData})
 
@@ -457,6 +460,24 @@ const TokenPage = () => {
         className={imageContainer}
       >
         <Media uri={assetMeta?.image} className={image} />
+        { rawCollection?.hasVersion2 && <Stack direction="row" spacing={1} alignItems="center" justifyContent={'center'}>
+          <Typography>1.0</Typography>
+          <Switch
+            checked={metaVersion}
+            onChange={(event) =>
+              setMetaVersion(event.target.checked)
+            }
+            sx={{
+              ".MuiSwitch-thumb": {
+                color: "#d2023e"
+              },
+              ".MuiSwitch-track": {
+                backgroundColor: "#d2023e"
+              }
+            }}
+          />
+          <Typography>2.0</Typography>
+        </Stack>}
       </Grid>
       <Grid
         pl={{ lg: 3, md: 3 }}
@@ -522,7 +543,7 @@ const TokenPage = () => {
               <Chip
                 label={assetMeta.rarity}
                 className={rarityChip}
-                style={{background: RARITY_COLORS[assetMeta.rarity]}}
+                style={{ background: RARITY_COLORS[assetMeta.rarity] }}
               />
             </Typography>
           </Box>
@@ -784,7 +805,7 @@ const TokenPage = () => {
         ]}
       />
       <div style={{ marginTop: 40, width: '100%' }} />
-    </Grid>
+    </Grid >
   );
 };
 
