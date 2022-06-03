@@ -1,5 +1,5 @@
 import { AddressZero } from '@ethersproject/constants';
-import { Chip, Typography } from '@mui/material';
+import { Chip, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -460,13 +460,24 @@ const TokenPage = () => {
         className={imageContainer}
       >
         <Media uri={assetMeta?.image} className={image} />
-        <div style={{ position: 'absolute', right: '20px', bottom: '20px' }}>
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent={'center'}>
+          <Typography>1.0</Typography>
           <Switch
             checked={metaVersion}
             onChange={(event) =>
               setMetaVersion(event.target.checked)
             }
-          /> 2.0 </div>
+            sx={{
+              ".MuiSwitch-thumb": {
+                color: "#d2023e"
+              },
+              ".MuiSwitch-track": {
+                backgroundColor: "#d2023e"
+              }
+            }}
+          />
+          <Typography>2.0</Typography>
+        </Stack>
       </Grid>
       <Grid
         pl={{ lg: 3, md: 3 }}

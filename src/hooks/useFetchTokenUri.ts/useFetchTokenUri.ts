@@ -26,7 +26,7 @@ export function useFetchTokenUri(
       ? 'ipfs://QmcN86vmnTrYaRjtPn3fP98rfAE7BUEkaoVLGHKhUtAurJ'
       : uri?.tokenURI;
       if (versionTwo) {
-        fetchUri = `https://backend-development-local.moonsama.com/api/v1/composite/metadata/1285/${uri?.asset?.assetAddress}/${uri?.asset?.assetId}`
+        fetchUri = `${process.env.REACT_APP_COMPOSITE_API_URL}/1285/${uri?.asset?.assetAddress}/${uri?.asset?.assetId}`
       }
       const rawmeta = await cb<TokenMeta>(
         fetchUri,
@@ -65,13 +65,13 @@ export function useFetchTokenUri(
     //console.log('METAS', metas)
 
     setMetas(metas);
-  }, [uris, cb]);
+  }, [uris, cb, versionTwo]);
 
   useEffect(() => {
     if (uris) {
       fetchMetas();
     }
-  }, [uris]);
+  }, [uris, versionTwo]);
 
   return metas;
 }
