@@ -94,7 +94,7 @@ export const collections = {
       hasVersion2: false,
       floorDisplay: true,
       minId: 1,
-      maxId: 1000,
+      maxId: 5000,
       idSearchOn: true,
       symbol: 'PONDSAMA',
       type: 'ERC721',

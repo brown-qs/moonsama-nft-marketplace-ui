@@ -70,8 +70,6 @@ const CollectionPage = () => {
   //console.log('SUBMETA', submeta)
   const isSubcollection = subcollectionId !== '0';
 
-  const minId = isSubcollection ? 0 : recognizedCollection?.minId ?? 1;
-
   const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<Filters | undefined>(undefined);
   const [sortBy, setSortBy] = useState<SortOption>(SortOption.TOKEN_ID_ASC);
@@ -315,7 +313,7 @@ const CollectionPage = () => {
             justifyContent="flex-end"
             alignItems="center"
           >
-            <GlitchText>Floor NFT</GlitchText>: {assetMeta.name} ({displayPPU} {approvedPaymentCurrency.symbol})
+            <GlitchText>Floor NFT</GlitchText>: {assetMeta.name} {asset.assetAddress.toLowerCase() !== '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a' ? `#${floorAssetOrder.sellAsset.assetId}`: ''} ({displayPPU} {approvedPaymentCurrency.symbol})
             <Button
               variant="contained"
               color="primary"
