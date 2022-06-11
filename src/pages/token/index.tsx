@@ -55,11 +55,12 @@ import { MOONSAMA_TRAITS, MOONSAMA_MAX_SUPPLY } from 'utils/constants';
 import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 import uriToHttp from 'utils/uriToHttp';
-import { getMinecraftSkinUrl } from 'utils/meta';
+import { getAttributesList, getMinecraftSkinUrl } from 'utils/meta';
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { RARITY_COLORS } from 'constants/colors';
 import { orderFilter } from '../../utils/marketplace';
+import { theme } from 'theme/Theme';
 
 const geTableHeader = () => {
   return (
@@ -573,6 +574,16 @@ const TokenPage = () => {
 
         {!displayRarity && !rawCollection?.plot && (
           <Typography>{assetMeta?.description}</Typography>
+        )}
+
+        {rawCollection?.showAttributes && (
+          <div style={{paddingTop: theme.spacing(3)}}>
+            <Typography color="textSecondary" className={smallText}>
+              {getAttributesList(assetMeta?.attributes)?.map((label) => (
+                <Chip label={label} className={traitChip} />
+              ))}
+            </Typography>
+          </div>
         )}
 
         {assetMeta?.artist_url && assetMeta?.artist && (

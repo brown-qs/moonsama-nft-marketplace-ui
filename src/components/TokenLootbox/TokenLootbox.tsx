@@ -6,7 +6,7 @@ import { Fraction, Rounding } from 'utils/Fraction';
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
 import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData';
-import { useFetchTokenUri } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri';
+import { useFetchTokenUri, useFetchTokenUriCb } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 import {
   StringAssetType,
@@ -30,6 +30,7 @@ import { LootboxDataType, LOOTBOXES } from '../../assets/data/lootboxes'
 import { BurnCallbackState, useBurnSemaphore } from 'hooks/loot/useBurnSemaphore';
 import { useBlockNumber } from 'state/application/hooks';
 import TextField from '@material-ui/core/TextField';
+import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
 
 export const TokenLootbox = () => {
@@ -243,15 +244,29 @@ export const TokenLootbox = () => {
   const [openError, setOpenError] = useState<string | undefined>(undefined)
   const [openResult, setOpenResult] = useState<RewardData | undefined>(undefined)
   const [confirmButtonShow, setConfirmButtonShow] = useState(false)
+  const [sentMeta0, setSentMeta0] = useState<TokenMeta | undefined>(undefined)
 
-  const rarityClass0 = styleClasses[`${openResult?.rewards[0].rarity ?? 'common'}Loot`]
-  const rarityClass1 = styleClasses[`${openResult?.rewards[1].rarity ?? 'common'}Loot`]
-  const rarityClass2 = styleClasses[`${openResult?.rewards[2].rarity ?? 'common'}Loot`]
+  const rarityClass0 = styleClasses[`${openResult?.rewards[0]?.rarity ?? 'common'}Loot`]
+  const rarityClass1 = styleClasses[`${openResult?.rewards[1]?.rarity ?? 'common'}Loot`]
+  const rarityClass2 = styleClasses[`${openResult?.rewards[2]?.rarity ?? 'common'}Loot`]
 
-  console.log('LOOTBOX DEBUG status check', { lootboxStatus })
+  const metaCb = useFetchTokenUriCb()
+
+  useEffect(() => {
+    const fetch = async () => {
+      const m0 = (await metaCb([{ tokenURI: openResult?.rewards[0]?.tokenURI, asset: undefined }]))?.[0];
+      if (m0) {
+        setSentMeta0(m0)
+      }
+    }
+    fetch()
+  }, [openResult?.rewards[0]?.tokenURI])
+
+  //const sentMeta0: any = undefined
+  console.log('LOOTBOX DEBUG status check', { lootboxStatus, sentMeta0, rarityClass0 })
 
   return (
-    <Paper className={container}>
+    <Paper className={container} sx={{borderRadius: 0}}>
       <Tabs
         onChange={handleTabValueChange}
         value={tabValue}
@@ -453,9 +468,9 @@ export const TokenLootbox = () => {
         open={amountPickerDialogOpen}
         onClose={onAmountDialogClose}
         maxWidth="xs"
-        style={{borderRadius: '0'}}
+        style={{ borderRadius: '0' }}
       >
-        <Stack spacing={theme.spacing(1)} style={{borderRadius: 0}}>
+        <Stack spacing={theme.spacing(1)} style={{ borderRadius: 0 }}>
           <Typography color="textSecondary" variant="body2">
             {`Amount:`}
           </Typography>
@@ -552,33 +567,56 @@ export const TokenLootbox = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'absolute', textAlign: 'center', height: '100%', flexDirection: 'column' }}>
             <div className={lootboxResultContainer} style={{ width: '60%' }}>
-              <Grow style={{ marginLeft: 30, transitionDelay: `5000ms` }} in={true}>
-                <div className={`${lootCardContainer} ${rarityClass0}`}>
-                  <Link target={'_blank'} href={`/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`}>
-                    <img className={imageContainer} src={openResult?.rewards[0].meta?.image} alt='loot in slot 0' />
-                  </Link>
-                  <span className="name">{openResult?.rewards[0].meta?.name}</span>
-                  <span className="asset-id">{`#${openResult?.rewards[0].assetId}`}</span>
-                </div>
-              </Grow>
-              <Grow style={{ marginLeft: 30, transitionDelay: `5200ms` }} in={true}>
-                <div className={`${lootCardContainer} ${rarityClass1}`}>
-                  <Link target={'_blank'} href={`/token/${openResult?.rewards[1].assetType}/${openResult?.rewards[1].assetAddress}/${openResult?.rewards[1].assetId}`}>
-                    <img className={imageContainer} src={openResult?.rewards[1].meta?.image} alt='loot in slot 1' />
-                  </Link>
-                  <span className="name">{openResult?.rewards[1].meta?.name}</span>
-                  <span className="asset-id">{`#${openResult?.rewards[1].assetId}`}</span>
-                </div>
-              </Grow>
-              <Grow style={{ marginLeft: 30, transitionDelay: `5400ms` }} in={true}>
-                <div className={`${lootCardContainer} ${rarityClass2}`}>
-                  <Link target={'_blank'} href={`/token/${openResult?.rewards[2].assetType}/${openResult?.rewards[2].assetAddress}/${openResult?.rewards[2].assetId}`}>
-                    <img className={imageContainer} src={openResult?.rewards[2].meta?.image} alt='loot in slot 2' />
-                  </Link>
-                  <span className="name">{openResult?.rewards[2].meta?.name}</span>
-                  <span className="asset-id">{`#${openResult?.rewards[2].assetId}`}</span>
-                </div>
-              </Grow>
+
+              {lootboxData.lootNum === 3 ? (
+                <>
+                  <Grow style={{ marginLeft: 30, transitionDelay: `5000ms` }} in={true}>
+                    <div className={`${lootCardContainer} ${rarityClass0}`}>
+                      <Link target={'_blank'} href={`/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`}>
+                        <img className={imageContainer} src={openResult?.rewards[0].meta?.image} alt='loot in slot 0' />
+                      </Link>
+                      <span className="name">{openResult?.rewards[0].meta?.name}</span>
+                      <span className="asset-id">{`#${openResult?.rewards[0].assetId}`}</span>
+                    </div>
+                  </Grow>
+                  <Grow style={{ marginLeft: 30, transitionDelay: `5200ms` }} in={true}>
+                    <div className={`${lootCardContainer} ${rarityClass1}`}>
+                      <Link target={'_blank'} href={`/token/${openResult?.rewards[1].assetType}/${openResult?.rewards[1].assetAddress}/${openResult?.rewards[1].assetId}`}>
+                        <img className={imageContainer} src={openResult?.rewards[1].meta?.image} alt='loot in slot 1' />
+                      </Link>
+                      <span className="name">{openResult?.rewards[1].meta?.name}</span>
+                      <span className="asset-id">{`#${openResult?.rewards[1].assetId}`}</span>
+                    </div>
+                  </Grow>
+                  <Grow style={{ marginLeft: 30, transitionDelay: `5400ms` }} in={true}>
+                    <div className={`${lootCardContainer} ${rarityClass2}`}>
+                      <Link target={'_blank'} href={`/token/${openResult?.rewards[2].assetType}/${openResult?.rewards[2].assetAddress}/${openResult?.rewards[2].assetId}`}>
+                        <img className={imageContainer} src={openResult?.rewards[2].meta?.image} alt='loot in slot 2' />
+                      </Link>
+                      <span className="name">{openResult?.rewards[2].meta?.name}</span>
+                      <span className="asset-id">{`#${openResult?.rewards[2].assetId}`}</span>
+                    </div>
+                  </Grow>
+                </>
+              ) : (
+                <>
+                <Grow style={{ marginLeft: 30, transitionDelay: `8000ms` }} in={true}>
+                  <div className={`${lootCardContainer}`}></div>
+                </Grow>
+                <Grow style={{ marginLeft: 30, transitionDelay: `8000ms` }} in={true}>
+                  <div className={`${lootCardContainer} ${rarityClass0}`}>
+                    <Link target={'_blank'} href={!openResult?.rewards[0]?.assetId || openResult?.rewards[0]?.assetId === '0' ? `/collection/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/0` : `/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`}>
+                      <img className={imageContainer} src={openResult?.rewards[0].meta?.image ?? sentMeta0?.image} alt='loot in slot 0' />
+                    </Link>
+                    <span className="name">{openResult?.rewards[0].meta?.name ?? sentMeta0?.name}</span>
+                    {/* <span className="asset-id">{`#${openResult?.rewards[0].assetId}`}</span> */}
+                  </div>
+                </Grow>
+                <Grow style={{ marginLeft: 30, transitionDelay: `8000ms` }} in={true}>
+                  <div className={`${lootCardContainer}`}></div>
+                </Grow>
+                </>
+              )}
             </div>
 
             {confirmButtonShow && <>

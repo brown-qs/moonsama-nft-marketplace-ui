@@ -95,13 +95,20 @@ export function useFillOrderCallback(
 
   const addTransaction = useTransactionAdder();
 
+  /*
   const inputOptions =
     nativeOptions?.native && nativeOptions?.userGive
       ? { value: nativeOptions.userGive.toString() }
       : {};
+  */
+
+    const inputOptions =
+      nativeOptions?.native && nativeOptions?.userGive
+        ? { value: nativeOptions.userGive.toString() }
+        : {};
 
   return useMemo(() => {
-    if (!library || !account || !chainId || !contract) {
+    if (!library || !account || !chainId || !contract || !library) {
       return {
         state: FillOrderCallbackState.INVALID,
         callback: null,
@@ -122,9 +129,11 @@ export function useFillOrderCallback(
       };
     }
 
+    const signer = getSigner(library, account)
+
     return {
       state: FillOrderCallbackState.VALID,
-      callback: async function onCreateOrder(): Promise<string> {
+      callback: async function onFillOrder(): Promise<string> {
         const args = inputParams;
         const methodName = 'fillOrder';
 
@@ -159,8 +168,9 @@ export function useFillOrderCallback(
             })
             .catch((callError: any) => {
               console.debug('Call threw error', call, callError);
-              let errorMessage = `The transaction cannot succeed due to error: ${callError.reason}`;
-              throw new Error(errorMessage);
+              //let errorMessage = `The transaction cannot succeed due to error: ${callError.reason}`;
+              //throw new Error(errorMessage);
+              return BigNumber.from('1000000')
             });
         });
 
@@ -169,7 +179,13 @@ export function useFillOrderCallback(
             'Unexpected error. Please contact support: none of the calls threw an error'
           );
         }
-
+        /*
+        return contract[methodName](...args, {
+          gasLimit: calculateGasMargin(gasEstimate),
+          from: account,
+          ...inputOptions,
+        })
+        */
         return contract[methodName](...args, {
           gasLimit: calculateGasMargin(gasEstimate),
           from: account,

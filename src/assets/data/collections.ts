@@ -88,6 +88,22 @@ export const collections = {
     },
     {
       chainId: 1285,
+      address: '0xe4edcaaea73684b310fc206405ee80abcec73ee0',
+      display_name: 'Pondsama',
+      showAttributes: true,
+      hasVersion2: false,
+      floorDisplay: true,
+      minId: 1,
+      maxId: 1000,
+      idSearchOn: true,
+      symbol: 'PONDSAMA',
+      type: 'ERC721',
+      contractURI: 'ipfs://QmdCKgexLpBjST3FdWLbPZLH2FWRtu2NXE9dk5ZirdDRGb',
+      subgraph:
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama',
+    },
+    {
+      chainId: 1285,
       address: '0x1974eEAF317Ecf792ff307F25A3521C35eECde86',
       display_name: '???',
       floorDisplay: false,
@@ -252,7 +268,7 @@ export const collections = {
       floorDisplay: true,
       symbol: 'SAMABOX',
       minId: 1,
-      maxId: 2,
+      maxId: 3,
       type: 'ERC1155',
       contractURI: 'ipfs://QmPisJNXRvd1h8BBiBs1PHu8666HTDWVJWkAf2AS7c4zkM',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-samabox'
@@ -266,7 +282,7 @@ export const collections = {
       floorDisplay: false,
       symbol: 'MEMBASSY',
       minId: 1,
-      maxId: 10,
+      maxId: 11,
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'

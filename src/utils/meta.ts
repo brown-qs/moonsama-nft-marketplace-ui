@@ -6,3 +6,10 @@ export const getMinecraftSkinUrl = (attributes?: MetaAttributes[]) => {
   );
   return attr?.value as string;
 };
+
+export const getAttributesList = (attributes?: MetaAttributes[]) => {
+  const chipLabels = attributes?.map(
+    (x) => `${x.trait_type}: ${x.value}${x.display_type?.startsWith('range') ? `/${x.display_type.split('_')[2]}` : ''}`
+  );
+  return chipLabels
+};

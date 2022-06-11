@@ -47,6 +47,7 @@ export type RawCollection = {
   transferDisabledFor?: string[];
   ordersDisabledFor?: string[];
   hasVersion2?: boolean;
+  showAttributes?: boolean;
 };
 
 export type RawCollectionList = {
@@ -96,6 +97,7 @@ const collectionListSchema = yup.object<RawCollectionList>({
           transferDisabledFor: yup.array().of(yup.string().required()).optional().default(undefined),
           plot: yup.boolean().optional(),
           hasVersion2: yup.boolean().optional().default(false),
+          showAttributes: yup.boolean().optional().default(false),
           auction: yup
             .object<AuctionParams>({
               deadline: yup.string(),

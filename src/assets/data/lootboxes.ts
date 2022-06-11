@@ -1,8 +1,11 @@
 import { StringAssetType } from "../../utils/subgraph";
 import box1Video from '../../assets/samabox/1.mp4';
 import box2Video from '../../assets/samabox/2.mp4';
+import box3Video from '../../assets/samabox/3.mp4';
 import box1imageUnopened from '../../assets/samabox/1.jpg';
 import box2imageUnopened from '../../assets/samabox/2.jpg';
+import box3imageUnopened from '../../assets/samabox/3_unopened.jpg';
+
 
 export type LootboxDataType = {
     blueprintId: string,
@@ -31,6 +34,7 @@ export type LootboxDataType = {
     version: string,
     craftTitle: string,
     availableOutputLabel: string
+    lootNum: number
 }
 
 export const LOOTBOXES: LootboxDataType[] = [
@@ -46,6 +50,7 @@ export const LOOTBOXES: LootboxDataType[] = [
             id: '-',
             amount: '1'
         },
+        lootNum: 3,
         notEnoughText: 'Not enough resources',
         notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
         noMoreText: `No more boxes left to craft`,
@@ -72,6 +77,7 @@ export const LOOTBOXES: LootboxDataType[] = [
             id: '-',
             amount: '1'
         },
+        lootNum: 3,
         notEnoughText: `You need a fitting key`,
         notEnoughLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/11',
         noMoreText: `No more boxes left to craft`,
@@ -99,6 +105,7 @@ export const LOOTBOXES: LootboxDataType[] = [
             id: '-',
             amount: '1'
         },
+        lootNum: 1,
         notEnoughText: `Not enough resources`,
         notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
         noMoreText: `No more Moonrod is available`,
@@ -127,6 +134,7 @@ export const LOOTBOXES: LootboxDataType[] = [
             id: '-',
             amount: '1000000000000000000'
         },
+        lootNum: 1,
         notEnoughText: `Not enough grains`,
         notEnoughLink: '/token/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/10',
         noMoreText: `No more bait is available`,
@@ -140,5 +148,34 @@ export const LOOTBOXES: LootboxDataType[] = [
         availableOutputLabel: 'baits',
         video: box2Video,
         imageUnopened: box2imageUnopened
+    },
+    {
+        blueprintId: '3',
+        openSectionDisabled: false,
+        selectInputAmountPossible: true,
+        version: 'V2',
+        lootboxId: '0xd335417999ff2b9b59737244e554370264b3f877-3-1',
+        name: 'Pondsama',
+        blueprintOutput: {
+            assetAddress: '0xd335417999ff2b9b59737244e554370264b3f877'.toLowerCase(),
+            assetId: '3',
+            assetType: StringAssetType.ERC1155,
+            id: '-',
+            amount: '1'
+        },
+        lootNum: 1,
+        notEnoughText: `Insufficient sacrifice`,
+        notEnoughLink: '/collection/ERC1155/0x1b30a3b5744e733d8d2f19f0812e3f79152a8777/0',
+        noMoreText: `The Sunken One is not in the mood`,
+        noMoreLink: '/collection/ERC1155/0xe4edcaaea73684b310fc206405ee80abcec73ee0/0',
+        conditionsText: `The grip of the tide will usher you into the shadow of The Sunken One’s mass. Genuflect, eyes down, steady breath. Present your offering - say nothing. You’ll be handed a gift or handed your death.`,
+        craftText: 'Create offering bundle',
+        burnText: 'Approach the Sunken One',
+        openText: 'The Sunken One emerges',
+        openDialogText: 'Throw offering',
+        craftTitle: 'Create',
+        availableOutputLabel: 'offerings',
+        video: box3Video,
+        imageUnopened: box3imageUnopened
     }
 ]
