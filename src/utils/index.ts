@@ -159,3 +159,25 @@ export const parseTokenUri = (uri?: string, tokenID?: string | number) => {
 
   return uri;
 };
+
+export const formatAmountFractionString = (value?: string) => {
+  if (!value) {
+    return undefined
+  }
+  
+  let end = value.length
+  for(let i = value.length-1; i >= 0; i--) {
+    if (value[i] !== '0') {
+      if (value[i] === '.') {
+        end = i
+      } else {
+        end = i+1
+      }
+      break
+    }
+  }
+
+  const newVal = value.slice(0, end)
+
+  return newVal === '0.' ? '0': newVal
+}

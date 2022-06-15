@@ -8,7 +8,7 @@ import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useHistory } from 'react-router-dom';
 import { GlitchText } from 'ui';
-import { truncateHexString } from 'utils';
+import { formatAmountFractionString, truncateHexString } from 'utils';
 import { StringAssetType } from 'utils/subgraph';
 import { styles } from './TokenOwned.styles';
 import { Fraction } from 'utils/Fraction';
@@ -74,7 +74,7 @@ export const TokenOwned = ({
   const isErc721 =
     asset.assetType.valueOf() === StringAssetType.ERC721.valueOf();
 
-  const balanceString = isErc721 ? 'unique' : balance ? Fraction.from(balance, decimals)?.toSignificant(5) : undefined;
+  const balanceString = isErc721 ? 'unique' : balance ? formatAmountFractionString(Fraction.from(balance, decimals)?.toFixed(2)) : undefined;
 
   return (
     <Paper className={container}>
