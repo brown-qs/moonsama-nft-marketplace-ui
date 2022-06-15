@@ -1,8 +1,6 @@
 import Grid from '@mui/material/Grid';
 import { GlitchText, Loader } from 'ui';
 import { useEffect, useState } from 'react';
-import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { styles } from './styles';
 import {
   UserCollection,
@@ -11,8 +9,6 @@ import {
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { AddressZero } from '@ethersproject/constants';
 import { TokenOwned } from 'components/TokenOwned/TokenOwned';
-
-const PAGE_SIZE = 10;
 
 const MyNFTsPage = () => {
   const [collection, setCollection] = useState<UserCollection | undefined>(

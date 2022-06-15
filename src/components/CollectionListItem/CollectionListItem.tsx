@@ -31,10 +31,7 @@ export type CollectionListItemProps = {
 
 export const CollectionListItem = ({ collection, meta, salt }: CollectionListItemProps) => {
   const { chainId } = useActiveWeb3React();
-  console.log('this runs', chainId)
   const [isCollectionExpanded, setExpanded] = useState(false);
-  console.log('this runs', isCollectionExpanded)
-  console.log(chainId, isCollectionExpanded)
 
   const handleExpandClick = () => {
     setExpanded(!isCollectionExpanded);

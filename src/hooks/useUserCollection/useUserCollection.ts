@@ -12,6 +12,7 @@ import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
 import { getAssetEntityId, StringAssetType } from 'utils/subgraph';
 import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
+import { useBalances } from 'hooks/useBalances/useBalances';
 
 export interface OwnedTokens {
   id: string;
@@ -29,6 +30,7 @@ export interface UserCollection {
     meta: TokenMeta | undefined;
     staticData: StaticTokenData;
     asset: Asset;
+    balance: string;
   }[];
 }
 
@@ -46,7 +48,7 @@ export const useUserCollection = () => {
           return;
         }
 
-        let assets: Asset[] = [];
+        let assetsAndBalances: {assets: Asset[], balances: string[]};
 
         if (collection.type === 'ERC721') {
           const query = QUERY_USER_ERC721(account);
@@ -65,7 +67,7 @@ export const useUserCollection = () => {
             return;
           }
 
-          assets = ot.ownedTokens.map((x) => {
+          const assets = ot.ownedTokens.map((x) => {
             const aid = BigNumber.from(x.id).toString();
             return {
               assetId: aid,
@@ -74,6 +76,11 @@ export const useUserCollection = () => {
               assetAddress: x.contract.id,
             };
           });
+
+          assetsAndBalances = {
+            assets,
+            balances: assets.map(x => '1')
+          }
         } else {
           const query = QUERY_USER_ERC1155(account);
           const response = await request(collection.subgraph, query);
@@ -91,10 +98,12 @@ export const useUserCollection = () => {
             return;
           }
 
-          assets = to
+          const balances: string[] = []
+          const assets = to
             .filter((x) => x.balance !== '0')
             .map((x) => {
               const aid = BigNumber.from(x.token.id).toString();
+              balances.push(x.balance)
               return {
                 assetId: aid,
                 id: getAssetEntityId(x.token.contract.id, aid),
@@ -102,15 +111,21 @@ export const useUserCollection = () => {
                 assetAddress: x.token.contract.id,
               };
             });
+
+            assetsAndBalances = {
+              assets,
+              balances
+            }
         }
 
-        const staticDatas = await staticCallback(assets);
+        const staticDatas = await staticCallback(assetsAndBalances.assets);
 
         const datas = staticDatas.map((sd, i) => {
           return {
             meta: sd.meta,
             staticData: sd.staticData,
-            asset: assets[i],
+            asset: assetsAndBalances.assets[i],
+            balance: assetsAndBalances.balances[i]
           };
         });
         result[collection.display_name] = datas;

@@ -36,7 +36,7 @@ export const styles = (theme: Theme) => ({
   stockContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 12,
+    //marginTop: 12,
   },
   lastPriceContainer: {
     display: 'flex',
@@ -55,5 +55,12 @@ export const styles = (theme: Theme) => ({
   },
   mr: {
     marginRight: theme.spacing(1),
+  },
+  traitChip: {
+    fontSize: '12px',
+    color: '#c5c5c5',
+    background: 'transparent',
+    border: '2px solid #111',
+    margin: '0 5px 5px 0',
   },
 });

@@ -282,7 +282,7 @@ export const collections = {
       floorDisplay: false,
       symbol: 'MEMBASSY',
       minId: 1,
-      maxId: 12,
+      maxId: 13,
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
