@@ -59,7 +59,6 @@ const CollectionPage = () => {
   const path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
   let sortParam, searchParam, filterParams;
-  console.log('sortParam ', pathSplit[5], typeof pathSplit[5]);
   sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
   searchParam = pathSplit[6];
@@ -84,14 +83,12 @@ const CollectionPage = () => {
 
   const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<Filters | undefined>(undefined);
-  // const [sortBy, setSortBy] = useState<SortOption>(SortOption.TOKEN_ID_ASC);
   const [sortBy, setSortBy] = useState<SortOption>(sortParam);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
-
   const displayFilters = assetType === StringAssetType.ERC721;
 
   // TODO: wire it to search result
@@ -146,22 +143,22 @@ const CollectionPage = () => {
           setTake
         );
         let new_path =
-        pathSplit[0] +
-        '/' +
-        pathSplit[1] +
-        '/' +
-        pathSplit[2] +
-        '/' +
-        pathSplit[3] +
-        '/' +
-        pathSplit[4] +
-        '/' +
-        pathSplit[5] +
-        '/' +
+          pathSplit[0] +
+          '/' +
+          pathSplit[1] +
+          '/' +
+          pathSplit[2] +
+          '/' +
+          pathSplit[3] +
+          '/' +
+          pathSplit[4] +
+          '/' +
+          pathSplit[5] +
+          '/' +
         tokenID +
-        '/' +
-        pathSplit[7];
-      history.push(new_path);
+          '/' +
+          pathSplit[7];
+        history.push(new_path);
         setPageLoading(false);
         setCollection(data);
       } else {
@@ -228,7 +225,25 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
+    let strings = JSON.stringify(filters);
     console.log('FILTER', filters);
+    let new_path =
+    pathSplit[0] +
+    '/' +
+    pathSplit[1] +
+    '/' +
+    pathSplit[2] +
+    '/' +
+    pathSplit[3] +
+    '/' +
+    pathSplit[4] +
+    '/' +
+    pathSplit[5] +
+    '/' +
+    pathSplit[7] +
+    '/' +
+    strings;
+  history.push(new_path);
     setCollection([]);
     setTake(0);
     setFilters(filters);
