@@ -41,4 +41,18 @@ export const collectionListStyles = (theme: Theme) => ({
   collectionDescription: {
     fontSize: '12px',
   },
+  placeholderContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    padding: 8,
+    margin: '20 0',
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginTop: 12,
+    textAlign: 'center',
+  },
 });
