@@ -19,7 +19,7 @@ export const CollectionListPage = () => {
   const rawCollections = useRawCollectionsFromList();
   const metas = useFetchCollectionMeta(rawCollections);
 
-  const DEFAULT_PAGE_SIZE = 5;
+  const DEFAULT_PAGE_SIZE = 30;
   const [take, setTake] = useState<number>(0);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const { placeholderContainer } = useClasses(collectionListStyles);

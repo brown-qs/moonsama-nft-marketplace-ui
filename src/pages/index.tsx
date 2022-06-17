@@ -22,7 +22,7 @@ export const Routing = () => (
     <Route path="/collections">
       <CollectionListPage />
     </Route>
-    <Route path="/collection/:type/:address/:subcollectionId">
+    <Route path="/collection/:type/:address/:subcollectionId/:sort?/:search?/:filterBy?">
       <PurchaseDialog />
       <CollectionPage />
     </Route>

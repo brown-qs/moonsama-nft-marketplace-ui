@@ -17,9 +17,9 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
-import { SortOption } from 'ui/Sort/Sort'
+import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
 import {
   getAssetEntityId,
@@ -29,7 +29,6 @@ import {
   getDisplayUnitPrice,
 } from 'utils/subgraph';
 import { styles } from './styles';
-
 
 import { useFloorOrder } from 'hooks/useFloorOrder/useFloorOrder';
 import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
@@ -49,8 +48,23 @@ const CollectionPage = () => {
       staticData: StaticTokenData;
     }[]
   >([]);
-  const { address, type, subcollectionId } =
-    useParams<{ address: string; type: string; subcollectionId: string }>();
+  const { address, type, subcollectionId } = useParams<{
+    address: string;
+    type: string;
+    subcollectionId: string;
+  }>();
+
+  const sampleLocation = useLocation();
+  const path: string = sampleLocation.pathname;
+  let splitss = path.split('/');
+  let sortParam, searchParam, filterParams;
+  console.log('sortParam ', splitss[5], typeof splitss[5]);
+  sortParam = splitss[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(splitss[5]);
+  searchParam = splitss[6];
+  filterParams = splitss[7];
+  console.log('sortParam ', sortParam);
+  console.log('sortParam ', searchParam);
+  console.log('sortParam ', filterParams);
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -72,14 +86,12 @@ const CollectionPage = () => {
 
   const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<Filters | undefined>(undefined);
-  const [sortBy, setSortBy] = useState<SortOption>(SortOption.TOKEN_ID_ASC);
+  // const [sortBy, setSortBy] = useState<SortOption>(SortOption.TOKEN_ID_ASC);
+  const [sortBy, setSortBy] = useState<SortOption>(sortParam);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [searchCounter, setSearchCounter] = useState<number>(0);
-  const {
-    placeholderContainer,
-    container
-  } = useClasses(styles);
+  const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
 
   const displayFilters = assetType === StringAssetType.ERC721;
@@ -90,12 +102,11 @@ const CollectionPage = () => {
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-
   const getItemsWithFilterAndSort = useTokenStaticDataCallbackArrayWithFilter(
     asset,
     subcollectionId,
     filters,
-    sortBy,
+    sortBy
   ); //useTokenStaticDataCallback(asset)//
   /*
   const f = x(['Black Bird', 'White Shades'])
@@ -128,12 +139,12 @@ const CollectionPage = () => {
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
       if (!!tokenID) {
-        console.log('shhin', tokenID)
+        console.log('shhin', tokenID);
         setPaginationEnded(true);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
           1,
-          BigNumber.from(tokenID-1),
+          BigNumber.from(tokenID - 1),
           setTake
         );
         setPageLoading(false);
@@ -153,7 +164,10 @@ const CollectionPage = () => {
     [searchSize, sortBy]
   );
 
-  useBottomScrollListener(handleScrollToBottom, { offset: 400, debounce: 1000 });
+  useBottomScrollListener(handleScrollToBottom, {
+    offset: 400,
+    debounce: 1000,
+  });
 
   //console.log('before FETCH', { searchSize, address, take, paginationEnded, searchCounter, filters });
   useEffect(() => {
@@ -217,7 +231,6 @@ const CollectionPage = () => {
     setSearchCounter((state) => (state += 1));
   }, []);
 
-
   const { setPurchaseData, setPurchaseDialogOpen } = usePurchaseDialog();
   const floorAssetOrder = useFloorOrder(asset);
   const floorAssets = useMemo(() => {
@@ -225,9 +238,11 @@ const CollectionPage = () => {
       return [floorAssetOrder.sellAsset] as Asset[];
     }
     return [] as Asset[];
-  }, [floorAssetOrder])
+  }, [floorAssetOrder]);
 
-  const approvedPaymentCurrency = useApprovedPaymentCurrency(floorAssetOrder?.sellAsset || {} as Asset);
+  const approvedPaymentCurrency = useApprovedPaymentCurrency(
+    floorAssetOrder?.sellAsset || ({} as Asset)
+  );
   const staticData = useTokenStaticData(floorAssets);
   const balanceData = useTokenBasicData(floorAssets);
   const metas = useFetchTokenUri(staticData);
@@ -297,9 +312,7 @@ const CollectionPage = () => {
             </div>
           )}
           <div>
-            <Sort
-              onSortUpdate={handleSortUpdate}
-            />
+            <Sort onSortUpdate={handleSortUpdate} />
           </div>
         </Stack>
         {floorAssetOrder && assetMeta && recognizedCollection?.floorDisplay && (
@@ -313,7 +326,12 @@ const CollectionPage = () => {
             justifyContent="flex-end"
             alignItems="center"
           >
-            <GlitchText>Floor NFT</GlitchText>: {assetMeta.name} {asset.assetAddress.toLowerCase() !== '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a' ? `#${floorAssetOrder.sellAsset.assetId}`: ''} ({displayPPU} {approvedPaymentCurrency.symbol})
+            <GlitchText>Floor NFT</GlitchText>: {assetMeta.name}{' '}
+            {asset.assetAddress.toLowerCase() !==
+            '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
+              ? `#${floorAssetOrder.sellAsset.assetId}`
+              : ''}{' '}
+            ({displayPPU} {approvedPaymentCurrency.symbol})
             <Button
               variant="contained"
               color="primary"
@@ -326,11 +344,12 @@ const CollectionPage = () => {
                   decimals,
                   symbol: tokenSymbol,
                   name: tokenName,
-                  approvedPaymentCurrency
+                  approvedPaymentCurrency,
                 });
               }}
             >
-            {" "} Fill
+              {' '}
+              Fill
             </Button>
           </Stack>
         )}
