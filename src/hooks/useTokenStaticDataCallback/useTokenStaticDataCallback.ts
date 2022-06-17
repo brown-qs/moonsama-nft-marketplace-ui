@@ -254,7 +254,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         return [];
       }
 
-      console.log({offset})
+      console.log("offset",{offset})
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         console.log('fetch statistics');

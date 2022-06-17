@@ -73,7 +73,7 @@ export const CollectionListItem = ({ collection, meta, salt }: CollectionListIte
               ? `/token/${collection.type}/${collection.address}/0`
               : !!subcollection
                 ? `/subcollections/${collection.address}`
-                : `/collection/${collection.type}/${collection.address}/0///filters`
+                : `/collection/${collection.type}/${collection.address}/0/3//`
           }
         >
           <div className={mediaContainer}>

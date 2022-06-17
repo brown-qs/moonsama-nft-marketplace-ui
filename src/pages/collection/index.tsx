@@ -58,11 +58,9 @@ const CollectionPage = () => {
   const sampleLocation = useLocation();
   const path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
-  let sortParam, searchParam, filterParams;
+  let sortParam;
   sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
-  searchParam = pathSplit[6];
-  filterParams = pathSplit[7];
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -134,7 +132,7 @@ const CollectionPage = () => {
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
       if (!!tokenID) {
-        console.log('shhin', tokenID);
+        console.log('shhin', tokenID, typeof tokenID);
         setPaginationEnded(true);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
@@ -155,7 +153,7 @@ const CollectionPage = () => {
           '/' +
           pathSplit[5] +
           '/' +
-        tokenID +
+          tokenID +
           '/' +
           pathSplit[7];
         history.push(new_path);
@@ -181,21 +179,28 @@ const CollectionPage = () => {
     debounce: 1000,
   });
 
-  //console.log('before FETCH', { searchSize, address, take, paginationEnded, searchCounter, filters });
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      console.log('FETCH', { searchSize, address, take, paginationEnded });
-      const data = await getItemsWithFilterAndSort(
-        searchSize,
-        BigNumber.from(take),
-        setTake
-      );
+      let data;
+      console.log('FETCH',  {searchSize, address, take, paginationEnded} );
+      if(pathSplit[6] == ''){
+        data = await getItemsWithFilterAndSort(
+          searchSize,
+          BigNumber.from(take),
+          setTake
+        );
+        }
+        else{
+          data = await getItemsWithFilterAndSort(
+            1,
+            BigNumber.from(parseInt(pathSplit[6]) - 1),
+            setTake
+          );
+        }
       const isEnd = !data || data.length == 0;
       const pieces = data.filter(({ meta }) => !!meta);
       setPageLoading(false);
-
-      //console.log('IS END', {paginationEnded, isEnd, pieces, data})
 
       if (isEnd) {
         setPaginationEnded(true);
@@ -207,7 +212,6 @@ const CollectionPage = () => {
     if (!paginationEnded) {
       getCollectionById();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     address,
     searchCounter,
@@ -228,22 +232,22 @@ const CollectionPage = () => {
     let strings = JSON.stringify(filters);
     console.log('FILTER', filters);
     let new_path =
-    pathSplit[0] +
-    '/' +
-    pathSplit[1] +
-    '/' +
-    pathSplit[2] +
-    '/' +
-    pathSplit[3] +
-    '/' +
-    pathSplit[4] +
-    '/' +
-    pathSplit[5] +
-    '/' +
-    pathSplit[7] +
-    '/' +
-    strings;
-  history.push(new_path);
+      pathSplit[0] +
+      '/' +
+      pathSplit[1] +
+      '/' +
+      pathSplit[2] +
+      '/' +
+      pathSplit[3] +
+      '/' +
+      pathSplit[4] +
+      '/' +
+      pathSplit[5] +
+      '/' +
+      pathSplit[7] +
+      '/' +
+      strings;
+    history.push(new_path);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -253,6 +257,7 @@ const CollectionPage = () => {
   }, []);
 
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
+    console.log('sortBy', sortBy);
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
@@ -333,6 +338,7 @@ const CollectionPage = () => {
               <TextField
                 placeholder="Search by token ID"
                 variant="outlined"
+                defaultValue={pathSplit[6]}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="start">
@@ -359,7 +365,7 @@ const CollectionPage = () => {
             </div>
           )}
           <div>
-            <Sort onSortUpdate={handleSortUpdate} />
+            <Sort onSortUpdate={handleSortUpdate} sortBy={sortBy} />
           </div>
         </Stack>
         {floorAssetOrder && assetMeta && recognizedCollection?.floorDisplay && (
