@@ -56,11 +56,12 @@ const CollectionPage = () => {
 
   let history = useHistory();
   const sampleLocation = useLocation();
-  const path: string = sampleLocation.pathname;
+  let path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
-  let sortParam;
-  sortParam =
+  let filterParam = pathSplit[7].split('+');
+  let sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
+  
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -132,7 +133,6 @@ const CollectionPage = () => {
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
       if (!!tokenID) {
-        console.log('shhin', tokenID, typeof tokenID);
         setPaginationEnded(true);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
@@ -140,6 +140,8 @@ const CollectionPage = () => {
           BigNumber.from(tokenID - 1),
           setTake
         );
+        path = sampleLocation.pathname;
+        pathSplit = path.split('/');
         let new_path =
           pathSplit[0] +
           '/' +
@@ -183,21 +185,47 @@ const CollectionPage = () => {
     const getCollectionById = async () => {
       setPageLoading(true);
       let data;
-      console.log('FETCH',  {searchSize, address, take, paginationEnded} );
-      if(pathSplit[6] == ''){
+      console.log('FETCH', { searchSize, address, take, paginationEnded });
+      if (pathSplit[6] == '') {
         data = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
-        }
-        else{
-          data = await getItemsWithFilterAndSort(
-            1,
-            BigNumber.from(parseInt(pathSplit[6]) - 1),
-            setTake
-          );
-        }
+      } else {
+        data = await getItemsWithFilterAndSort(
+          1,
+          BigNumber.from(parseInt(pathSplit[6]) - 1),
+          setTake
+        );
+      }
+
+      // if (filterParam.length >= 3) {
+      //   let temp,
+      //     tempSelectedOrderType,
+      //     tempPriceRange: number[] = [],
+      //     tempTraits: string[] = [];
+      //   temp = filterParam[0].split(':');
+      //   tempSelectedOrderType = parseInt(temp[1]);
+      //   temp = filterParam[1].replace('[', '').replace(']', '').split(':');
+      //   temp = temp[1].split(',');
+      //   tempPriceRange.push(parseInt(temp[0]));
+      //   tempPriceRange.push(parseInt(temp[1]));
+      //   temp = filterParam[2]
+      //     .replace('[', '')
+      //     .replace(']', '')
+      //     .replaceAll(`"`, ``)
+      //     .split(':');
+      //   temp = temp[1].split(',');
+      //   tempTraits = temp;
+      //   let newFilter: Filters = {
+      //     selectedOrderType: tempSelectedOrderType,
+      //     priceRange: tempPriceRange,
+      //     traits: tempTraits,
+      //   };
+      //   setFilters(newFilter);
+      // }
+
       const isEnd = !data || data.length == 0;
       const pieces = data.filter(({ meta }) => !!meta);
       setPageLoading(false);
@@ -213,6 +241,7 @@ const CollectionPage = () => {
       getCollectionById();
     }
   }, [
+    filterParam,
     address,
     searchCounter,
     paginationEnded,
@@ -229,8 +258,18 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    let strings = JSON.stringify(filters);
+    let strings =
+      'selectedOrderType:' +
+      JSON.stringify(filters.selectedOrderType) +
+      '+' +
+      'priceRange:' +
+      JSON.stringify(filters.priceRange) +
+      '+' +
+      'traits:' +
+      JSON.stringify(filters.traits);
     console.log('FILTER', filters);
+    path = sampleLocation.pathname;
+    pathSplit = path.split('/');
     let new_path =
       pathSplit[0] +
       '/' +
@@ -261,6 +300,8 @@ const CollectionPage = () => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
+    path = sampleLocation.pathname;
+    pathSplit = path.split('/');
     let new_path =
       pathSplit[0] +
       '/' +
