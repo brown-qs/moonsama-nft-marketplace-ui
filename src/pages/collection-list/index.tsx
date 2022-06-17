@@ -19,7 +19,7 @@ export const CollectionListPage = () => {
   const rawCollections = useRawCollectionsFromList();
   const metas = useFetchCollectionMeta(rawCollections);
 
-  const DEFAULT_PAGE_SIZE = 30;
+  const DEFAULT_PAGE_SIZE = 5;
   const [take, setTake] = useState<number>(0);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const { placeholderContainer } = useClasses(collectionListStyles);
@@ -28,8 +28,11 @@ export const CollectionListPage = () => {
     take + DEFAULT_PAGE_SIZE
   );
   const handleScrollToBottom = useCallback(() => {
+    if (pageLoading) return;
+    if (rawCollections.length < take + DEFAULT_PAGE_SIZE) setPageLoading(true);
     console.log('SCROLLBOTTOM');
     collections = rawCollections.slice(0, take + DEFAULT_PAGE_SIZE);
+    setPageLoading(false)
     setTake((state) => (state += DEFAULT_PAGE_SIZE));
   }, [DEFAULT_PAGE_SIZE]);
 
