@@ -17,7 +17,7 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -54,17 +54,16 @@ const CollectionPage = () => {
     subcollectionId: string;
   }>();
 
+  let history = useHistory();
   const sampleLocation = useLocation();
   const path: string = sampleLocation.pathname;
-  let splitss = path.split('/');
+  let pathSplit = path.split('/');
   let sortParam, searchParam, filterParams;
-  console.log('sortParam ', splitss[5], typeof splitss[5]);
-  sortParam = splitss[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(splitss[5]);
-  searchParam = splitss[6];
-  filterParams = splitss[7];
-  console.log('sortParam ', sortParam);
-  console.log('sortParam ', searchParam);
-  console.log('sortParam ', filterParams);
+  console.log('sortParam ', pathSplit[5], typeof pathSplit[5]);
+  sortParam =
+    pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
+  searchParam = pathSplit[6];
+  filterParams = pathSplit[7];
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -81,7 +80,6 @@ const CollectionPage = () => {
     subcollection ? [subcollection] : undefined
   );
 
-  //console.log('SUBMETA', submeta)
   const isSubcollection = subcollectionId !== '0';
 
   const [take, setTake] = useState<number>(0);
@@ -147,6 +145,23 @@ const CollectionPage = () => {
           BigNumber.from(tokenID - 1),
           setTake
         );
+        let new_path =
+        pathSplit[0] +
+        '/' +
+        pathSplit[1] +
+        '/' +
+        pathSplit[2] +
+        '/' +
+        pathSplit[3] +
+        '/' +
+        pathSplit[4] +
+        '/' +
+        pathSplit[5] +
+        '/' +
+        tokenID +
+        '/' +
+        pathSplit[7];
+      history.push(new_path);
         setPageLoading(false);
         setCollection(data);
       } else {
@@ -226,6 +241,23 @@ const CollectionPage = () => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
+    let new_path =
+      pathSplit[0] +
+      '/' +
+      pathSplit[1] +
+      '/' +
+      pathSplit[2] +
+      '/' +
+      pathSplit[3] +
+      '/' +
+      pathSplit[4] +
+      '/' +
+      sortBy +
+      '/' +
+      pathSplit[6] +
+      '/' +
+      pathSplit[7];
+    history.push(new_path);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
