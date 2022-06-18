@@ -6,7 +6,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import { useClasses } from 'hooks';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
 import { MOONSAMA_TRAITS } from 'utils/constants';
 import { OrderType } from 'utils/subgraph';
@@ -41,6 +42,34 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     priceInput,
     filtersTitle,
   } = useClasses(styles);
+  const sampleLocation = useLocation();
+  useEffect(() => {
+    let path: string = sampleLocation.pathname;
+    let pathSplit = path.split('/');
+    let filterParam = pathSplit[7].split('+');
+    if (filterParam.length >= 3) {
+      let temp,
+        tempSelectedOrderType,
+        tempPriceRange: number[] = [],
+        tempTraits: string[] = [];
+      temp = filterParam[0].split(':');
+      tempSelectedOrderType = parseInt(temp[1]);
+      temp = filterParam[1].replace('[', '').replace(']', '').split(':');
+      temp = temp[1].split(',');
+      tempPriceRange.push(parseInt(temp[0]));
+      tempPriceRange.push(parseInt(temp[1]));
+      temp = filterParam[2]
+        .replace('[', '')
+        .replace(']', '')
+        .replaceAll(`"`, ``)
+        .split(':');
+      temp = temp[1].split(',');
+      tempTraits = temp;
+      setSelectedOrderType(tempSelectedOrderType);
+      setPriceRange(tempPriceRange);
+      setSelectedTraits(tempTraits);
+    }
+  }, []);
 
   const isMoonsama =
     assetAddress.toLowerCase() ==
@@ -130,6 +159,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
               >
                 <Typography className={accordionHeader}>Order Type</Typography>
               </AccordionSummary>
+
               <AccordionDetails>
                 <div className={accordionContent}>
                   <Chip

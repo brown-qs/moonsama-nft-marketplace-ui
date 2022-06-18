@@ -93,7 +93,6 @@ const CollectionPage = () => {
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-  console.log('getItemsWithFilterAndSort0');
   const getItemsWithFilterAndSort = useTokenStaticDataCallbackArrayWithFilter(
     asset,
     subcollectionId,
@@ -123,7 +122,7 @@ const CollectionPage = () => {
 
   const handleScrollToBottom = useCallback(() => {
     if (pageLoading) return;
-    console.log('SCROLLBOTTOM');
+    // console.log('SCROLLBOTTOM');
     setTake((state) => (state += searchSize));
     setSearchCounter((state) => (state += 1));
   }, [searchSize]);
@@ -150,7 +149,6 @@ const CollectionPage = () => {
         pathSplit[7];
       history.push(new_path);
       if (!!tokenID) {
-        console.log('getItemsWithFilterAndSort1', tokenID);
         setPaginationEnded(true);
         setPageLoading(true);
 
@@ -162,7 +160,6 @@ const CollectionPage = () => {
         setPageLoading(false);
         setCollection(data);
       } else {
-        console.log('getItemsWithFilterAndSort2');
         setPaginationEnded(false);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
@@ -206,7 +203,6 @@ const CollectionPage = () => {
         priceRange: tempPriceRange,
         traits: tempTraits,
       };
-      console.log('newFilter1', newFilter);
       searchSize =
         newFilter?.selectedOrderType == undefined
           ? DEFAULT_PAGE_SIZE
@@ -224,16 +220,14 @@ const CollectionPage = () => {
     const getCollectionById = async () => {
       setPageLoading(true);
       let data;
-      console.log('FETCH ', { searchSize, address, take, paginationEnded });
+      // console.log('FETCH ', { searchSize, address, take, paginationEnded });
       if (pathSplit[6] == '') {
-        console.log('getItemsWithFilterAndSort3');
         data = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
       } else {
-        console.log('getItemsWithFilterAndSort4');
         data = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(parseInt(pathSplit[6]) - 1),
@@ -280,7 +274,7 @@ const CollectionPage = () => {
       '+' +
       'traits:' +
       JSON.stringify(filters.traits);
-    console.log('FILTER1', filters);
+    // console.log('FILTER1', filters);
     path = sampleLocation.pathname;
     pathSplit = path.split('/');
     let new_path =
@@ -309,7 +303,6 @@ const CollectionPage = () => {
   }, []);
 
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
-    console.log('sortBy', sortBy);
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
