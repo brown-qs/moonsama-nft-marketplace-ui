@@ -61,7 +61,6 @@ const CollectionPage = () => {
   let filterParam = pathSplit[7].split('+');
   let sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
-  
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -90,12 +89,11 @@ const CollectionPage = () => {
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
 
-  // TODO: wire it to search result
-
   const collectionName = recognizedCollection
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
+  console.log('getItemsWithFilterAndSort0');
   const getItemsWithFilterAndSort = useTokenStaticDataCallbackArrayWithFilter(
     asset,
     subcollectionId,
@@ -118,7 +116,7 @@ const CollectionPage = () => {
   console.log('MSATTR', m)
   */
 
-  const searchSize =
+  let searchSize =
     filters?.selectedOrderType == undefined
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
@@ -132,36 +130,39 @@ const CollectionPage = () => {
 
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
+      path = sampleLocation.pathname;
+      pathSplit = path.split('/');
+      let new_path =
+        pathSplit[0] +
+        '/' +
+        pathSplit[1] +
+        '/' +
+        pathSplit[2] +
+        '/' +
+        pathSplit[3] +
+        '/' +
+        pathSplit[4] +
+        '/' +
+        pathSplit[5] +
+        '/' +
+        tokenID +
+        '/' +
+        pathSplit[7];
+      history.push(new_path);
       if (!!tokenID) {
+        console.log('getItemsWithFilterAndSort1', tokenID);
         setPaginationEnded(true);
         setPageLoading(true);
+
         const data = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(tokenID - 1),
           setTake
         );
-        path = sampleLocation.pathname;
-        pathSplit = path.split('/');
-        let new_path =
-          pathSplit[0] +
-          '/' +
-          pathSplit[1] +
-          '/' +
-          pathSplit[2] +
-          '/' +
-          pathSplit[3] +
-          '/' +
-          pathSplit[4] +
-          '/' +
-          pathSplit[5] +
-          '/' +
-          tokenID +
-          '/' +
-          pathSplit[7];
-        history.push(new_path);
         setPageLoading(false);
         setCollection(data);
       } else {
+        console.log('getItemsWithFilterAndSort2');
         setPaginationEnded(false);
         setPageLoading(true);
         const data = await getItemsWithFilterAndSort(
@@ -182,50 +183,63 @@ const CollectionPage = () => {
   });
 
   useEffect(() => {
+    if (filterParam.length >= 3) {
+      let temp,
+        tempSelectedOrderType,
+        tempPriceRange: number[] = [],
+        tempTraits: string[] = [];
+      temp = filterParam[0].split(':');
+      tempSelectedOrderType = parseInt(temp[1]);
+      temp = filterParam[1].replace('[', '').replace(']', '').split(':');
+      temp = temp[1].split(',');
+      tempPriceRange.push(parseInt(temp[0]));
+      tempPriceRange.push(parseInt(temp[1]));
+      temp = filterParam[2]
+        .replace('[', '')
+        .replace(']', '')
+        .replaceAll(`"`, ``)
+        .split(':');
+      temp = temp[1].split(',');
+      tempTraits = temp;
+      let newFilter: Filters = {
+        selectedOrderType: tempSelectedOrderType,
+        priceRange: tempPriceRange,
+        traits: tempTraits,
+      };
+      console.log('newFilter1', newFilter);
+      searchSize =
+        newFilter?.selectedOrderType == undefined
+          ? DEFAULT_PAGE_SIZE
+          : SEARCH_PAGE_SIZE;
+      setFilters(newFilter);
+      setCollection([]);
+      setTake(0);
+      setPageLoading(true);
+      setPaginationEnded(false);
+    }
+    setSearchCounter((state) => (state += 1));
+  }, []);
+
+  useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
       let data;
-      console.log('FETCH', { searchSize, address, take, paginationEnded });
+      console.log('FETCH ', { searchSize, address, take, paginationEnded });
       if (pathSplit[6] == '') {
+        console.log('getItemsWithFilterAndSort3');
         data = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
       } else {
+        console.log('getItemsWithFilterAndSort4');
         data = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(parseInt(pathSplit[6]) - 1),
           setTake
         );
       }
-
-      // if (filterParam.length >= 3) {
-      //   let temp,
-      //     tempSelectedOrderType,
-      //     tempPriceRange: number[] = [],
-      //     tempTraits: string[] = [];
-      //   temp = filterParam[0].split(':');
-      //   tempSelectedOrderType = parseInt(temp[1]);
-      //   temp = filterParam[1].replace('[', '').replace(']', '').split(':');
-      //   temp = temp[1].split(',');
-      //   tempPriceRange.push(parseInt(temp[0]));
-      //   tempPriceRange.push(parseInt(temp[1]));
-      //   temp = filterParam[2]
-      //     .replace('[', '')
-      //     .replace(']', '')
-      //     .replaceAll(`"`, ``)
-      //     .split(':');
-      //   temp = temp[1].split(',');
-      //   tempTraits = temp;
-      //   let newFilter: Filters = {
-      //     selectedOrderType: tempSelectedOrderType,
-      //     priceRange: tempPriceRange,
-      //     traits: tempTraits,
-      //   };
-      //   setFilters(newFilter);
-      // }
-
       const isEnd = !data || data.length == 0;
       const pieces = data.filter(({ meta }) => !!meta);
       setPageLoading(false);
@@ -237,11 +251,10 @@ const CollectionPage = () => {
       }
       setCollection((state) => state.concat(pieces));
     };
-    if (!paginationEnded) {
+    if (!paginationEnded && searchCounter) {
       getCollectionById();
     }
   }, [
-    filterParam,
     address,
     searchCounter,
     paginationEnded,
@@ -267,7 +280,7 @@ const CollectionPage = () => {
       '+' +
       'traits:' +
       JSON.stringify(filters.traits);
-    console.log('FILTER', filters);
+    console.log('FILTER1', filters);
     path = sampleLocation.pathname;
     pathSplit = path.split('/');
     let new_path =
@@ -283,7 +296,7 @@ const CollectionPage = () => {
       '/' +
       pathSplit[5] +
       '/' +
-      pathSplit[7] +
+      pathSplit[6] +
       '/' +
       strings;
     history.push(new_path);
