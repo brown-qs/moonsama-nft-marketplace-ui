@@ -77,3 +77,9 @@ export const MOONSAMA_TRAITS = {
   Crown: 2,
   Neon: 6,
 };
+
+export const PONDSAMA_TRAITS = {
+  'Yellow Bird': 120,
+  'Rainbow Shirt': 141,
+  'No body accessory': 863
+};

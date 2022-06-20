@@ -9,13 +9,14 @@ import { useClasses } from 'hooks';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
-import { MOONSAMA_TRAITS } from 'utils/constants';
+import { MOONSAMA_TRAITS, PONDSAMA_TRAITS } from 'utils/constants';
 import { OrderType } from 'utils/subgraph';
 import { styles } from './Filters.style';
 
 export interface Filters {
   priceRange: number[];
   traits: string[];
+  pondTraits: string[];
   selectedOrderType: OrderType | undefined;
   hpRange: number[];
   pwRange: number[];
@@ -36,6 +37,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
   const [spRange, setSpRange] = useState<number[]>([1, 100]);
   const [dfRange, setDfRange] = useState<number[]>([1, 100]);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
+  const [selectedPondTraits, setSelectedPondTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
   >(undefined);
@@ -79,6 +81,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     onFiltersUpdate({
       selectedOrderType,
       traits: selectedTraits,
+      pondTraits: selectedPondTraits,
       priceRange,
       hpRange,
       pwRange,
@@ -194,11 +197,21 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       setSelectedTraits(
         selectedTraits.filter((selectedTrait) => selectedTrait !== trait)
       );
-
       return;
     }
-
     setSelectedTraits([...selectedTraits, trait]);
+  };
+
+  const handlePondTraitClick = (trait: string) => {
+    if (selectedPondTraits.includes(trait)) {
+      setSelectedPondTraits(
+        selectedPondTraits.filter(
+          (selectedPondTrait) => selectedPondTrait !== trait
+        )
+      );
+      return;
+    }
+    setSelectedPondTraits([...selectedPondTraits, trait]);
   };
 
   return (
@@ -487,18 +500,18 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
-                    <Typography className={accordionHeader}>Traits</Typography>
+                    <Typography className={accordionHeader}>Pondsama Traits</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <div className={accordionContent}>
-                      {Object.keys(MOONSAMA_TRAITS).map((trait, i) => (
+                      {Object.keys(PONDSAMA_TRAITS).map((trait, i) => (
                         <Chip
                           label={trait}
                           key={`${trait}-${i}`}
                           variant="outlined"
-                          onClick={() => handleTraitClick(trait)}
+                          onClick={() => handlePondTraitClick(trait)}
                           className={`${filterChip} ${
-                            selectedTraits.includes(trait) && 'selected'
+                            selectedPondTraits.includes(trait) && 'selected'
                           }`}
                         />
                       ))}

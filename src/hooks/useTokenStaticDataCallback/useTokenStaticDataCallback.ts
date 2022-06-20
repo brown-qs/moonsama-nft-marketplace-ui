@@ -20,15 +20,20 @@ import {
 } from 'utils/calls';
 import { Filters } from 'ui/Filters/Filters';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
+import { usePondsamaAttrIds } from 'hooks/usePondsamaAttrIdsCallback/usePondsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import { QUERY_USER_ERC721 } from 'subgraph/erc721Queries';
 import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
-import { QUERY_ACTIVE_ORDERS_FOR_FILTER, QUERY_ORDERS_FOR_TOKEN, QUERY_ASSETS_BY_PRICE } from 'subgraph/orderQueries';
+import {
+  QUERY_ACTIVE_ORDERS_FOR_FILTER,
+  QUERY_ORDERS_FOR_TOKEN,
+  QUERY_ASSETS_BY_PRICE,
+} from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
-import { SortOption } from 'ui/Sort/Sort'
+import { SortOption } from 'ui/Sort/Sort';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -154,7 +159,7 @@ const chooseAssets = (
   ids: number[],
   minId: number,
   maxId: number,
-  direction: SortOption,
+  direction: SortOption
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: Asset[];
@@ -167,11 +172,10 @@ const chooseAssets = (
     }
     const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
     let chosenIds = [];
-    
+
     if (direction == SortOption.TOKEN_ID_ASC)
       chosenIds = ids.slice(offsetNum, to);
-    else
-      chosenIds = [...ids].reverse().slice(offsetNum, to);
+    else chosenIds = [...ids].reverse().slice(offsetNum, to);
 
     console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
@@ -193,10 +197,8 @@ const chooseAssets = (
 
     chosenAssets = Array.from({ length: rnum }, (_, i) => {
       let x;
-      if (direction == SortOption.TOKEN_ID_ASC)
-        x = offset.add(i).toString();
-      else
-        x = ((maxId - (offsetNum - minId)) - i).toString();
+      if (direction == SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
+      else x = (maxId - (offsetNum - minId) - i).toString();
 
       return {
         assetId: x,
@@ -216,29 +218,37 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
   filter: Filters | undefined,
-  sortBy: SortOption,
+  sortBy: SortOption
 ) => {
-  console.log("useTokenStaticDataCallbackArrayWithFilter", {assetAddress, assetType, filter, subcollectionId})
+  console.log('useTokenStaticDataCallbackArrayWithFilter', {
+    assetAddress,
+    assetType,
+    filter,
+    subcollectionId,
+  });
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
 
   const fetchUri = useFetchTokenUriCallback();
 
-  let ids = useMoonsamaAttrIds(filter?.traits) ?? [];
+  let ids = useMoonsamaAttrIds(filter?.traits);
+  let PondIds = usePondsamaAttrIds(filter?.pondTraits);
+  ids = ids.length ? ids : PondIds;
   let coll = useRawcollection(assetAddress ?? '');
   if (!!subcollectionId && subcollectionId !== '0') {
     ids =
-      coll?.subcollections?.find((c:any) => c.id === subcollectionId)?.tokens ?? [];
+      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
+        ?.tokens ?? [];
   }
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
   const maxId = coll?.maxId ?? 1000;
 
   if (!ids?.length) {
-    for (let i=minId; i<=maxId; i++) ids.push(i);
+    for (let i = minId; i <= maxId; i++) ids.push(i);
   }
 
-  console.log("ids1", ids)
-  console.log("coll1", coll)
+  console.log('ids1', ids);
+  console.log('coll1', coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -254,7 +264,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         return [];
       }
 
-      console.log("offset",{offset})
+      console.log('offset', { offset });
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         console.log('fetch statistics');
@@ -279,7 +289,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
 
         const metas = await fetchUri(staticData);
 
-        console.log("metas",metas);
+        console.log('metas', metas);
 
         return metas.map((x, i) => {
           return {
@@ -293,12 +303,12 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       let ordersFetch: any[] = [];
 
       // let assetIdsJSONString = JSON.stringify(ids);
-      
+
       // if (coll?.type === 'ERC721') {
       //   const query = QUERY_USER_ERC721(assetIdsJSONString);
       //   const response = await request(coll?.subgraph, query);
       //   return response;
-      // } 
+      // }
       // if (coll?.type === 'ERC1155') {
       //   const query = QUERY_USER_ERC1155(assetIdsJSONString);
       //   const response = await request(coll?.subgraph, query);
@@ -307,8 +317,10 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       // return [];
 
       // if we don't have a price range, it's just business as usual
-      if (sortBy == SortOption.TOKEN_ID_ASC || sortBy == SortOption.TOKEN_ID_DESC) {
-        
+      if (
+        sortBy == SortOption.TOKEN_ID_ASC ||
+        sortBy == SortOption.TOKEN_ID_DESC
+      ) {
         let chosenAssets = chooseAssets(
           assetType,
           assetAddress,
@@ -324,7 +336,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           !priceRange ||
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
-          !selectedOrderType) {
+          !selectedOrderType
+        ) {
           console.log('DEFAULT SEARCH', {
             assetAddress,
             assetType,
@@ -333,7 +346,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             offset: offset?.toString(),
             chosenAssets,
           });
-    
+
           console.log('no price range');
           const statics = await fetchStatics(chosenAssets);
           console.log('statistics', statics);
@@ -367,7 +380,10 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             rangeInWei[1].toString()
           );
 
-          const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
           console.log('YOLO getOrders', result);
           const orders = result?.orders;
 
@@ -414,12 +430,20 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           }
         } while (!canStop);
       } else {
-        let query = QUERY_ORDERS_FOR_TOKEN(assetAddress, 
-          sortBy == SortOption.PRICE_ASC || sortBy == SortOption.PRICE_DESC ? 'price' : 'id',
+        let query = QUERY_ORDERS_FOR_TOKEN(
+          assetAddress,
+          sortBy == SortOption.PRICE_ASC || sortBy == SortOption.PRICE_DESC
+            ? 'price'
+            : 'id',
           sortBy == SortOption.PRICE_ASC,
-          offset.toNumber(), num);
+          offset.toNumber(),
+          num
+        );
 
-        const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+        const result = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
         console.log('YOLO getOrders', result);
         const orders = result?.orders;
 
@@ -447,7 +471,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      console.log('final rfesult', result)
+      console.log('final rfesult', result);
       return result;
     },
     [
