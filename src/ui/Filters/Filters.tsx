@@ -6,7 +6,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import { useClasses } from 'hooks';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
 import { MOONSAMA_TRAITS } from 'utils/constants';
@@ -27,6 +27,10 @@ interface Props {
 export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
   const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
+  const [hpRange, setHpRange] = useState<number[]>([1, 100]);
+  const [pwRange, setPwRange] = useState<number[]>([1, 100]);
+  const [spRange, setSpRange] = useState<number[]>([1, 100]);
+  const [dfRange, setDfRange] = useState<number[]>([1, 100]);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
@@ -75,6 +79,10 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     assetAddress.toLowerCase() ==
     '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase();
 
+  const isPondsama =
+    assetAddress.toLowerCase() ==
+    '0xe4edcaaea73684b310fc206405ee80abcec73ee0'.toLowerCase();
+
   const handleApplyFilters = () => {
     onFiltersUpdate({
       selectedOrderType,
@@ -93,7 +101,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
   };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
-    console.log(event.target.value);
+    // console.log(event.target.value);
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
@@ -110,6 +118,74 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
 
     if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
       setPriceRange(newRange);
+    }
+  };
+
+  const handleHpRangeChange = (event: any, to: boolean) => {
+    if (!event.target.value && event.target.value !== 0) {
+      return;
+    }
+
+    const val = Number.parseFloat(event.target.value);
+
+    if (!val && val !== 0) {
+      return;
+    }
+
+    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+
+    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+      setHpRange(newRange);
+    }
+  };
+
+  const handlePwRangeChange = (event: any, to: boolean) => {
+    if (!event.target.value && event.target.value !== 0) {
+      return;
+    }
+    const val = Number.parseFloat(event.target.value);
+    if (!val && val !== 0) {
+      return;
+    }
+    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+      setPwRange(newRange);
+    }
+  };
+
+  const handleSpRangeChange = (event: any, to: boolean) => {
+    if (!event.target.value && event.target.value !== 0) {
+      return;
+    }
+
+    const val = Number.parseFloat(event.target.value);
+
+    if (!val && val !== 0) {
+      return;
+    }
+
+    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+
+    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+      setSpRange(newRange);
+    }
+  };
+
+  const handleDfRangeChange = (event: any, to: boolean) => {
+    if (!event.target.value && event.target.value !== 0) {
+      return;
+    }
+
+    const val = Number.parseFloat(event.target.value);
+
+    if (!val && val !== 0) {
+      return;
+    }
+
+    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+
+    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+      setDfRange(newRange);
     }
   };
 
@@ -251,7 +327,182 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                 */}
               </AccordionDetails>
             </Accordion>
-
+            {isPondsama && (
+              <div>
+                <Accordion defaultExpanded square className={filterAccordion}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
+                  >
+                    <Typography className={accordionHeader}>HP Range</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={{ xs: 1, sm: 2, md: 8 }}
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <TextField
+                        className={priceInput}
+                        placeholder="Min"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleHpRangeChange(event, false)
+                        }
+                        defaultValue={hpRange[0]}
+                      />
+                      <div>TO</div>
+                      <TextField
+                        className={priceInput}
+                        placeholder="Max"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleHpRangeChange(event, true)
+                        }
+                        defaultValue={hpRange[1]}
+                      />
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion defaultExpanded square className={filterAccordion}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
+                  >
+                    <Typography className={accordionHeader}>PW Range</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={{ xs: 1, sm: 2, md: 8 }}
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <TextField
+                        className={priceInput}
+                        placeholder="Min"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handlePwRangeChange(event, false)
+                        }
+                        defaultValue={pwRange[0]}
+                      />
+                      <div>TO</div>
+                      <TextField
+                        className={priceInput}
+                        placeholder="Max"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handlePwRangeChange(event, true)
+                        }
+                        defaultValue={pwRange[1]}
+                      />
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion defaultExpanded square className={filterAccordion}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
+                  >
+                    <Typography className={accordionHeader}>SP Range</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={{ xs: 1, sm: 2, md: 8 }}
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <TextField
+                        className={priceInput}
+                        placeholder="Min"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleSpRangeChange(event, false)
+                        }
+                        defaultValue={spRange[0]}
+                      />
+                      <div>TO</div>
+                      <TextField
+                        className={priceInput}
+                        placeholder="Max"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleSpRangeChange(event, true)
+                        }
+                        defaultValue={spRange[1]}
+                      />
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion defaultExpanded square className={filterAccordion}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
+                  >
+                    <Typography className={accordionHeader}>DF Range</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={{ xs: 1, sm: 2, md: 8 }}
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <TextField
+                        className={priceInput}
+                        placeholder="Min"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleDfRangeChange(event, false)
+                        }
+                        defaultValue={dfRange[0]}
+                      />
+                      <div>TO</div>
+                      <TextField
+                        className={priceInput}
+                        placeholder="Max"
+                        variant="outlined"
+                        onChange={(event: any) =>
+                          handleDfRangeChange(event, true)
+                        }
+                        defaultValue={dfRange[1]}
+                      />
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion defaultExpanded square className={filterAccordion}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel2a-content"
+                    id="panel2a-header"
+                  >
+                    <Typography className={accordionHeader}>Traits</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <div className={accordionContent}>
+                      {Object.keys(MOONSAMA_TRAITS).map((trait, i) => (
+                        <Chip
+                          label={trait}
+                          key={`${trait}-${i}`}
+                          variant="outlined"
+                          onClick={() => handleTraitClick(trait)}
+                          className={`${filterChip} ${
+                            selectedTraits.includes(trait) && 'selected'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            )}
             {isMoonsama && (
               <Accordion defaultExpanded square className={filterAccordion}>
                 <AccordionSummary

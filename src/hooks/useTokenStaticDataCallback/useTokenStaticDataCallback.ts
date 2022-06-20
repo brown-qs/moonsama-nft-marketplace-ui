@@ -237,8 +237,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
     for (let i=minId; i<=maxId; i++) ids.push(i);
   }
 
-  console.log("ids", ids)
-  console.log("coll", coll)
+  console.log("ids1", ids)
+  console.log("coll1", coll)
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
