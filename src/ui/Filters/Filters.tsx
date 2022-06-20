@@ -17,6 +17,10 @@ export interface Filters {
   priceRange: number[];
   traits: string[];
   selectedOrderType: OrderType | undefined;
+  hpRange: number[];
+  pwRange: number[];
+  spRange: number[];
+  dfRange: number[];
 }
 
 interface Props {
@@ -46,32 +50,20 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     priceInput,
     filtersTitle,
   } = useClasses(styles);
+
   const sampleLocation = useLocation();
   useEffect(() => {
     let path: string = sampleLocation.pathname;
     let pathSplit = path.split('/');
-    let filterParam = pathSplit[7].split('+');
-    if (filterParam.length >= 3) {
-      let temp,
-        tempSelectedOrderType,
-        tempPriceRange: number[] = [],
-        tempTraits: string[] = [];
-      temp = filterParam[0].split(':');
-      tempSelectedOrderType = parseInt(temp[1]);
-      temp = filterParam[1].replace('[', '').replace(']', '').split(':');
-      temp = temp[1].split(',');
-      tempPriceRange.push(parseInt(temp[0]));
-      tempPriceRange.push(parseInt(temp[1]));
-      temp = filterParam[2]
-        .replace('[', '')
-        .replace(']', '')
-        .replaceAll(`"`, ``)
-        .split(':');
-      temp = temp[1].split(',');
-      tempTraits = temp;
-      setSelectedOrderType(tempSelectedOrderType);
-      setPriceRange(tempPriceRange);
-      setSelectedTraits(tempTraits);
+    if (pathSplit[7].length >= 1) {
+      let newFilter: Filters = JSON.parse(pathSplit[7]);
+      setSelectedOrderType(newFilter?.selectedOrderType);
+      setPriceRange(newFilter?.priceRange);
+      setSelectedTraits(newFilter?.traits);
+      setHpRange(newFilter?.hpRange);
+      setPwRange(newFilter?.pwRange);
+      setSpRange(newFilter?.spRange);
+      setDfRange(newFilter?.dfRange);
     }
   }, []);
 
@@ -88,6 +80,10 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       selectedOrderType,
       traits: selectedTraits,
       priceRange,
+      hpRange,
+      pwRange,
+      spRange,
+      dfRange,
     });
     setIsDrawerOpened(false);
   };
@@ -335,7 +331,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
-                    <Typography className={accordionHeader}>HP Range</Typography>
+                    <Typography className={accordionHeader}>
+                      HP Range
+                    </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Stack
@@ -372,7 +370,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
-                    <Typography className={accordionHeader}>PW Range</Typography>
+                    <Typography className={accordionHeader}>
+                      PW Range
+                    </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Stack
@@ -409,7 +409,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
-                    <Typography className={accordionHeader}>SP Range</Typography>
+                    <Typography className={accordionHeader}>
+                      SP Range
+                    </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Stack
@@ -446,7 +448,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
-                    <Typography className={accordionHeader}>DF Range</Typography>
+                    <Typography className={accordionHeader}>
+                      DF Range
+                    </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Stack

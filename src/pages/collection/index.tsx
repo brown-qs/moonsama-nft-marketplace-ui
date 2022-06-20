@@ -58,7 +58,6 @@ const CollectionPage = () => {
   const sampleLocation = useLocation();
   let path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
-  let filterParam = pathSplit[7].split('+');
   let sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
   const assetType = stringToStringAssetType(type);
@@ -180,29 +179,41 @@ const CollectionPage = () => {
   });
 
   useEffect(() => {
-    if (filterParam.length >= 3) {
-      let temp,
-        tempSelectedOrderType,
-        tempPriceRange: number[] = [],
-        tempTraits: string[] = [];
-      temp = filterParam[0].split(':');
-      tempSelectedOrderType = parseInt(temp[1]);
-      temp = filterParam[1].replace('[', '').replace(']', '').split(':');
-      temp = temp[1].split(',');
-      tempPriceRange.push(parseInt(temp[0]));
-      tempPriceRange.push(parseInt(temp[1]));
-      temp = filterParam[2]
-        .replace('[', '')
-        .replace(']', '')
-        .replaceAll(`"`, ``)
-        .split(':');
-      temp = temp[1].split(',');
-      tempTraits = temp;
-      let newFilter: Filters = {
-        selectedOrderType: tempSelectedOrderType,
-        priceRange: tempPriceRange,
-        traits: tempTraits,
-      };
+    // if (filterParam.length >= 3) {
+    //   let temp,
+    //     tempSelectedOrderType,
+    //     tempPriceRange: number[] = [],
+    //     tempTraits: string[] = [];
+    //   temp = filterParam[0].split(':');
+    //   tempSelectedOrderType = parseInt(temp[1]);
+    //   temp = filterParam[1].replace('[', '').replace(']', '').split(':');
+    //   temp = temp[1].split(',');
+    //   tempPriceRange.push(parseInt(temp[0]));
+    //   tempPriceRange.push(parseInt(temp[1]));
+    //   temp = filterParam[2]
+    //     .replace('[', '')
+    //     .replace(']', '')
+    //     .replaceAll(`"`, ``)
+    //     .split(':');
+    //   temp = temp[1].split(',');
+    //   tempTraits = temp;
+    //   let newFilter: Filters = {
+    //     selectedOrderType: tempSelectedOrderType,
+    //     priceRange: tempPriceRange,
+    //     traits: tempTraits,
+    //   };
+    //   searchSize =
+    //     newFilter?.selectedOrderType == undefined
+    //       ? DEFAULT_PAGE_SIZE
+    //       : SEARCH_PAGE_SIZE;
+    //   setFilters(newFilter);
+    //   setCollection([]);
+    //   setTake(0);
+    //   setPageLoading(true);
+    //   setPaginationEnded(false);
+    // }
+    if (pathSplit[7].length >= 1) {
+      let newFilter: Filters = JSON.parse(pathSplit[7]);
       searchSize =
         newFilter?.selectedOrderType == undefined
           ? DEFAULT_PAGE_SIZE
@@ -265,16 +276,7 @@ const CollectionPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    let strings =
-      'selectedOrderType:' +
-      JSON.stringify(filters.selectedOrderType) +
-      '+' +
-      'priceRange:' +
-      JSON.stringify(filters.priceRange) +
-      '+' +
-      'traits:' +
-      JSON.stringify(filters.traits);
-    // console.log('FILTER1', filters);
+    let strings = JSON.stringify(filters);
     path = sampleLocation.pathname;
     pathSplit = path.split('/');
     let new_path =
