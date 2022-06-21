@@ -20,7 +20,6 @@ import {
 } from 'utils/calls';
 import { Filters } from 'ui/Filters/Filters';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
-import { usePondsamaAttrIds } from 'hooks/usePondsamaAttrIdsCallback/usePondsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import { QUERY_USER_ERC721 } from 'subgraph/erc721Queries';
 import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
@@ -232,8 +231,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   const fetchUri = useFetchTokenUriCallback();
 
   let ids = useMoonsamaAttrIds(filter?.traits);
-  let PondIds = usePondsamaAttrIds(filter?.pondTraits);
-  ids = ids.length ? ids : PondIds;
+  // let PondIds = usePondsamaAttrIds(filter?.pondTraits);
+  // ids = ids.length ? ids : PondIds;
   let coll = useRawcollection(assetAddress ?? '');
   if (!!subcollectionId && subcollectionId !== '0') {
     ids =
