@@ -380,6 +380,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             rangeInWei[1].toString()
           );
 
+          console.log("query11", query)
+
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
