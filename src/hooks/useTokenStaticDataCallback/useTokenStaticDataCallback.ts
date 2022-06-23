@@ -30,11 +30,16 @@ import {
   QUERY_PONDSAMA_ACTIVE_ID,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
-import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, PONDSAMA_SUBGRAPH_URLS } from '../../constants';
+import {
+  DEFAULT_CHAIN,
+  MARKETPLACE_SUBGRAPH_URLS,
+  PONDSAMA_SUBGRAPH_URLS,
+} from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
 import React, { useEffect, useState } from 'react';
+import { browserVersion } from 'react-device-detect';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -160,7 +165,8 @@ const chooseAssets = (
   ids: number[],
   minId: number,
   maxId: number,
-  direction: SortOption
+  direction: SortOption,
+  collectionNameFilter: number
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: Asset[];
@@ -187,6 +193,8 @@ const chooseAssets = (
         id: getAssetEntityId(assetAddress, x),
       };
     });
+  } else if (!ids.length && collectionNameFilter == 2) {
+    return [];
   } else {
     const rnum =
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
@@ -220,14 +228,14 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   subcollectionId: string,
   filter: Filters | undefined,
   sortBy: SortOption,
-  collectionNameFilter: number,
+  collectionNameFilter: number
 ) => {
   console.log('useTokenStaticDataCallbackArrayWithFilter', {
     assetAddress,
     assetType,
     filter,
     subcollectionId,
-    collectionNameFilter
+    collectionNameFilter,
   });
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
@@ -248,8 +256,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
     for (let i = minId; i <= maxId; i++) ids.push(i);
   }
 
-  console.log('ids1', ids);
-  console.log('coll1', coll);
+  // console.log('ids1', ids);
+  // console.log('coll1', coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -264,21 +272,94 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
-      if(collectionNameFilter == 2){
+      if (collectionNameFilter == 2) {
         const res = await request(
           PONDSAMA_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
           pondsamaQuery
         );
-        let ponsIds: number[] = []
+        let ponsIds: number[] = [];
         for (let i = 0; i < res.tokens.length; i++)
-          ponsIds.push(Number(res.tokens[i].id))
-        ids = ponsIds;
-      }
-      // console.log('offset', { offset });
-      console.log("fetchTokenStaticData1", ids)
+          ponsIds.push(Number(res.tokens[i].id));
+        if (filter && filter.dfRange && filter.dfRange.length == 2) {
+          let chosenAssets = chooseAssets(
+            assetType,
+            assetAddress,
+            offset,
+            res.tokens.length,
+            ids,
+            minId,
+            maxId,
+            sortBy,
+            collectionNameFilter
+          );
 
+          let calls: any[] = [];
+          chosenAssets.map((asset, i) => {
+            calls = [...calls, ...getTokenStaticCalldata(asset)];
+          });
+
+          const results = await tryMultiCallCore(multi, calls);
+          if (!results) return [];
+          const staticData = processTokenStaticCallResults(
+            chosenAssets,
+            results
+          );
+          const metas = await fetchUri(staticData);
+          // console.log('metas1', metas);
+          let ponsIdsMeta: number[] = [];
+          for (let i = 0; i < metas.length; i++) {
+            let flag = true;
+            let selectedPondTraits = filter.pondTraits;
+            for (let j = 0; j < metas[i].attributes.length; j++) {
+              if (
+                metas[i].attributes[j].trait_type == 'HP' &&
+                (metas[i].attributes[j].value < filter.hpRange[0] ||
+                  metas[i].attributes[j].value > filter.hpRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'PW' &&
+                (metas[i].attributes[j].value < filter?.pwRange[0] ||
+                  metas[i].attributes[j].value > filter?.pwRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'SP' &&
+                (metas[i].attributes[j].value < filter?.spRange[0] ||
+                  metas[i].attributes[j].value > filter?.spRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'DF' &&
+                (metas[i].attributes[j].value < filter?.dfRange[0] ||
+                  metas[i].attributes[j].value > filter?.dfRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (selectedPondTraits.length) {
+                selectedPondTraits = selectedPondTraits.filter(
+                  (e) => e !== metas[i].attributes[j].value
+                );
+              }
+            }
+
+            if (flag == true && !selectedPondTraits.length) {
+              console.log('metas[i].attributes1', i, flag, selectedPondTraits);
+              ponsIdsMeta.push(ponsIds[i]);
+            }
+          }
+          ids = ponsIdsMeta;
+          // console.log('ponsIdsMeta', ponsIdsMeta);
+        } else {
+          ids = ponsIds;
+        }
+      }
+      // console.log('ids', ids);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        console.log('fetch statistics');
+        // console.log('fetch statistics');
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
@@ -340,7 +421,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           ids,
           minId,
           maxId,
-          sortBy
+          sortBy,
+          collectionNameFilter
         );
 
         if (
@@ -358,7 +440,18 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             chosenAssets,
           });
 
-          console.log('no price range');
+          // console.log('no price range');
+          chosenAssets = chooseAssets(
+            assetType,
+            assetAddress,
+            offset,
+            num,
+            ids,
+            minId,
+            maxId,
+            sortBy,
+            collectionNameFilter
+          );
           const statics = await fetchStatics(chosenAssets);
           console.log('statistics', statics);
           return statics;
@@ -390,8 +483,6 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             rangeInWei[0].toString(),
             rangeInWei[1].toString()
           );
-
-          console.log("query11", query)
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
@@ -433,7 +524,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             ids,
             minId,
             maxId,
-            sortBy
+            sortBy,
+            collectionNameFilter
           );
 
           //chosenAssets = []
