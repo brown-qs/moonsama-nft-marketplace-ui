@@ -34,14 +34,14 @@ export const styles = () => ({
     fontFamily: 'Space Mono, monospace !important',
     backgroundColor: '#111 !important',
     color: '#fff !important',
-    maxHeight: '30%',
+    maxHeight: '20%',
 
     '& svg': {
       color: '#fff',
     },
   },
   pondsamaAccordionContent: {
-    maxHeight: '100px',
+    maxHeight: '150px',
     overflowY: 'auto',
   },
   filterChip: {
