@@ -231,48 +231,25 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   });
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
-  const fetchUri = useFetchTokenUriCallback();
-  let normalIds = useMoonsamaAttrIds(filter?.traits);
-  let coll = useRawcollection(assetAddress ?? '');
 
+  const fetchUri = useFetchTokenUriCallback();
+  let ids = useMoonsamaAttrIds(filter?.traits);
+  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
+  let coll = useRawcollection(assetAddress ?? '');
+  if (!!subcollectionId && subcollectionId !== '0') {
+    ids =
+      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
+        ?.tokens ?? [];
+  }
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
   const maxId = coll?.maxId ?? 1000;
 
-  const [ids, setIds] = useState<number[]>([]);
-  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
-  const getpondsamaIds = useCallback(async () => {
-    const result = await request(
-      PONDSAMA_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-      pondsamaQuery
-    );
-    let ponsIds: number[] = []
-    for (let i = 0; i < result.tokens.length; i++)
-      ponsIds.push(Number(result.tokens[i].id))
-    setIds(ponsIds)
-  }, [])
+  if (!ids?.length) {
+    for (let i = minId; i <= maxId; i++) ids.push(i);
+  }
 
-  useEffect(() => {
-    if (!!subcollectionId && subcollectionId !== '0') {
-      let idsTemp: number[] =
-      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
-      ?.tokens ?? [];
-      setIds(idsTemp)
-    }
-    else if (collectionNameFilter == 2)
-      getpondsamaIds();
-    else {
-      if (normalIds?.length) {
-        setIds(normalIds)
-      }
-      else {
-        let tempIds: number[] = [];
-        for (let i = minId; i <= maxId; i++) tempIds.push(i);
-        setIds(tempIds)
-      }
-    }
-  }, []);
   console.log('ids1', ids);
-  console.log("coll1", coll);
+  console.log('coll1', coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -287,8 +264,18 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
-
-      console.log('offset', { offset });
+      if(collectionNameFilter == 2){
+        const res = await request(
+          PONDSAMA_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          pondsamaQuery
+        );
+        let ponsIds: number[] = []
+        for (let i = 0; i < res.tokens.length; i++)
+          ponsIds.push(Number(res.tokens[i].id))
+        ids = ponsIds;
+      }
+      // console.log('offset', { offset });
+      console.log("fetchTokenStaticData1", ids)
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         console.log('fetch statistics');
