@@ -48,6 +48,11 @@ export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
   [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4'
 };
 
+export const PONDSAMA_SUBGRAPH_URLS:  { [chainId: number]: string } = {
+  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama',
+  [ChainId.MOONBEAM]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama'
+};
+
 export const MULTICALL_NETWORKS: { [chainId: number]: string } = {
   [ChainId.MAINNET]: '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441',
   [ChainId.ROPSTEN]: '0x53C43764255c17BD724F74c4eF150724AC50a3ed',

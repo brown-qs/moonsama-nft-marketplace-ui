@@ -10,7 +10,7 @@ const Search = () => {
     const checkTypeOfToken = async () => {
       const type = await checkType(address);
       if (type === 'collection') {
-        return push(`/collection/${address}`);
+        return push(`/collection/${address}/0/3//`);
       }
       if (type === 'nft') {
         return push(`/token/${address}`);

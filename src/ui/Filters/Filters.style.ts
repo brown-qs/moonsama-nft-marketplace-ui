@@ -30,6 +30,20 @@ export const styles = () => ({
     maxHeight: '250px',
     overflowY: 'auto',
   },
+  pondsamaFilterAccordion: {
+    fontFamily: 'Space Mono, monospace !important',
+    backgroundColor: '#111 !important',
+    color: '#fff !important',
+    maxHeight: '30%',
+
+    '& svg': {
+      color: '#fff',
+    },
+  },
+  pondsamaAccordionContent: {
+    maxHeight: '100px',
+    overflowY: 'auto',
+  },
   filterChip: {
     border: '1px solid #c5c5c5 !important',
     color: '#c5c5c5 !important',

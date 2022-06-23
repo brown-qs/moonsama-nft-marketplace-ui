@@ -111,7 +111,7 @@ const SubcollectionListItem = (
             isErc20
               ? `/token/${collection?.type}/${collection?.address}/0`
               : `/collection/${collection?.type}/${collection?.address}/${
-                  subcollection?.id ?? '0'
+                  subcollection?.id + '/3//' ?? '0/3//'
                 }`
           }
         >

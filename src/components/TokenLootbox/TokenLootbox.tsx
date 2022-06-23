@@ -605,7 +605,7 @@ export const TokenLootbox = () => {
                 </Grow>
                 <Grow style={{ marginLeft: 30, transitionDelay: `8500ms` }} in={true}>
                   <div className={`${lootCardContainer} ${rarityClass0}`}>
-                    <Link target={'_blank'} href={!openResult?.rewards[0]?.assetId || openResult?.rewards[0]?.assetId === '0' ? `/collection/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/0` : `/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`}>
+                    <Link target={'_blank'} href={!openResult?.rewards[0]?.assetId || openResult?.rewards[0]?.assetId === '0' ? `/collection/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/0/3//` : `/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`}>
                       <img className={imageContainer} src={openResult?.rewards[0].meta?.image ?? sentMeta0?.image} alt='loot in slot 0' />
                     </Link>
                     <span className="name">{openResult?.rewards[0].meta?.name ?? sentMeta0?.name}</span>

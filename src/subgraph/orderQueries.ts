@@ -267,6 +267,19 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
   }
 `;
 
+export const QUERY_PONDSAMA_ACTIVE_ID = (
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    tokens(where: {owner_not: "0x0000000000000000000000000000000000000000"}, skip: 0) {
+      id
+      owner {
+        id
+      }
+    }
+  }
+`;
+
 export const QUERY_LATEST_SELL_ORDERS_FOR_TOKEN = (
   buyAssetId: string,
   sellAssetAddress: string,

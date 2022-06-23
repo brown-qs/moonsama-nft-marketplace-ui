@@ -51,6 +51,8 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     priceRangeWrapper,
     priceInput,
     filtersTitle,
+    pondsamaFilterAccordion,
+    pondsamaAccordionContent,
   } = useClasses(styles);
 
   const sampleLocation = useLocation();
@@ -338,7 +340,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
             </Accordion>
             {isPondsama && (
               <div>
-                <Accordion defaultExpanded square className={filterAccordion}>
+                <Accordion defaultExpanded square className={pondsamaFilterAccordion}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2a-content"
@@ -376,10 +378,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                       />
                     </Stack>
                   </AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded square className={filterAccordion}>
                   <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
@@ -415,10 +414,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                       />
                     </Stack>
                   </AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded square className={filterAccordion}>
                   <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
@@ -454,10 +450,7 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                       />
                     </Stack>
                   </AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded square className={filterAccordion}>
                   <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
@@ -493,17 +486,14 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                       />
                     </Stack>
                   </AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded square className={filterAccordion}>
                   <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2a-content"
                     id="panel2a-header"
                   >
                     <Typography className={accordionHeader}>Pondsama Traits</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <div className={accordionContent}>
+                    <div className={pondsamaAccordionContent}>
                       {Object.keys(PONDSAMA_TRAITS).map((trait, i) => (
                         <Chip
                           label={trait}

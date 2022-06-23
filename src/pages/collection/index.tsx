@@ -54,12 +54,18 @@ const CollectionPage = () => {
     subcollectionId: string;
   }>();
 
+  let collectionNameFilter = 0;
   let history = useHistory();
   const sampleLocation = useLocation();
   let path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
   let sortParam =
     pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
+
+  if (pathSplit[3] == '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase())
+    collectionNameFilter = 1;
+  else if (pathSplit[3] == '0xe4edcaaea73684b310fc206405ee80abcec73ee0'.toLowerCase())
+    collectionNameFilter = 2;
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -96,7 +102,8 @@ const CollectionPage = () => {
     asset,
     subcollectionId,
     filters,
-    sortBy
+    sortBy,
+    collectionNameFilter,
   ); //useTokenStaticDataCallback(asset)//
   /*
   const f = x(['Black Bird', 'White Shades'])
@@ -430,7 +437,7 @@ const CollectionPage = () => {
           >
             <GlitchText>Floor NFT</GlitchText>: {assetMeta.name}{' '}
             {asset.assetAddress.toLowerCase() !==
-            '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
+              '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
               ? `#${floorAssetOrder.sellAsset.assetId}`
               : ''}{' '}
             ({displayPPU} {approvedPaymentCurrency.symbol})

@@ -27,12 +27,14 @@ import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
   QUERY_ASSETS_BY_PRICE,
+  QUERY_PONDSAMA_ACTIVE_ID,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
-import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, PONDSAMA_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
+import React, { useEffect, useState } from 'react';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -217,37 +219,60 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
   filter: Filters | undefined,
-  sortBy: SortOption
+  sortBy: SortOption,
+  collectionNameFilter: number,
 ) => {
   console.log('useTokenStaticDataCallbackArrayWithFilter', {
     assetAddress,
     assetType,
     filter,
     subcollectionId,
+    collectionNameFilter
   });
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
-
   const fetchUri = useFetchTokenUriCallback();
-
-  let ids = useMoonsamaAttrIds(filter?.traits);
-  // let PondIds = usePondsamaAttrIds(filter?.pondTraits);
-  // ids = ids.length ? ids : PondIds;
+  let normalIds = useMoonsamaAttrIds(filter?.traits);
   let coll = useRawcollection(assetAddress ?? '');
-  if (!!subcollectionId && subcollectionId !== '0') {
-    ids =
-      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
-        ?.tokens ?? [];
-  }
+
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
   const maxId = coll?.maxId ?? 1000;
 
-  if (!ids?.length) {
-    for (let i = minId; i <= maxId; i++) ids.push(i);
-  }
+  const [ids, setIds] = useState<number[]>([]);
+  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
+  const getpondsamaIds = useCallback(async () => {
+    const result = await request(
+      PONDSAMA_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+      pondsamaQuery
+    );
+    let ponsIds: number[] = []
+    for (let i = 0; i < result.tokens.length; i++)
+      ponsIds.push(Number(result.tokens[i].id))
+    setIds(ponsIds)
+  }, [])
 
+  useEffect(() => {
+    if (!!subcollectionId && subcollectionId !== '0') {
+      let idsTemp: number[] =
+      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
+      ?.tokens ?? [];
+      setIds(idsTemp)
+    }
+    else if (collectionNameFilter == 2)
+      getpondsamaIds();
+    else {
+      if (normalIds?.length) {
+        setIds(normalIds)
+      }
+      else {
+        let tempIds: number[] = [];
+        for (let i = minId; i <= maxId; i++) tempIds.push(i);
+        setIds(tempIds)
+      }
+    }
+  }, []);
   console.log('ids1', ids);
-  console.log('coll1', coll);
+  console.log("coll1", coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
