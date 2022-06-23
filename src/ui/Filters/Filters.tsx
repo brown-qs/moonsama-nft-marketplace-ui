@@ -133,9 +133,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       return;
     }
 
-    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+    const newRange = to ? [hpRange[0], val] : [val, hpRange[1]];
 
-    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+    if (JSON.stringify(newRange) !== JSON.stringify(hpRange)) {
       setHpRange(newRange);
     }
   };
@@ -148,8 +148,8 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
     if (!val && val !== 0) {
       return;
     }
-    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
-    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+    const newRange = to ? [pwRange[0], val] : [val, pwRange[1]];
+    if (JSON.stringify(newRange) !== JSON.stringify(pwRange)) {
       setPwRange(newRange);
     }
   };
@@ -165,9 +165,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       return;
     }
 
-    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+    const newRange = to ? [spRange[0], val] : [val, spRange[1]];
 
-    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+    if (JSON.stringify(newRange) !== JSON.stringify(spRange)) {
       setSpRange(newRange);
     }
   };
@@ -183,9 +183,9 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       return;
     }
 
-    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+    const newRange = to ? [dfRange[0], val] : [val, dfRange[1]];
 
-    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+    if (JSON.stringify(newRange) !== JSON.stringify(dfRange)) {
       setDfRange(newRange);
     }
   };
