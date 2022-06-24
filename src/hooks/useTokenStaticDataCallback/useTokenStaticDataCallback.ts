@@ -279,7 +279,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         );
         let ponsIds: number[] = [];
         for (let i = 0; i < res.tokens.length; i++)
-          ponsIds.push(Number(res.tokens[i].id));
+          ponsIds.push(res.tokens[i].numericId);
         if (filter && filter.dfRange && filter.dfRange.length == 2) {
           let chosenAssets = chooseAssets(
             assetType,
@@ -352,7 +352,6 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
             }
           }
           ids = ponsIdsMeta;
-          // console.log('ponsIdsMeta', ponsIdsMeta);
         } else {
           ids = ponsIds;
         }

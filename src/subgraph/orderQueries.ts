@@ -270,12 +270,12 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
 export const QUERY_PONDSAMA_ACTIVE_ID = (
 ) => gql`
   query getUserActiveOrders {
-    ${META}
-    tokens(where: {owner_not: "0x0000000000000000000000000000000000000000"}, skip: 0) {
+    tokens(
+      orderBy: numericId
+      where: {owner_not: "0x0000000000000000000000000000000000000000"}
+    ) {
       id
-      owner {
-        id
-      }
+      numericId
     }
   }
 `;
