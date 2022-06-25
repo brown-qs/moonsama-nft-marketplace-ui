@@ -100,7 +100,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmdCKgexLpBjST3FdWLbPZLH2FWRtu2NXE9dk5ZirdDRGb',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama-v2',
     },
     {
       chainId: 1285,

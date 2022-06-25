@@ -33,7 +33,6 @@ import request from 'graphql-request';
 import {
   DEFAULT_CHAIN,
   MARKETPLACE_SUBGRAPH_URLS,
-  PONDSAMA_SUBGRAPH_URLS,
 } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
@@ -242,8 +241,9 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
 
   const fetchUri = useFetchTokenUriCallback();
   let ids = useMoonsamaAttrIds(filter?.traits);
-  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
   let coll = useRawcollection(assetAddress ?? '');
+  let subgraph = coll ? coll?.subgraph : "";
+  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
   if (!!subcollectionId && subcollectionId !== '0') {
     ids =
       coll?.subcollections?.find((c: any) => c.id === subcollectionId)
@@ -274,7 +274,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       }
       if (collectionNameFilter == 2) {
         const res = await request(
-          PONDSAMA_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          subgraph,
           pondsamaQuery
         );
         let ponsIds: number[] = [];
