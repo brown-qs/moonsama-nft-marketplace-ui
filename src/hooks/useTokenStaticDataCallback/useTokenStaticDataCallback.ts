@@ -29,6 +29,7 @@ import {
   QUERY_ORDERS_FOR_TOKEN,
   QUERY_ASSETS_BY_PRICE,
   QUERY_PONDSAMA_ACTIVE_ID,
+  QUERY_PONDSAMA_TotalSupply,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -580,7 +581,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   let ids: number[] = [];
   let coll = useRawcollection(assetAddress ?? '');
   let subgraph = coll ? coll?.subgraph : '';
-  let pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID();
+
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
   const maxId = coll?.maxId ?? 1000;
 
@@ -597,18 +598,39 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
-
-      const res = await request(subgraph, pondsamaQuery);
+      const pondsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
+      const pondsamaTotalSupply1 =  await request(subgraph, pondsamaTotalyQuery);
+      let pondsamaTotalSupply = parseInt(pondsamaTotalSupply1.contract.totalSupply);
+      let res = [],
+        pondsamaQuery,
+        res1;
+      if(pondsamaTotalSupply < 1000)
+      {
+        pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0,pondsamaTotalSupply);
+        res1 = await request(subgraph, pondsamaQuery);
+        res = res1.tokens;
+      }
+      else
+      {
+        let from = 0;
+        while(from < pondsamaTotalSupply)
+        {
+          pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
+          let res1 = await request(subgraph, pondsamaQuery);
+          for(let i=0 ; i< res1.tokens.length ; i++)
+          res.push(res1.tokens[i])
+          from += 1000 ;
+        }
+      }
       let ids: number[] = [];
       let ponsIdsMeta: number[] = [];
-      for (let i = 0; i < res.tokens.length; i++)
-        ids.push(res.tokens[i].numericId);
+      for (let i = 0; i < res.length; i++) ids.push(res[i].numericId);
       if (filter && filter.dfRange && filter.dfRange.length == 2) {
         let chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
-          res.tokens.length,
+          res.length,
           ids,
           minId,
           maxId,

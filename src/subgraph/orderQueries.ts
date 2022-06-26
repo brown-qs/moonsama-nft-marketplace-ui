@@ -268,14 +268,29 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
 `;
 
 export const QUERY_PONDSAMA_ACTIVE_ID = (
-) => gql`
+  from: number,
+  count: number
+  ) => gql`
   query getUserActiveOrders {
     tokens(
-      orderBy: numericId
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
       where: {owner_not: "0x0000000000000000000000000000000000000000"}
     ) {
       id
       numericId
+    }
+  }
+`;
+
+
+export const QUERY_PONDSAMA_TotalSupply = (
+  id: string
+) => gql`
+  query getUserActiveOrders {
+    contract(id: "${id}") {
+      totalSupply
     }
   }
 `;
