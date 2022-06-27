@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate  } from 'react-router-dom';
 
 import { checkType } from 'services/token/tokenService';
 
 const Search = () => {
   const { address } = useParams<{ address: string }>();
-  const { push } = useHistory();
+  const navigate = useNavigate ();
   useEffect(() => {
     const checkTypeOfToken = async () => {
       const type = await checkType(address);
       if (type === 'collection') {
-        return push(`/collection/${address}/0/3//`);
+        return navigate(`/collection/${address}/0/3//`);
       }
       if (type === 'nft') {
-        return push(`/token/${address}`);
+        return navigate(`/token/${address}`);
       }
     };
     checkTypeOfToken();

@@ -17,7 +17,7 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation, useHistory } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { PondsamaFilter, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -48,14 +48,14 @@ const PondsamaCollectionPage = () => {
       staticData: StaticTokenData;
     }[]
   >([]);
-  const { address, type, subcollectionId } = useParams<{
+  const { address, type, subcollectionId } = useParams() as {
     address: string;
     type: string;
     subcollectionId: string;
-  }>();
+  };
 
   let collectionNameFilter = 2;
-  let history = useHistory();
+  let navigate = useNavigate();
   const sampleLocation = useLocation();
   let path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
@@ -85,12 +85,13 @@ const PondsamaCollectionPage = () => {
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-  const getItemsWithFilterAndSort = usePondsamaTokenStaticDataCallbackArrayWithFilter(
-    asset,
-    subcollectionId,
-    filters,
-    sortBy
-  ); //useTokenStaticDataCallback(asset)//
+  const getItemsWithFilterAndSort =
+    usePondsamaTokenStaticDataCallbackArrayWithFilter(
+      asset,
+      subcollectionId,
+      filters,
+      sortBy
+    ); //useTokenStaticDataCallback(asset)//
   let searchSize =
     filters?.selectedOrderType == undefined
       ? DEFAULT_PAGE_SIZE
@@ -123,7 +124,7 @@ const PondsamaCollectionPage = () => {
         tokenID +
         '/' +
         pathSplit[7];
-      history.push(new_path);
+      navigate(new_path);
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -203,13 +204,7 @@ const PondsamaCollectionPage = () => {
     if (!paginationEnded && searchCounter) {
       getCollectionById();
     }
-  }, [
-    address,
-    searchCounter,
-    paginationEnded,
-    searchSize,
-    sortBy,
-  ]);
+  }, [address, searchCounter, paginationEnded, searchSize, sortBy]);
 
   if (assetType.valueOf() === StringAssetType.UNKNOWN) {
     throw Error('Asset type was not recognized');
@@ -238,7 +233,7 @@ const PondsamaCollectionPage = () => {
       pathSplit[6] +
       '/' +
       strings;
-    history.push(new_path);
+    navigate(new_path);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -269,7 +264,7 @@ const PondsamaCollectionPage = () => {
       pathSplit[6] +
       '/' +
       pathSplit[7];
-    history.push(new_path);
+    navigate(new_path);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -370,7 +365,7 @@ const PondsamaCollectionPage = () => {
           >
             <GlitchText>Floor NFT</GlitchText>: {assetMeta.name}{' '}
             {asset.assetAddress.toLowerCase() !==
-              '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
+            '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
               ? `#${floorAssetOrder.sellAsset.assetId}`
               : ''}{' '}
             ({displayPPU} {approvedPaymentCurrency.symbol})

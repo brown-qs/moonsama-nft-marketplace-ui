@@ -29,7 +29,7 @@ import { collectionListStyles } from './subcollection-list.styles';
 export const SubcollectionListPage = () => {
   let { address } = useParams<{ address: string }>();
 
-  const collection = useRawcollection(address);
+  const collection = useRawcollection(address ?? "");
   const subcollections = collection?.subcollections ?? [];
   const metas = useFetchSubcollectionMeta(subcollections);
 

@@ -17,7 +17,7 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation, useHistory } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -48,13 +48,13 @@ const CollectionDefaultPage = () => {
       staticData: StaticTokenData;
     }[]
   >([]);
-  const { address, type, subcollectionId } = useParams<{
+  const { address, type, subcollectionId } = useParams() as {
     address: string;
     type: string;
     subcollectionId: string;
-  }>();
+  };
 
-  let history = useHistory();
+  let navigate = useNavigate();
   const sampleLocation = useLocation();
   let path: string = sampleLocation.pathname;
   let pathSplit = path.split('/');
@@ -130,7 +130,7 @@ const CollectionDefaultPage = () => {
         tokenID +
         '/' +
         pathSplit[7];
-      history.push(new_path);
+      navigate(new_path);
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -246,7 +246,7 @@ const CollectionDefaultPage = () => {
       pathSplit[6] +
       '/' +
       strings;
-    history.push(new_path);
+    navigate(new_path);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -277,7 +277,7 @@ const CollectionDefaultPage = () => {
       pathSplit[6] +
       '/' +
       pathSplit[7];
-    history.push(new_path);
+    navigate(new_path);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -381,7 +381,7 @@ const CollectionDefaultPage = () => {
           >
             <GlitchText>Floor NFT</GlitchText>: {assetMeta.name}{' '}
             {asset.assetAddress.toLowerCase() !==
-              '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
+            '0xb654611f84a8dc429ba3cb4fda9fad236c505a1a'
               ? `#${floorAssetOrder.sellAsset.assetId}`
               : ''}{' '}
             ({displayPPU} {approvedPaymentCurrency.symbol})

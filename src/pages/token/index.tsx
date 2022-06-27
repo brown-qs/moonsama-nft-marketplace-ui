@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
-import Switch from '@mui/material/Switch'
+import Switch from '@mui/material/Switch';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
@@ -82,9 +82,11 @@ const geTableHeader = () => {
 const TokenPage = () => {
   const { chainId, account } = useActiveWeb3React();
   const whitelist = useWhitelistedAddresses(); // REMOVEME later
-  let { id, address, type } =
-    useParams<{ id: string; address: string; type: string }>();
-
+  let { id, address, type } = useParams() as {
+    id: string;
+    address: string;
+    type: string;
+  };
   const assetType = stringToStringAssetType(type);
 
   if (assetType.valueOf() === StringAssetType.UNKNOWN.valueOf())
@@ -150,7 +152,7 @@ const TokenPage = () => {
     smallText,
     traitChip,
     rarityChip,
-    artist
+    artist,
   } = useClasses(styles);
 
   const { setBidDialogOpen, setBidData } = useBidDialog();
@@ -173,7 +175,6 @@ const TokenPage = () => {
   const balanceData = useTokenBasicData(assets);
   const metas = useFetchTokenUri(staticData, metaVersion);
   const decimalOverrides = useDecimalOverrides();
-
 
   //console.log('METAS', {metas, staticData})
 
@@ -209,9 +210,9 @@ const TokenPage = () => {
 
   let userBalanceString = isFungible
     ? Fraction.from(
-      balanceData?.[0]?.userBalance?.toString() ?? '0',
-      decimals
-    )?.toFixed(2) ?? '0'
+        balanceData?.[0]?.userBalance?.toString() ?? '0',
+        decimals
+      )?.toFixed(2) ?? '0'
     : balanceData?.[0]?.userBalance?.toString() ?? '0';
 
   userBalanceString = account ? userBalanceString : '0';
@@ -222,13 +223,13 @@ const TokenPage = () => {
   let totalSupplyString = balanceData?.[0]?.totalSupply
     ? isFungible
       ? Fraction.from(
-        balanceData?.[0]?.totalSupply?.toString() ?? '0',
-        decimals
-      )?.toFixed(2) ?? '0'
+          balanceData?.[0]?.totalSupply?.toString() ?? '0',
+          decimals
+        )?.toFixed(2) ?? '0'
       : balanceData?.[0]?.totalSupply?.toString()
     : asset.assetType.valueOf() === StringAssetType.ERC721
-      ? '1'
-      : undefined;
+    ? '1'
+    : undefined;
 
   //console.log('data', { balanceData, staticData, assetMeta });
 
@@ -253,8 +254,13 @@ const TokenPage = () => {
     '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase();
   const minecraftskin = getMinecraftSkinUrl(assetMeta?.attributes);
 
-  const ordersDisabled = (rawCollection?.ordersDisabled ?? false) || (rawCollection?.ordersDisabledFor?.includes(asset?.assetId ?? '') ?? false);
-  const transferDisabled = (rawCollection?.transferDisabled ?? false) || (rawCollection?.transferDisabledFor?.includes(asset?.assetId ?? '') ?? false);
+  const ordersDisabled =
+    (rawCollection?.ordersDisabled ?? false) ||
+    (rawCollection?.ordersDisabledFor?.includes(asset?.assetId ?? '') ?? false);
+  const transferDisabled =
+    (rawCollection?.transferDisabled ?? false) ||
+    (rawCollection?.transferDisabledFor?.includes(asset?.assetId ?? '') ??
+      false);
 
   const getTableBody = (
     orders: Order[] | undefined | null,
@@ -461,24 +467,29 @@ const TokenPage = () => {
         className={imageContainer}
       >
         <Media uri={assetMeta?.image} className={image} />
-        { rawCollection?.hasVersion2 && <Stack direction="row" spacing={1} alignItems="center" justifyContent={'center'}>
-          <Typography>1.0</Typography>
-          <Switch
-            checked={metaVersion}
-            onChange={(event) =>
-              setMetaVersion(event.target.checked)
-            }
-            sx={{
-              ".MuiSwitch-thumb": {
-                color: "#d2023e"
-              },
-              ".MuiSwitch-track": {
-                backgroundColor: "#d2023e"
-              }
-            }}
-          />
-          <Typography>2.0</Typography>
-        </Stack>}
+        {rawCollection?.hasVersion2 && (
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent={'center'}
+          >
+            <Typography>1.0</Typography>
+            <Switch
+              checked={metaVersion}
+              onChange={(event) => setMetaVersion(event.target.checked)}
+              sx={{
+                '.MuiSwitch-thumb': {
+                  color: '#d2023e',
+                },
+                '.MuiSwitch-track': {
+                  backgroundColor: '#d2023e',
+                },
+              }}
+            />
+            <Typography>2.0</Typography>
+          </Stack>
+        )}
       </Grid>
       <Grid
         pl={{ lg: 3, md: 3 }}
@@ -532,8 +543,9 @@ const TokenPage = () => {
             )
           ) : (
             <Typography color="textSecondary" variant="subtitle1">
-              {`OWNED ${userBalanceString}${totalSupplyString ? ` OF ${totalSupplyString}` : ''
-                }`}
+              {`OWNED ${userBalanceString}${
+                totalSupplyString ? ` OF ${totalSupplyString}` : ''
+              }`}
             </Typography>
           )}
         </Box>
@@ -577,7 +589,7 @@ const TokenPage = () => {
         )}
 
         {rawCollection?.showAttributes && (
-          <div style={{paddingTop: theme.spacing(3)}}>
+          <div style={{ paddingTop: theme.spacing(3) }}>
             <Typography color="textSecondary" className={smallText}>
               {getAttributesList(assetMeta?.attributes)?.map((label) => (
                 <Chip label={label} className={traitChip} />
@@ -589,7 +601,10 @@ const TokenPage = () => {
         {assetMeta?.artist_url && assetMeta?.artist && (
           <Box className={artist}>
             <Typography color="textSecondary" variant="subtitle1">
-              Made by <ExternalLink href={assetMeta.artist_url} fontSize='14px'>{assetMeta.artist}</ExternalLink>
+              Made by{' '}
+              <ExternalLink href={assetMeta.artist_url} fontSize="14px">
+                {assetMeta.artist}
+              </ExternalLink>
             </Typography>
           </Box>
         )}
@@ -702,7 +717,7 @@ const TokenPage = () => {
                     name: tokenName,
                     symbol: tokenSymbol,
                     approvedPaymentCurrency,
-                    media: assetMeta?.image
+                    media: assetMeta?.image,
                   });
                 }}
                 startIcon={<AccountBalanceWalletIcon />}
@@ -751,7 +766,13 @@ const TokenPage = () => {
           </Box>
           <Box className={externals}>
             {rawCollection?.plotMap && (
-              <ExternalLink href={!!asset?.assetId ? `${rawCollection?.plotMap}/?plot=${asset?.assetId}` : `${rawCollection?.plotMap}`}>
+              <ExternalLink
+                href={
+                  !!asset?.assetId
+                    ? `${rawCollection?.plotMap}/?plot=${asset?.assetId}`
+                    : `${rawCollection?.plotMap}`
+                }
+              >
                 <Button>Plot map↗</Button>
               </ExternalLink>
             )}
@@ -791,7 +812,12 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.buyOrders?.filter(order => orderFilter(order, account)), OrderType.BUY)}
+                {getTableBody(
+                  ordersMap?.buyOrders?.filter((order) =>
+                    orderFilter(order, account)
+                  ),
+                  OrderType.BUY
+                )}
               </Table>
             ),
           },
@@ -800,7 +826,12 @@ const TokenPage = () => {
             view: (
               <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
                 {geTableHeader()}
-                {getTableBody(ordersMap?.sellOrders?.filter(order => orderFilter(order, account)), OrderType.SELL)}
+                {getTableBody(
+                  ordersMap?.sellOrders?.filter((order) =>
+                    orderFilter(order, account)
+                  ),
+                  OrderType.SELL
+                )}
               </Table>
             ),
           },
@@ -816,7 +847,7 @@ const TokenPage = () => {
         ]}
       />
       <div style={{ marginTop: 40, width: '100%' }} />
-    </Grid >
+    </Grid>
   );
 };
 

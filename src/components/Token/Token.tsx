@@ -1,6 +1,6 @@
 import { Paper, Typography } from '@mui/material';
 import { Media } from 'components';
-import { useHistory } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
 import { GlitchText, PriceBox } from 'ui';
 import { truncateHexString } from 'utils';
 import { Fraction } from 'utils/Fraction';
@@ -38,14 +38,14 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
     mr,
     lastPriceContainer,
   } = useClasses(styles);
-  const { push } = useHistory();
+  let navigate = useNavigate ();
   const [fetchedOrder, setFetchedOrer] = useState<Order | undefined>(undefined);
   const decimalOverrides = useDecimalOverrides();
 
   const asset = staticData.asset;
 
   const handleImageClick = () => {
-    push(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
+    navigate(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
   };
 
   const getOrderCB = useAssetOrdersCallback(
