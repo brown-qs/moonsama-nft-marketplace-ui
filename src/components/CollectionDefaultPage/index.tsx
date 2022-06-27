@@ -17,7 +17,7 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -48,18 +48,15 @@ const CollectionDefaultPage = () => {
       staticData: StaticTokenData;
     }[]
   >([]);
-  const { address, type, subcollectionId } = useParams() as {
-    address: string;
-    type: string;
-    subcollectionId: string;
-  };
-
-  let navigate = useNavigate();
   const sampleLocation = useLocation();
-  let path: string = sampleLocation.pathname;
-  let pathSplit = path.split('/');
-  let sortParam =
-    pathSplit[5] == '' ? SortOption.TOKEN_ID_ASC : parseInt(pathSplit[5]);
+  const [searchParams] = useSearchParams();
+  const address = searchParams.get('address') ?? '';
+  const type = searchParams.get('type') ?? '';
+  let search = searchParams.get('search') ?? '';
+  const subcollectionId = searchParams.get('subcollectionId') ?? '0';
+  let navigate = useNavigate();
+  let sortParam = searchParams.get('sort');
+  let sort = sortParam ? parseInt(sortParam) : 3;
   const assetType = stringToStringAssetType(type);
   const asset: Asset = {
     assetAddress: address?.toLowerCase(),
@@ -80,7 +77,7 @@ const CollectionDefaultPage = () => {
 
   const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<Filters | undefined>(undefined);
-  const [sortBy, setSortBy] = useState<SortOption>(sortParam);
+  const [sortBy, setSortBy] = useState<SortOption>(sort);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [searchCounter, setSearchCounter] = useState<number>(0);
@@ -110,61 +107,16 @@ const CollectionDefaultPage = () => {
     setSearchCounter((state) => (state += 1));
   }, [searchSize]);
 
-  const handleTokenSearch = useCallback(
-    async ({ tokenID }) => {
-      path = sampleLocation.pathname;
-      pathSplit = path.split('/');
-      let new_path =
-        pathSplit[0] +
-        '/' +
-        pathSplit[1] +
-        '/' +
-        pathSplit[2] +
-        '/' +
-        pathSplit[3] +
-        '/' +
-        pathSplit[4] +
-        '/' +
-        pathSplit[5] +
-        '/' +
-        tokenID +
-        '/' +
-        pathSplit[7];
-      navigate(new_path);
-      if (!!tokenID) {
-        setPaginationEnded(true);
-        setPageLoading(true);
-
-        const data = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(tokenID - 1),
-          setTake
-        );
-        setPageLoading(false);
-        setCollection(data);
-      } else {
-        setPaginationEnded(false);
-        setPageLoading(true);
-        const data = await getItemsWithFilterAndSort(
-          searchSize,
-          BigNumber.from(take),
-          setTake
-        );
-        setPageLoading(false);
-        setCollection(data);
-      }
-    },
-    [searchSize, sortBy]
-  );
-
   useBottomScrollListener(handleScrollToBottom, {
     offset: 400,
     debounce: 1000,
   });
 
+
   useEffect(() => {
-    if (pathSplit[7].length >= 1) {
-      let newFilter: Filters = JSON.parse(pathSplit[7]);
+    const filter = searchParams.get('filter') ?? '';
+    if (filter.length >= 1) {
+      let newFilter: Filters = JSON.parse(filter);
       searchSize =
         newFilter?.selectedOrderType == undefined
           ? DEFAULT_PAGE_SIZE
@@ -182,8 +134,7 @@ const CollectionDefaultPage = () => {
     const getCollectionById = async () => {
       setPageLoading(true);
       let data;
-      // console.log('FETCH ', { searchSize, address, take, paginationEnded });
-      if (pathSplit[6] == '') {
+      if (search == '') {
         data = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
@@ -192,7 +143,7 @@ const CollectionDefaultPage = () => {
       } else {
         data = await getItemsWithFilterAndSort(
           1,
-          BigNumber.from(parseInt(pathSplit[6]) - 1),
+          BigNumber.from(parseInt(search) - 1),
           setTake
         );
       }
@@ -227,26 +178,22 @@ const CollectionDefaultPage = () => {
   }
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
-    let strings = JSON.stringify(filters);
-    path = sampleLocation.pathname;
-    pathSplit = path.split('/');
-    let new_path =
-      pathSplit[0] +
-      '/' +
-      pathSplit[1] +
-      '/' +
-      pathSplit[2] +
-      '/' +
-      pathSplit[3] +
-      '/' +
-      pathSplit[4] +
-      '/' +
-      pathSplit[5] +
-      '/' +
-      pathSplit[6] +
-      '/' +
-      strings;
-    navigate(new_path);
+    let filterStrings = JSON.stringify(filters);
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search('&filter=');
+    if (ind != -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      newPath =
+        newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
+    } else newPath = newPath + path + '&filter=' + filterStrings;
+    navigate(newPath);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -255,29 +202,66 @@ const CollectionDefaultPage = () => {
     setSearchCounter((state) => (state += 1));
   }, []);
 
+  const handleTokenSearch = useCallback(
+    async ({ tokenID }) => {
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('&search=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&search=' + tokenID;
+      navigate(newPath);
+      if (!!tokenID) {
+        setPaginationEnded(true);
+        setPageLoading(true);
+
+        const data = await getItemsWithFilterAndSort(
+          1,
+          BigNumber.from(tokenID - 1),
+          setTake
+        );
+        setPageLoading(false);
+        setCollection(data);
+      } else {
+        setPaginationEnded(false);
+        setPageLoading(true);
+        const data = await getItemsWithFilterAndSort(
+          searchSize,
+          BigNumber.from(take),
+          setTake
+        );
+        setPageLoading(false);
+        setCollection(data);
+      }
+    },
+    [searchSize, sortBy]
+  );
+
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
-    path = sampleLocation.pathname;
-    pathSplit = path.split('/');
-    let new_path =
-      pathSplit[0] +
-      '/' +
-      pathSplit[1] +
-      '/' +
-      pathSplit[2] +
-      '/' +
-      pathSplit[3] +
-      '/' +
-      pathSplit[4] +
-      '/' +
-      sortBy +
-      '/' +
-      pathSplit[6] +
-      '/' +
-      pathSplit[7];
-    navigate(new_path);
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search('&sort=');
+    if (ind != -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
+    } else newPath = newPath + path + '&sort=' + sortBy;
+    navigate(newPath);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -338,7 +322,7 @@ const CollectionDefaultPage = () => {
               <TextField
                 placeholder="Search by token ID"
                 variant="outlined"
-                defaultValue={pathSplit[6]}
+                defaultValue={search}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="start">

@@ -7,9 +7,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import { useClasses } from 'hooks';
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
-import { MOONSAMA_TRAITS, PONDSAMA_TRAITS } from 'utils/constants';
+import { PONDSAMA_TRAITS } from 'utils/constants';
 import { OrderType } from 'utils/subgraph';
 import { styles } from './PondsamaFilter.style';
 
@@ -53,12 +53,11 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
     pondsamaAccordionContent,
   } = useClasses(styles);
 
-  const sampleLocation = useLocation();
+  const [searchParams] = useSearchParams();
+  const filter = searchParams.get('filter') ?? '';
   useEffect(() => {
-    let path: string = sampleLocation.pathname;
-    let pathSplit = path.split('/');
-    if (pathSplit[7].length >= 1) {
-      let newFilter: PondsamaFilter = JSON.parse(pathSplit[7]);
+    if (filter.length >= 1) {
+      let newFilter: PondsamaFilter = JSON.parse(filter);
       setSelectedOrderType(newFilter?.selectedOrderType);
       setPriceRange(newFilter?.priceRange);
       setHpRange(newFilter?.hpRange);

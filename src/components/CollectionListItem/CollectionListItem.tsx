@@ -12,24 +12,24 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { appStyles } from '../../app.styles';
 import { collectionListStyles } from './CollectionListItem.style';
-import {
-  RawCollection,
-} from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
-import {
-  CollectionMeta,
-} from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
+import { RawCollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
+import { CollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
 import { ExternalLink, Media } from 'components';
 import { getExplorerLink, truncateHexString } from 'utils';
 import { useActiveWeb3React, useClasses } from 'hooks';
 import { StringAssetType } from '../../utils/subgraph';
 
 export type CollectionListItemProps = {
-  collection: RawCollection,
-  meta: CollectionMeta | undefined,
-  salt: number
-}
+  collection: RawCollection;
+  meta: CollectionMeta | undefined;
+  salt: number;
+};
 
-export const CollectionListItem = ({ collection, meta, salt }: CollectionListItemProps) => {
+export const CollectionListItem = ({
+  collection,
+  meta,
+  salt,
+}: CollectionListItemProps) => {
   const { chainId } = useActiveWeb3React();
   const [isCollectionExpanded, setExpanded] = useState(false);
 
@@ -72,8 +72,8 @@ export const CollectionListItem = ({ collection, meta, salt }: CollectionListIte
             isErc20
               ? `/token/${collection.type}/${collection.address}/0`
               : !!subcollection
-                ? `/subcollections/${collection.address}`
-                : `/collection/${collection.type}/${collection.address}/0/3//`
+              ? `/subcollections/${collection.address}`
+              : `/collection?type=${collection.type}&address=${collection.address}&subcollectionId=0&sort=3`
           }
         >
           <div className={mediaContainer}>

@@ -646,7 +646,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         if (!results) return [];
         const staticData = processTokenStaticCallResults(chosenAssets, results);
         const metas = await fetchUri(staticData);
-        // console.log('metas1', metas);
+        console.log('metas1', metas);
         for (let i = 0; i < metas.length; i++) {
           let flag = true;
           let selectedPondTraits = filter.pondTraits;
