@@ -78,7 +78,6 @@ const CollectionDefaultPage = () => {
 
   const isSubcollection = subcollectionId !== '0';
 
-  const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<Filters | undefined>(undefined);
   const [sortBy, setSortBy] = useState<SortOption>(sort);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
@@ -89,7 +88,12 @@ const CollectionDefaultPage = () => {
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
-
+  let searchSize =
+    filters?.selectedOrderType == undefined
+      ? DEFAULT_PAGE_SIZE
+      : SEARCH_PAGE_SIZE;
+  let forTake = (pageParam - 1) * searchSize;
+  const [take, setTake] = useState<number>(forTake);
   const collectionName = recognizedCollection
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
@@ -100,10 +104,6 @@ const CollectionDefaultPage = () => {
     filters,
     sortBy
   ); //useTokenStaticDataCallback(asset)//
-  let searchSize =
-    filters?.selectedOrderType == undefined
-      ? DEFAULT_PAGE_SIZE
-      : SEARCH_PAGE_SIZE;
 
   // const handleScrollToBottom = useCallback(() => {
   //   if (pageLoading) return;
@@ -112,12 +112,25 @@ const CollectionDefaultPage = () => {
   //   setSearchCounter((state) => (state += 1));
   // }, [searchSize]);
 
-  const handleChange = useCallback(
+  const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=' + value;
+      navigate(newPath);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));
       setSearchCounter((state) => (state += 1));
-      console.log('pagination', { value, page, take });
     },
     []
   );
@@ -155,7 +168,6 @@ const CollectionDefaultPage = () => {
           setTake
         );
         data = res.data;
-        console.log('setTotalLength', res);
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1
@@ -168,8 +180,6 @@ const CollectionDefaultPage = () => {
           setTake
         );
         data = res.data;
-        console.log('setTotalLength', res);
-
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1
@@ -485,7 +495,7 @@ const CollectionDefaultPage = () => {
           color="primary"
           size="large"
           page={page}
-          onChange={handleChange}
+          onChange={handlePageChange}
           showFirstButton
           showLastButton
         />

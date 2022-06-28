@@ -70,7 +70,6 @@ const PondsamaCollectionPage = () => {
   };
   const recognizedCollection = useRawcollection(asset.assetAddress);
   const searchBarOn = recognizedCollection?.idSearchOn ?? true;
-  const [take, setTake] = useState<number>(0);
   const [filters, setFilters] = useState<PondsamaFilter | undefined>(undefined);
   const [sortBy, setSortBy] = useState<SortOption>(sort);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
@@ -80,6 +79,12 @@ const PondsamaCollectionPage = () => {
   const [totalLength, setTotalLength] = useState<number>(0);
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
+  let searchSize =
+  filters?.selectedOrderType == undefined
+    ? DEFAULT_PAGE_SIZE
+    : SEARCH_PAGE_SIZE;
+let forTake = (pageParam - 1) * searchSize;
+const [take, setTake] = useState<number>(forTake);
   const displayFilters = assetType === StringAssetType.ERC721;
 
   const collectionName = recognizedCollection
@@ -93,10 +98,6 @@ const PondsamaCollectionPage = () => {
       filters,
       sortBy
     ); //useTokenStaticDataCallback(asset)//
-  let searchSize =
-    filters?.selectedOrderType == undefined
-      ? DEFAULT_PAGE_SIZE
-      : SEARCH_PAGE_SIZE;
 
   // const handleScrollToBottom = useCallback(() => {
   //   if (pageLoading) return;
@@ -110,12 +111,25 @@ const PondsamaCollectionPage = () => {
   //   debounce: 1000,
   // });
 
-  const handleChange = useCallback(
+  const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=' + value;
+      navigate(newPath);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));
       setSearchCounter((state) => (state += 1));
-      console.log('pagination', { value, page, take });
     },
     []
   );
@@ -479,7 +493,7 @@ const PondsamaCollectionPage = () => {
           color="primary"
           size="large"
           page={page}
-          onChange={handleChange}
+          onChange={handlePageChange}
           showFirstButton
           showLastButton
         />
