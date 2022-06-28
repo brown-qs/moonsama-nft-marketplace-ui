@@ -11,7 +11,7 @@ const Search = () => {
       const type = await checkType(address);
       if (type === 'collection') {
         return navigate(
-          `/collection?address=${address}&subcollectionId=0&sort=3`
+          `/collection?address=${address}&subcollectionId=0&page=1&sort=3`
         );
       }
       if (type === 'nft') {

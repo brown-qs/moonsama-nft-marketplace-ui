@@ -3,7 +3,9 @@ import { BigNumber } from '@ethersproject/bignumber';
 import SearchIcon from '@mui/icons-material/SearchSharp';
 import { Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Token as TokenComponent } from 'components';
 import { useClasses } from 'hooks';
 import { Asset } from 'hooks/marketplace/types';
@@ -13,7 +15,7 @@ import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollecti
 import {
   StaticTokenData,
   usePondsamaTokenStaticDataCallbackArrayWithFilter,
-} from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
+} from 'hooks/usePondsamaTokenStaticDataCallback/usePondsamaTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
@@ -53,6 +55,8 @@ const PondsamaCollectionPage = () => {
   const [searchParams] = useSearchParams();
   const address = searchParams.get('address') ?? '';
   const type = searchParams.get('type') ?? '';
+  const pageParamRes = searchParams.get('page');
+  const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
   const subcollectionId = searchParams.get('subcollectionId') ?? '0';
   let search = searchParams.get('search') ?? '';
   let sortParam = searchParams.get('sort');
@@ -72,6 +76,8 @@ const PondsamaCollectionPage = () => {
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [searchCounter, setSearchCounter] = useState<number>(0);
+  const [page, setPage] = useState<number>(pageParam);
+  const [totalLength, setTotalLength] = useState<number>(0);
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
@@ -92,17 +98,27 @@ const PondsamaCollectionPage = () => {
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
 
-  const handleScrollToBottom = useCallback(() => {
-    if (pageLoading) return;
-    // console.log('SCROLLBOTTOM');
-    setTake((state) => (state += searchSize));
-    setSearchCounter((state) => (state += 1));
-  }, [searchSize]);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   // console.log('SCROLLBOTTOM');
+  //   setTake((state) => (state += searchSize));
+  //   setSearchCounter((state) => (state += 1));
+  // }, [searchSize]);
 
-  useBottomScrollListener(handleScrollToBottom, {
-    offset: 400,
-    debounce: 1000,
-  });
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      setPage(value);
+      setTake((state) => (state = searchSize * (value - 1)));
+      setSearchCounter((state) => (state += 1));
+      console.log('pagination', { value, page, take });
+    },
+    []
+  );
 
   useEffect(() => {
     const filter = searchParams.get('filter') ?? '';
@@ -127,28 +143,56 @@ const PondsamaCollectionPage = () => {
       let data;
       // console.log('FETCH ', { searchSize, address, take, paginationEnded });
       if (search == '') {
-        data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
+        data = res.data;
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
       } else {
-        data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(parseInt(search) - 1),
           setTake
         );
+        data = res.data;
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
       }
       const isEnd = !data || data.length == 0;
-      const pieces = data.filter(({ meta }) => !!meta);
+      let pieces: {
+        meta: TokenMeta | undefined;
+        staticData: StaticTokenData;
+      }[] = [];
+      for (let index = 0; index < data.length; index++) {
+        if (!!data[index].meta) pieces.push(data[index]);
+      }
       setPageLoading(false);
+
+      //for scroll infinite
+      // if (isEnd) {
+      //   setPaginationEnded(true);
+      //   setCollection((state) => state.concat(pieces));
+      //   return;
+      // }
+      // setCollection((state) => state.concat(pieces));
+
+      console.log('data11', data);
 
       if (isEnd) {
         setPaginationEnded(true);
-        setCollection((state) => state.concat(pieces));
+        setCollection(pieces);
         return;
       }
-      setCollection((state) => state.concat(pieces));
+      setCollection(pieces);
     };
     if (!paginationEnded && searchCounter) {
       getCollectionById();
@@ -181,24 +225,41 @@ const PondsamaCollectionPage = () => {
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
-
-        const data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(tokenID - 1),
           setTake
         );
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
+        const responseData: {
+          meta: TokenMeta | undefined;
+          staticData: StaticTokenData;
+        }[] = res.data;
         setPageLoading(false);
-        setCollection(data);
+        setCollection(responseData);
       } else {
         setPaginationEnded(false);
         setPageLoading(true);
-        const data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
+        const responseData: {
+          meta: TokenMeta | undefined;
+          staticData: StaticTokenData;
+        }[] = res.data;
         setPageLoading(false);
-        setCollection(data);
+        setCollection(responseData);
       }
     },
     [searchSize, sortBy]
@@ -284,6 +345,21 @@ const PondsamaCollectionPage = () => {
     floorAssetOrder?.askPerUnitDenominator,
     true
   );
+
+  const theme = createTheme({
+    components: {
+      // Name of the component
+      MuiButton: {
+        styleOverrides: {
+          // Name of the slot
+          root: {
+            // Some CSS
+            fontSize: '1rem',
+          },
+        },
+      },
+    },
+  });
 
   return (
     <>
@@ -394,6 +470,20 @@ const PondsamaCollectionPage = () => {
           <Loader />
         </div>
       )}
+
+      <div className={placeholderContainer}>
+        <Pagination
+          count={totalLength}
+          siblingCount={0}
+          boundaryCount={2}
+          color="primary"
+          size="large"
+          page={page}
+          onChange={handleChange}
+          showFirstButton
+          showLastButton
+        />
+      </div>
     </>
   );
 };

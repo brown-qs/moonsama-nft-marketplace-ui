@@ -112,7 +112,7 @@ const SubcollectionListItem = (
               ? `/token/${collection?.type}/${collection?.address}/0`
               : `/collection?type=${collection?.type}&address=${
                   collection?.address
-                }&subcollectionId=${subcollection?.id ?? '0'}&sort=3`
+                }&subcollectionId=${subcollection?.id ?? '0'}&page=1&sort=3`
           }
         >
           <div className={mediaContainer}>

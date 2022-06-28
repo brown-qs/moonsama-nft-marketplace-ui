@@ -59,103 +59,7 @@ export type TokenStaticFetchInput = {
   offset: BigNumber;
 };
 
-export const useTokenStaticDataCallback = ({
-  assetAddress,
-  assetType,
-}: TokenStaticCallbackInput) => {
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-
-  const fetchTokenStaticData = useCallback(
-    async (num: number, offset: BigNumber) => {
-      if (!assetAddress || !assetType || !num) {
-        return [];
-      }
-
-      // just because Indexes can be super huge
-      const assets: Asset[] = Array.from({ length: num }, (_, i) => {
-        const x = offset.add(i).toString();
-        return {
-          assetId: x,
-          assetType,
-          assetAddress,
-          id: getAssetEntityId(assetAddress, x),
-        };
-      });
-
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
-
-      const results = await tryMultiCallCore(multi, calls);
-
-      if (!results) {
-        return [];
-      }
-
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: staticData[i],
-        };
-      });
-    },
-    [chainId, assetAddress, assetType]
-  );
-
-  return fetchTokenStaticData;
-};
-
-export const useTokenStaticDataCallbackArray = () => {
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-
-  const fetchTokenStaticData = useCallback(
-    async (assets: Asset[]) => {
-      if (!assets) {
-        return [];
-      }
-
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
-
-      const results = await tryMultiCallCore(multi, calls);
-
-      if (!results) {
-        return [];
-      }
-
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: staticData[i],
-        };
-      });
-    },
-    [chainId]
-  );
-
-  return fetchTokenStaticData;
-};
-
-const chooseAssets = (
+const choosePondsamaAssets = (
   assetType: StringAssetType,
   assetAddress: string,
   offset: BigNumber,
@@ -163,7 +67,8 @@ const chooseAssets = (
   ids: number[],
   minId: number,
   maxId: number,
-  direction: SortOption
+  direction: SortOption,
+  collectionNameFilter = 2
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: Asset[];
@@ -190,6 +95,8 @@ const chooseAssets = (
         id: getAssetEntityId(assetAddress, x),
       };
     });
+  } else if (!ids.length && collectionNameFilter == 2) {
+    return [];
   } else {
     const rnum =
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
@@ -218,13 +125,13 @@ const chooseAssets = (
   return chosenAssets;
 };
 
-export const useTokenStaticDataCallbackArrayWithFilter = (
+export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
-  filter: Filters | undefined,
+  filter: PondsamaFilter | undefined,
   sortBy: SortOption
 ) => {
-  console.log('useTokenStaticDataCallbackArrayWithFilter', {
+  console.log('usePondsamaTokenStaticDataCallbackArrayWithFilter', {
     assetAddress,
     assetType,
     filter,
@@ -232,24 +139,14 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   });
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
-
   const fetchUri = useFetchTokenUriCallback();
-  let ids = useMoonsamaAttrIds(filter?.traits);
+
+  let ids: number[] = [];
   let coll = useRawcollection(assetAddress ?? '');
-  if (!!subcollectionId && subcollectionId !== '0') {
-    ids =
-      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
-        ?.tokens ?? [];
-  }
+  let subgraph = coll ? coll?.subgraph : '';
+
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
   const maxId = coll?.maxId ?? 1000;
-
-  if (!ids?.length) {
-    for (let i = minId; i <= maxId; i++) ids.push(i);
-  }
-
-  // console.log('ids1', ids);
-  // console.log('coll1', coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -264,7 +161,104 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
-      // console.log('ids', ids);
+      const pondsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
+      const pondsamaTotalSupply1 = await request(subgraph, pondsamaTotalyQuery);
+      let pondsamaTotalSupply = parseInt(
+        pondsamaTotalSupply1.contract.totalSupply
+      );
+      let res = [],
+        pondsamaQuery,
+        res1;
+      if (pondsamaTotalSupply < 1000) {
+        pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
+        res1 = await request(subgraph, pondsamaQuery);
+        res = res1.tokens;
+      } else {
+        let from = 0;
+        while (from < pondsamaTotalSupply) {
+          pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
+          let res1 = await request(subgraph, pondsamaQuery);
+          for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
+          from += 1000;
+        }
+      }
+      let ids: number[] = [];
+      let ponsIdsMeta: number[] = [];
+      for (let i = 0; i < res.length; i++) ids.push(res[i].numericId);
+      console.log('ids1', ids);
+      let totalLength =
+        res.length % 300 ? res.length / 300 + 1 : res.length / 300;
+      if (filter && filter.dfRange && filter.dfRange.length == 2) {
+        for (let i = 0; i < totalLength; i++) {
+          let tempIds = ids.slice(i * 300, 300);
+          let chosenAssets = choosePondsamaAssets(
+            assetType,
+            assetAddress,
+            BigNumber.from(0),
+            res.length,
+            tempIds,
+            minId,
+            maxId,
+            sortBy
+          );
+          let calls: any[] = [];
+          chosenAssets.map((asset, i) => {
+            calls = [...calls, ...getTokenStaticCalldata(asset)];
+          });
+          const results = await tryMultiCallCore(multi, calls);
+          if (!results) return [];
+          const staticData = processTokenStaticCallResults(
+            chosenAssets,
+            results
+          );
+          const metas = await fetchUri(staticData);
+          for (let i = 0; i < metas.length; i++) {
+            let flag = true;
+            let selectedPondTraits = filter.pondTraits;
+            for (let j = 0; j < metas[i].attributes.length; j++) {
+              if (
+                metas[i].attributes[j].trait_type == 'HP' &&
+                (metas[i].attributes[j].value < filter.hpRange[0] ||
+                  metas[i].attributes[j].value > filter.hpRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'PW' &&
+                (metas[i].attributes[j].value < filter?.pwRange[0] ||
+                  metas[i].attributes[j].value > filter?.pwRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'SP' &&
+                (metas[i].attributes[j].value < filter?.spRange[0] ||
+                  metas[i].attributes[j].value > filter?.spRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (
+                metas[i].attributes[j].trait_type == 'DF' &&
+                (metas[i].attributes[j].value < filter?.dfRange[0] ||
+                  metas[i].attributes[j].value > filter?.dfRange[1])
+              ) {
+                flag = false;
+                break;
+              } else if (selectedPondTraits.length) {
+                selectedPondTraits = selectedPondTraits.filter(
+                  (e) => e !== metas[i].attributes[j].value
+                );
+              }
+            }
+
+            if (flag == true && !selectedPondTraits.length) {
+              ponsIdsMeta.push(ids[i]);
+            }
+          }
+          ids = ponsIdsMeta;
+        }
+      }
+      console.log('ids', ids, ponsIdsMeta);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
@@ -301,26 +295,11 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
 
       let ordersFetch: any[] = [];
 
-      // let assetIdsJSONString = JSON.stringify(ids);
-
-      // if (coll?.type === 'ERC721') {
-      //   const query = QUERY_USER_ERC721(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // if (coll?.type === 'ERC1155') {
-      //   const query = QUERY_USER_ERC1155(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // return [];
-
-      // if we don't have a price range, it's just business as usual
       if (
         sortBy == SortOption.TOKEN_ID_ASC ||
         sortBy == SortOption.TOKEN_ID_DESC
       ) {
-        let chosenAssets = chooseAssets(
+        let chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
@@ -347,7 +326,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           });
 
           // console.log('no price range');
-          chosenAssets = chooseAssets(
+          chosenAssets = choosePondsamaAssets(
             assetType,
             assetAddress,
             offset,
@@ -360,6 +339,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           const statics = await fetchStatics(chosenAssets);
           console.log('statistics', statics);
           let totalLength = num == 1 ? num : ids.length;
+          console.log('totalLength', totalLength, statics);
           return { data: statics, length: totalLength };
         }
 
@@ -422,7 +402,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
           }
           pager = pager.add(BigNumber.from(num));
 
-          chosenAssets = chooseAssets(
+          chosenAssets = choosePondsamaAssets(
             assetType,
             assetAddress,
             pager,
@@ -481,9 +461,9 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      console.log('final result', result);
-      let totalLength1 = num ==1 ? num : orders.length;
-      return { data:result, length: totalLength1 };
+      let totalLength1 = num == 1 ? num : orders.length;
+      console.log('totalLength', totalLength, result);
+      return { data: result, length: totalLength1 };
     },
     [
       chainId,

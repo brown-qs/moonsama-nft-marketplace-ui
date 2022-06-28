@@ -787,7 +787,7 @@ export const TokenLootbox = () => {
                         href={
                           !openResult?.rewards[0]?.assetId ||
                           openResult?.rewards[0]?.assetId === '0'
-                            ? `/collection?type=${openResult?.rewards[0].assetType}&address=${openResult?.rewards[0].assetAddress}&subcollectionId=0&sort=3`
+                            ? `/collection?type=${openResult?.rewards[0].assetType}&address=${openResult?.rewards[0].assetAddress}&subcollectionId=0&page=1&sort=3`
                             : `/token/${openResult?.rewards[0].assetType}/${openResult?.rewards[0].assetAddress}/${openResult?.rewards[0].assetId}`
                         }
                       >

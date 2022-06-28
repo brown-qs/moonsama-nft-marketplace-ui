@@ -14,7 +14,6 @@ import MyNFTsPage from './mynfts';
 import { SubcollectionListPage } from './subcollection-list';
 import AuctionListPage from './auctions';
 
-//path="/collection?type=&address=&subcollectionId=&sort=&search=&filter="
 export const Routing = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />

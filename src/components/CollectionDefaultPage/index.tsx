@@ -3,6 +3,7 @@ import { BigNumber } from '@ethersproject/bignumber';
 import SearchIcon from '@mui/icons-material/SearchSharp';
 import { Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import { Token as TokenComponent } from 'components';
 import { useClasses } from 'hooks';
@@ -52,6 +53,8 @@ const CollectionDefaultPage = () => {
   const [searchParams] = useSearchParams();
   const address = searchParams.get('address') ?? '';
   const type = searchParams.get('type') ?? '';
+  const pageParamRes = searchParams.get('page');
+  const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
   let search = searchParams.get('search') ?? '';
   const subcollectionId = searchParams.get('subcollectionId') ?? '0';
   let navigate = useNavigate();
@@ -80,7 +83,9 @@ const CollectionDefaultPage = () => {
   const [sortBy, setSortBy] = useState<SortOption>(sort);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(pageParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
+  const [totalLength, setTotalLength] = useState<number>(0);
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
@@ -100,18 +105,27 @@ const CollectionDefaultPage = () => {
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
 
-  const handleScrollToBottom = useCallback(() => {
-    if (pageLoading) return;
-    // console.log('SCROLLBOTTOM');
-    setTake((state) => (state += searchSize));
-    setSearchCounter((state) => (state += 1));
-  }, [searchSize]);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   // console.log('SCROLLBOTTOM');
+  //   setTake((state) => (state += searchSize));
+  //   setSearchCounter((state) => (state += 1));
+  // }, [searchSize]);
 
-  useBottomScrollListener(handleScrollToBottom, {
-    offset: 400,
-    debounce: 1000,
-  });
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      setPage(value);
+      setTake((state) => (state = searchSize * (value - 1)));
+      setSearchCounter((state) => (state += 1));
+      console.log('pagination', { value, page, take });
+    },
+    []
+  );
 
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
 
   useEffect(() => {
     const filter = searchParams.get('filter') ?? '';
@@ -135,28 +149,57 @@ const CollectionDefaultPage = () => {
       setPageLoading(true);
       let data;
       if (search == '') {
-        data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
+        data = res.data;
+        console.log('setTotalLength', res);
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
       } else {
-        data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(parseInt(search) - 1),
           setTake
         );
+        data = res.data;
+        console.log('setTotalLength', res);
+
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
       }
       const isEnd = !data || data.length == 0;
-      const pieces = data.filter(({ meta }) => !!meta);
+      let pieces: {
+        meta: TokenMeta | undefined;
+        staticData: StaticTokenData;
+      }[] = [];
+      for (let index = 0; index < data.length; index++) {
+        if (!!data[index].meta) pieces.push(data[index]);
+      }
       setPageLoading(false);
+
+      //for scroll infinite
+      // if (isEnd) {
+      //   setPaginationEnded(true);
+      //   setCollection((state) => state.concat(pieces));
+      //   return;
+      // }
+      // setCollection((state) => state.concat(pieces));
 
       if (isEnd) {
         setPaginationEnded(true);
-        setCollection((state) => state.concat(pieces));
+        setCollection(pieces);
         return;
       }
-      setCollection((state) => state.concat(pieces));
+      setCollection(pieces);
     };
     if (!paginationEnded && searchCounter) {
       getCollectionById();
@@ -222,23 +265,45 @@ const CollectionDefaultPage = () => {
         setPaginationEnded(true);
         setPageLoading(true);
 
-        const data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           1,
           BigNumber.from(tokenID - 1),
           setTake
         );
+        console.log('setTotalLength', res);
+
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
+        const responseData: {
+          meta: TokenMeta | undefined;
+          staticData: StaticTokenData;
+        }[] = res.data;
         setPageLoading(false);
-        setCollection(data);
+        setCollection(responseData);
       } else {
         setPaginationEnded(false);
         setPageLoading(true);
-        const data = await getItemsWithFilterAndSort(
+        const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setTake
         );
+        console.log('setTotalLength', res);
+
+        setTotalLength(
+          res.length % searchSize
+            ? Math.floor(res.length / searchSize) + 1
+            : Math.floor(res.length / searchSize)
+        );
+        const responseData: {
+          meta: TokenMeta | undefined;
+          staticData: StaticTokenData;
+        }[] = res.data;
         setPageLoading(false);
-        setCollection(data);
+        setCollection(responseData);
       }
     },
     [searchSize, sortBy]
@@ -412,6 +477,19 @@ const CollectionDefaultPage = () => {
           <Loader />
         </div>
       )}
+      <div className={placeholderContainer}>
+        <Pagination
+          count={totalLength}
+          siblingCount={0}
+          boundaryCount={2}
+          color="primary"
+          size="large"
+          page={page}
+          onChange={handleChange}
+          showFirstButton
+          showLastButton
+        />
+      </div>
     </>
   );
 };
