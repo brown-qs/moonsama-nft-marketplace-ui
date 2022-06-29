@@ -110,9 +110,9 @@ const SubcollectionListItem = (
           to={
             isErc20
               ? `/token/${collection?.type}/${collection?.address}/0`
-              : `/collection?type=${collection?.type}&address=${
+              : `/collection/${collection?.type}/${
                   collection?.address
-                }&subcollectionId=${subcollection?.id ?? '0'}&page=1&sort=3`
+                }/${subcollection?.id ?? '0'}?page=1&sort=3`
           }
         >
           <div className={mediaContainer}>

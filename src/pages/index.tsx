@@ -19,7 +19,7 @@ export const Routing = () => (
     <Route path="/" element={<HomePage />} />
     <Route path="/collections" element={<CollectionListPage />} />
     <Route
-      path="/collection"
+      path="/collection/:type/:address/:subcollectionId"
       element={
         <>
           <PurchaseDialog />

@@ -46,7 +46,6 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
     accordionHeader,
     accordionContent,
     filterChip,
-    priceRangeWrapper,
     priceInput,
     filtersTitle,
     pondsamaFilterAccordion,
@@ -78,14 +77,6 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
       dfRange,
     });
     setIsDrawerOpened(false);
-  };
-
-  const handlePriceRangeChange = (
-    event: Event,
-    newValue: number | number[]
-  ) => {
-    console.log('click', newValue);
-    setPriceRange(newValue as number[]);
   };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {

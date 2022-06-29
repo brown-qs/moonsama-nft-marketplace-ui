@@ -19,7 +19,12 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import {
+  useParams,
+  useSearchParams,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { PondsamaFilter, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -53,11 +58,13 @@ const PondsamaCollectionPage = () => {
   let navigate = useNavigate();
   const sampleLocation = useLocation();
   const [searchParams] = useSearchParams();
-  const address = searchParams.get('address') ?? '';
-  const type = searchParams.get('type') ?? '';
+  const { address, type, subcollectionId } = useParams() as {
+    address: string;
+    type: string;
+    subcollectionId: string;
+  };
   const pageParamRes = searchParams.get('page');
   const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
-  const subcollectionId = searchParams.get('subcollectionId') ?? '0';
   let search = searchParams.get('search') ?? '';
   let sortParam = searchParams.get('sort');
   let sort = sortParam ? parseInt(sortParam) : 3;
@@ -80,11 +87,11 @@ const PondsamaCollectionPage = () => {
   const { placeholderContainer, container } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   let searchSize =
-  filters?.selectedOrderType == undefined
-    ? DEFAULT_PAGE_SIZE
-    : SEARCH_PAGE_SIZE;
-let forTake = (pageParam - 1) * searchSize;
-const [take, setTake] = useState<number>(forTake);
+    filters?.selectedOrderType == undefined
+      ? DEFAULT_PAGE_SIZE
+      : SEARCH_PAGE_SIZE;
+  let forTake = (pageParam - 1) * searchSize;
+  const [take, setTake] = useState<number>(forTake);
   const displayFilters = assetType === StringAssetType.ERC721;
 
   const collectionName = recognizedCollection

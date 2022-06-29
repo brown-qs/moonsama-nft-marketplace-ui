@@ -18,7 +18,7 @@ import {
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -51,12 +51,14 @@ const CollectionDefaultPage = () => {
   >([]);
   const sampleLocation = useLocation();
   const [searchParams] = useSearchParams();
-  const address = searchParams.get('address') ?? '';
-  const type = searchParams.get('type') ?? '';
+  const { address, type, subcollectionId } = useParams() as {
+    address: string;
+    type: string;
+    subcollectionId: string;
+  };
   const pageParamRes = searchParams.get('page');
   const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
   let search = searchParams.get('search') ?? '';
-  const subcollectionId = searchParams.get('subcollectionId') ?? '0';
   let navigate = useNavigate();
   let sortParam = searchParams.get('sort');
   let sort = sortParam ? parseInt(sortParam) : 3;
