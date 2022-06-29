@@ -185,7 +185,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       let ids: number[] = [];
       let ponsIdsMeta: number[] = [];
       for (let i = 0; i < res.length; i++) ids.push(res[i].numericId);
-      console.log('ids1', ids);
+      // console.log('ids1', ids);
       let totalLength =
         res.length % 300 ? res.length / 300 + 1 : res.length / 300;
       if (filter && filter.dfRange && filter.dfRange.length == 2) {
@@ -258,7 +258,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           ids = ponsIdsMeta;
         }
       }
-      console.log('ids', ids, ponsIdsMeta);
+      // console.log('ids', ids, ponsIdsMeta);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
@@ -276,9 +276,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           return [];
         }
 
-        console.log('yolo tryMultiCallCore res', results);
+        // console.log('yolo tryMultiCallCore res', results);
         const staticData = processTokenStaticCallResults(assets, results);
-        console.log('staticData', { staticData });
+        // console.log('staticData', { staticData });
 
         const metas = await fetchUri(staticData);
 

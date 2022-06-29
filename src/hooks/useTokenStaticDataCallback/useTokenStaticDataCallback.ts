@@ -19,7 +19,6 @@ import {
   processTokenStaticCallResults,
 } from 'utils/calls';
 import { Filters } from 'ui/Filters/Filters';
-import { PondsamaFilter } from 'ui/PondsamaFilter/PondsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import { QUERY_USER_ERC721 } from 'subgraph/erc721Queries';
@@ -28,8 +27,6 @@ import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
   QUERY_ASSETS_BY_PRICE,
-  QUERY_PONDSAMA_ACTIVE_ID,
-  QUERY_PONDSAMA_TotalSupply,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -37,7 +34,6 @@ import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
 import React, { useEffect, useState } from 'react';
-import { browserVersion } from 'react-device-detect';
 
 export interface StaticTokenData {
   asset: Asset;
