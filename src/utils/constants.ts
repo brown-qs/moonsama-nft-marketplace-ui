@@ -11,7 +11,6 @@ export const MOONSAMA_MAX_SUPPLY = 1000;
 
 export const MOONSAMA_TRAITS = {
   Neon: 6,
-  Organic: 333,
   'Yellow Bird': 120,
   'Rainbow Shirt': 141,
   'No body accessory': 863,
@@ -80,8 +79,6 @@ export const MOONSAMA_TRAITS = {
 };
 
 export const PONDSAMA_TRAITS = {
-  Neon: 107,
-  Organic: 109,
   Calm: 1,
   Pacific: 2,
   Lazy: 3,

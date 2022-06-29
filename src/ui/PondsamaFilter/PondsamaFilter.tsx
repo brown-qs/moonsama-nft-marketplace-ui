@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
 import { PONDSAMA_TRAITS } from 'utils/constants';
-import { OrderType, OwnedFilterType } from 'utils/subgraph';
+import { OrderType, OwnedFilterType, NeonOrOrganicType } from 'utils/subgraph';
 import { styles } from './PondsamaFilter.style';
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 
@@ -23,6 +23,7 @@ export interface PondsamaFilter {
   spRange: number[];
   dfRange: number[];
   owned: OwnedFilterType | undefined;
+  neonOrOrganic: NeonOrOrganicType | undefined;
 }
 
 interface Props {
@@ -37,6 +38,9 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
   const [spRange, setSpRange] = useState<number[]>([1, 100]);
   const [dfRange, setDfRange] = useState<number[]>([1, 100]);
   const [selectedPondTraits, setSelectedPondTraits] = useState<string[]>([]);
+  const [neonOrOrganic, setNeonOrOrganic] = useState<
+    NeonOrOrganicType | undefined
+  >(undefined);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
   >(undefined);
@@ -59,7 +63,6 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
   const [searchParams] = useSearchParams();
   const { account } = useActiveWeb3React();
   const filter = searchParams.get('filter') ?? '';
-  console.log('account11', account);
   useEffect(() => {
     if (filter.length >= 1) {
       let newFilter: PondsamaFilter = JSON.parse(filter);
@@ -71,6 +74,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
       setDfRange(newFilter?.dfRange);
       setSelectedOwnedType(newFilter?.owned);
       setSelectedPondTraits(newFilter?.pondTraits);
+      setNeonOrOrganic(newFilter?.neonOrOrganic);
     }
   }, []);
 
@@ -84,6 +88,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
       spRange,
       dfRange,
       owned: selectedOwnedType,
+      neonOrOrganic,
     });
     setIsDrawerOpened(false);
   };
@@ -195,6 +200,47 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
       return;
     }
     setSelectedPondTraits([...selectedPondTraits, trait]);
+  };
+
+  const handleNeonOrOrganicClick = (
+    neonOrOrganicValue: NeonOrOrganicType | undefined
+  ) => {
+    setNeonOrOrganic(neonOrOrganicValue);
+    if (neonOrOrganicValue == NeonOrOrganicType.ALL) {
+      let tempPondTraits: string[] = [];
+      selectedPondTraits.map((str) => {
+        if (str != 'Neon' && str != 'Organic') tempPondTraits.push(str);
+      });
+      // selectedPondTraits.filter((db) => {
+      //   db != 'Neon';
+      // });
+      // selectedPondTraits.filter((db) => {
+      //   db != 'Organic';
+      // });
+      setSelectedPondTraits(tempPondTraits);
+    }
+    if (neonOrOrganicValue == NeonOrOrganicType.NEON) {
+      // selectedPondTraits.filter((db) => {
+      //   db != 'Organic';
+      // });
+      let tempPondTraits: string[] = [];
+      selectedPondTraits.map((str) => {
+        if (str != 'Organic') tempPondTraits.push(str);
+      });
+      if (!tempPondTraits.includes('Neon')) tempPondTraits.push('Neon');
+      setSelectedPondTraits(tempPondTraits);
+    }
+    if (neonOrOrganicValue == NeonOrOrganicType.ORGANIC) {
+      // selectedPondTraits.filter((db) => {
+      //   db != 'Neon';
+      // });
+      let tempPondTraits: string[] = [];
+      selectedPondTraits.map((str) => {
+        if (str != 'Neon') tempPondTraits.push(str);
+      });
+      if (!tempPondTraits.includes('Organic')) tempPondTraits.push('Organic');
+      setSelectedPondTraits(tempPondTraits);
+    }
   };
 
   return (
@@ -341,6 +387,51 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     </Typography>
                   </div>
                 )}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion defaultExpanded square className={filterAccordion}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography className={accordionHeader}>
+                  Neon or Organic
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div className={accordionContent}>
+                  <Chip
+                    label="Neon"
+                    variant="outlined"
+                    onClick={() =>
+                      handleNeonOrOrganicClick(NeonOrOrganicType.NEON)
+                    }
+                    className={`${filterChip} ${
+                      neonOrOrganic == NeonOrOrganicType.NEON && 'selected'
+                    }`}
+                  />
+                  <Chip
+                    label="Organic"
+                    variant="outlined"
+                    onClick={() =>
+                      handleNeonOrOrganicClick(NeonOrOrganicType.ORGANIC)
+                    }
+                    className={`${filterChip} ${
+                      neonOrOrganic == NeonOrOrganicType.ORGANIC && 'selected'
+                    }`}
+                  />
+                  <Chip
+                    label="All"
+                    variant="outlined"
+                    onClick={() =>
+                      handleNeonOrOrganicClick(NeonOrOrganicType.ALL)
+                    }
+                    className={`${filterChip} ${
+                      neonOrOrganic == NeonOrOrganicType.ALL && 'selected'
+                    }`}
+                  />
+                </div>
               </AccordionDetails>
             </Accordion>
             <div>
