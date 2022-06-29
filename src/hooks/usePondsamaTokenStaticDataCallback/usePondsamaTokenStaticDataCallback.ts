@@ -9,6 +9,7 @@ import {
   OrderType,
   parseOrder,
   StringAssetType,
+  OwnedFilterType,
 } from 'utils/subgraph';
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 import { useCallback } from 'react';
@@ -18,18 +19,15 @@ import {
   getTokenStaticCalldata,
   processTokenStaticCallResults,
 } from 'utils/calls';
-import { Filters } from 'ui/Filters/Filters';
 import { PondsamaFilter } from 'ui/PondsamaFilter/PondsamaFilter';
-import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
-import { QUERY_USER_ERC721 } from 'subgraph/erc721Queries';
-import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
-  QUERY_ASSETS_BY_PRICE,
   QUERY_PONDSAMA_ACTIVE_ID,
   QUERY_PONDSAMA_TotalSupply,
+  QUERY_PONDSAMA_OWNED_ID,
+  QUERY_PONDSAMA_NOTOWNED_ID,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -37,7 +35,6 @@ import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
 import React, { useEffect, useState } from 'react';
-import { browserVersion } from 'react-device-detect';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -86,7 +83,7 @@ const choosePondsamaAssets = (
       chosenIds = ids.slice(offsetNum, to);
     else chosenIds = [...ids].reverse().slice(offsetNum, to);
 
-    console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
+    // console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
       return {
         assetId: x.toString(),
@@ -101,7 +98,7 @@ const choosePondsamaAssets = (
     const rnum =
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
 
-    console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
+    // console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
     if (rnum == 0) {
       return [];
     }
@@ -119,7 +116,7 @@ const choosePondsamaAssets = (
       };
     });
 
-    console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
+    // console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
   }
 
   return chosenAssets;
@@ -137,7 +134,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
     filter,
     subcollectionId,
   });
-  const { chainId } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
   const fetchUri = useFetchTokenUriCallback();
 
@@ -150,7 +147,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -158,25 +154,45 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       setTake?: (take: number) => void
     ) => {
       if (!assetAddress || !assetType) {
-        console.log({ assetAddress, assetType });
+        // console.log({ assetAddress, assetType });
         return [];
       }
+      const owned: OwnedFilterType | undefined = filter?.owned;
       const pondsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
       const pondsamaTotalSupply1 = await request(subgraph, pondsamaTotalyQuery);
       let pondsamaTotalSupply = parseInt(
         pondsamaTotalSupply1.contract.totalSupply
       );
       let res = [],
-        pondsamaQuery,
+        pondsamaQuery: any,
         res1;
       if (pondsamaTotalSupply < 1000) {
-        pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
+        if (!owned)
+          pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
+        else if (owned == OwnedFilterType.OWNED && account)
+          pondsamaQuery = QUERY_PONDSAMA_OWNED_ID(
+            0,
+            pondsamaTotalSupply,
+            account
+          );
+        else if (owned == OwnedFilterType.NOTOWNED && account)
+          pondsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(
+            0,
+            pondsamaTotalSupply,
+            account
+          );
+        else pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
         res1 = await request(subgraph, pondsamaQuery);
         res = res1.tokens;
       } else {
         let from = 0;
         while (from < pondsamaTotalSupply) {
-          pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
+          if (!owned) pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
+          else if (owned == OwnedFilterType.OWNED && account)
+            pondsamaQuery = QUERY_PONDSAMA_OWNED_ID(from, 1000, account);
+          else if (owned == OwnedFilterType.NOTOWNED && account)
+            pondsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(from, 1000, account);
+          else pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
           let res1 = await request(subgraph, pondsamaQuery);
           for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
           from += 1000;
@@ -337,9 +353,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             sortBy
           );
           const statics = await fetchStatics(chosenAssets);
-          console.log('statistics', statics);
           let totalLength = num == 1 ? num : ids.length;
-          console.log('totalLength', totalLength, statics);
+          // console.log('totalLength', totalLength, statics);
           return { data: statics, length: totalLength };
         }
 
@@ -462,7 +477,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const result = await fetchStatics(theAssets, orders);
       let totalLength1 = num == 1 ? num : orders.length;
-      console.log('totalLength', totalLength, result);
       return { data: result, length: totalLength1 };
     },
     [
@@ -473,6 +487,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       JSON.stringify(priceRange),
       JSON.stringify(selectedOrderType),
       sortBy,
+      filter,
     ]
   );
 

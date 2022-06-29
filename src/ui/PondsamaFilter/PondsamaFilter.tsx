@@ -10,8 +10,9 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
 import { PONDSAMA_TRAITS } from 'utils/constants';
-import { OrderType } from 'utils/subgraph';
+import { OrderType, OwnedFilterType } from 'utils/subgraph';
 import { styles } from './PondsamaFilter.style';
+import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 
 export interface PondsamaFilter {
   priceRange: number[];
@@ -21,14 +22,14 @@ export interface PondsamaFilter {
   pwRange: number[];
   spRange: number[];
   dfRange: number[];
+  owned: OwnedFilterType | undefined;
 }
 
 interface Props {
   onFiltersUpdate: (x: PondsamaFilter) => void;
-  assetAddress: string;
 }
 
-export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
+export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
   const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
   const [hpRange, setHpRange] = useState<number[]>([1, 100]);
@@ -38,6 +39,9 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
   const [selectedPondTraits, setSelectedPondTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
+  >(undefined);
+  const [selectedOwnedType, setSelectedOwnedType] = useState<
+    OwnedFilterType | undefined
   >(undefined);
   const {
     filtersDrawerContent,
@@ -53,7 +57,9 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
   } = useClasses(styles);
 
   const [searchParams] = useSearchParams();
+  const { account } = useActiveWeb3React();
   const filter = searchParams.get('filter') ?? '';
+  console.log('account11', account);
   useEffect(() => {
     if (filter.length >= 1) {
       let newFilter: PondsamaFilter = JSON.parse(filter);
@@ -63,6 +69,8 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
       setPwRange(newFilter?.pwRange);
       setSpRange(newFilter?.spRange);
       setDfRange(newFilter?.dfRange);
+      setSelectedOwnedType(newFilter?.owned);
+      setSelectedPondTraits(newFilter?.pondTraits);
     }
   }, []);
 
@@ -75,6 +83,7 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
       pwRange,
       spRange,
       dfRange,
+      owned: selectedOwnedType,
     });
     setIsDrawerOpened(false);
   };
@@ -172,6 +181,10 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
     setSelectedOrderType(orderType);
   };
 
+  const handleOwnedTypeClick = (owned: OwnedFilterType | undefined) => {
+    setSelectedOwnedType(owned);
+  };
+
   const handlePondTraitClick = (trait: string) => {
     if (selectedPondTraits.includes(trait)) {
       setSelectedPondTraits(
@@ -214,7 +227,6 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
               >
                 <Typography className={accordionHeader}>Order Type</Typography>
               </AccordionSummary>
-
               <AccordionDetails>
                 <div className={accordionContent}>
                   <Chip
@@ -281,7 +293,56 @@ export const PondsamaFilter = ({ onFiltersUpdate, assetAddress }: Props) => {
                 </Stack>
               </AccordionDetails>
             </Accordion>
-
+            <Accordion defaultExpanded square className={filterAccordion}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography className={accordionHeader}>Owned</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {account ? (
+                  <div className={accordionContent}>
+                    <Chip
+                      label="Owned"
+                      variant="outlined"
+                      onClick={() =>
+                        handleOwnedTypeClick(OwnedFilterType.OWNED)
+                      }
+                      className={`${filterChip} ${
+                        selectedOwnedType == OwnedFilterType.OWNED && 'selected'
+                      }`}
+                    />
+                    <Chip
+                      label="Not OWned"
+                      variant="outlined"
+                      onClick={() =>
+                        handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
+                      }
+                      className={`${filterChip} ${
+                        selectedOwnedType == OwnedFilterType.NOTOWNED &&
+                        'selected'
+                      }`}
+                    />
+                    <Chip
+                      label="All"
+                      variant="outlined"
+                      onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
+                      className={`${filterChip} ${
+                        selectedOwnedType == OwnedFilterType.All && 'selected'
+                      }`}
+                    />
+                  </div>
+                ) : (
+                  <div className={accordionContent}>
+                    <Typography className={accordionHeader}>
+                      Please connect your wallet!
+                    </Typography>
+                  </div>
+                )}
+              </AccordionDetails>
+            </Accordion>
             <div>
               <Accordion
                 defaultExpanded

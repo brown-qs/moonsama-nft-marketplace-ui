@@ -26,6 +26,12 @@ export const enum OrderType {
   SELL = 2,
 }
 
+export const enum OwnedFilterType {
+  All = 0,
+  OWNED = 1,
+  NOTOWNED = 2,
+}
+
 export enum StringAssetType {
   UNKNOWN = 'UNKNOWN',
   NATIVE = 'NATIVE',

@@ -284,6 +284,42 @@ export const QUERY_PONDSAMA_ACTIVE_ID = (
   }
 `;
 
+export const QUERY_PONDSAMA_OWNED_ID = (
+  from: number,
+  count: number,
+  owner: string
+  ) => gql`
+  query getUserActiveOrders {
+    tokens(
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
+      where: {owner: "${owner}"}
+    ) {
+      id
+      numericId
+    }
+  }
+`;
+
+
+export const QUERY_PONDSAMA_NOTOWNED_ID = (
+  from: number,
+  count: number,
+  owner: string
+  ) => gql`
+  query getUserActiveOrders {
+    tokens(
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
+      where: {owner_not: "${owner}"}
+    ) {
+      id
+      numericId
+    }
+  }
+`;
 
 export const QUERY_PONDSAMA_TotalSupply = (
   id: string

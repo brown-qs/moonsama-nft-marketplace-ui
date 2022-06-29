@@ -477,7 +477,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      console.log('final result', result);
+      // console.log('final result', result);
       let totalLength1 = num ==1 ? num : orders.length;
       return { data:result, length: totalLength1 };
     },

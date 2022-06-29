@@ -367,21 +367,6 @@ const PondsamaCollectionPage = () => {
     true
   );
 
-  const theme = createTheme({
-    components: {
-      // Name of the component
-      MuiButton: {
-        styleOverrides: {
-          // Name of the slot
-          root: {
-            // Some CSS
-            fontSize: '1rem',
-          },
-        },
-      },
-    },
-  });
-
   return (
     <>
       <div className={container}>
@@ -423,7 +408,6 @@ const PondsamaCollectionPage = () => {
             <div>
               <PondsamaFilter
                 onFiltersUpdate={handleFiltersUpdate}
-                assetAddress={asset.assetAddress}
               />
             </div>
           )}
