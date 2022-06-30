@@ -56,6 +56,8 @@ import { useBlockNumber } from 'state/application/hooks';
 import TextField from '@material-ui/core/TextField';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
+import './index.css';
+
 export const TokenLootbox = () => {
   const styleClasses = useClasses(styles);
   const {
@@ -107,9 +109,7 @@ export const TokenLootbox = () => {
   };
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value) {
-      setChosenAmount(event.target.value);
-    }
+    setChosenAmount(event.target.value);
   };
 
   const { openCallback, confirmCallback } = useLootboxOpen({
@@ -263,6 +263,16 @@ export const TokenLootbox = () => {
   });
 
   console.log('DEBUG', { formattedUserBalances });
+
+  let maxCraftCount = '0';
+
+  items.map((item, i) => {
+    let temp1 = parseInt(item?.target ?? '0');
+    let temp2 = parseInt(formattedUserBalances?.[i] ?? '0');
+    let temp3 = Math.floor(temp2 / temp1);
+    if (maxCraftCount == '0') maxCraftCount = temp3.toString();
+    else if (maxCraftCount > temp3.toString()) maxCraftCount = temp3.toString();
+  });
 
   let approvalNeeded = false;
   allowances?.map((allowance, i) => {
@@ -578,13 +588,16 @@ export const TokenLootbox = () => {
         open={amountPickerDialogOpen}
         onClose={onAmountDialogClose}
         maxWidth="xs"
-        style={{ borderRadius: '0' }}
       >
-        <Stack spacing={theme.spacing(1)} style={{ borderRadius: 0 }}>
-          <Typography color="textSecondary" variant="body2">
-            {`Amount:`}
+        <Stack spacing={theme.spacing(1)}>
+          <Typography
+            color="textSecondary"
+            variant="body2"
+            style={{ marginBottom: '20px', marginTop: '20px' }}
+          >
+            {`Available to make: `} {maxCraftCount}
           </Typography>
-          <TextField
+          {/* <TextField
             disabled={!(lootboxData.selectInputAmountPossible ?? false)}
             color="secondary"
             variant="outlined"
@@ -597,13 +610,44 @@ export const TokenLootbox = () => {
               pattern: '[0-9]*',
               style: { color: 'white', paddingTop: theme.spacing(1) },
             }}
-          />
+          /> */}
+          <div
+            style={{
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              display: 'flex',
+            }}
+          >
+            <TextField
+              disabled={!(lootboxData.selectInputAmountPossible ?? false)}
+              color="secondary"
+              variant="outlined"
+              onChange={handleAmountChange}
+              style={{ alignSelf: 'center', color: 'white' }}
+              value={chosenAmount}
+              className={amountTextInput}
+              type="number"
+              inputProps={{
+                style: { color: 'white', paddingTop: theme.spacing(1) },
+              }}
+            />
+            <Button
+              style={{ background: 'red' }}
+              variant="contained"
+              color="primary"
+              onClick={() => setChosenAmount(maxCraftCount)}
+            >
+              MAX
+            </Button>
+          </div>
           <Box
             className={buttonsContainer}
-            style={{ justifyContent: 'space-around', borderRadius: 0 }}
+            style={{
+              justifyContent: 'space-around',
+            }}
           >
             <Button
-              style={{ background: 'green', borderRadius: 0 }}
+              style={{ background: 'green' }}
               variant="contained"
               color="primary"
               onClick={async () => {
@@ -615,7 +659,8 @@ export const TokenLootbox = () => {
               }}
               disabled={
                 craftCallback.state === CraftCallbackState.INVALID ||
-                availableToMint === '0'
+                availableToMint === '0' ||
+                chosenAmount > maxCraftCount
               }
             >
               {lootboxData.craftText}
