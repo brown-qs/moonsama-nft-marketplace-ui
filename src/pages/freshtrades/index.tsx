@@ -10,6 +10,7 @@ import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRa
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { GlitchText, Loader } from 'ui';
 import { styles } from './styles';
@@ -21,7 +22,7 @@ import { styles as sortStyles } from 'ui/Sort/Sort.style';
 const PAGE_SIZE = 10;
 
 const FreshTradesPage = () => {
-  const {chainId} = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React();
   const [collection, setCollection] = useState<
     {
       meta: TokenMeta | undefined;
@@ -29,29 +30,47 @@ const FreshTradesPage = () => {
       fill: FillWithOrder;
     }[]
   >([]);
+  const { sortElement } = useClasses(sortStyles);
+  let navigate = useNavigate();
+  const sampleLocation = useLocation();
+  const [searchParams] = useSearchParams();
+  const sortByParam = searchParams.get('sortBy') ?? 'time';
+  const sortDirectionParam = searchParams.get('sortDirection') ?? 'desc';
+  const collIndexRes = searchParams.get('collIndex');
+  const collIndexParam = collIndexRes ? parseInt(collIndexRes) : -1;
   const [take, setTake] = useState<number>(0);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(
-    undefined
-  );
+  const [selectedIndex, setSelectedIndex] = useState<number>(collIndexParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
-
-  useEffect(() => {
-    if (chainId) {
-      setCollection([])
-      setSelectedIndex(undefined)
-      setTake(0)
-      setSearchCounter(0)
-      setPaginationEnded(false)
-      setPageLoading(false)
-    }
-  }, [chainId])
-
+  const [sortBy, setSortBy] = useState(sortByParam);
+  const [sortDirection, setSortDirection] = useState(sortDirectionParam);
   const { placeholderContainer, container, filterChip } = useClasses(styles);
 
   const getPaginatedItems = useLatestTradesWithStaticCallback();
-  const collections = useRawCollectionsFromList();  
+  const collections = useRawCollectionsFromList();
+
+  useEffect(() => {
+    if (chainId) {
+      setCollection([]);
+      // setSelectedIndex(-1);
+      setTake(0);
+      setSearchCounter(0);
+      setPaginationEnded(false);
+      setPageLoading(false);
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&sortBy=' +
+        sortBy +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
+      console.log('selectedIndex11', { selectedIndex, sortBy, sortDirection });
+
+    }
+  }, [chainId]);
 
   const handleScrollToBottom = useCallback(() => {
     if (pageLoading) return;
@@ -59,29 +78,28 @@ const FreshTradesPage = () => {
     setSearchCounter((state) => (state += 1));
   }, []);
 
-  useBottomScrollListener(handleScrollToBottom, { offset: 400, debounce: 1000 });
+  useBottomScrollListener(handleScrollToBottom, {
+    offset: 400,
+    debounce: 1000,
+  });
 
   const whitelist = useWhitelistedAddresses(); // REMOVEME later
-
-  const selectedTokenAddress =
-    selectedIndex === undefined
-      ? undefined
-      : collections[selectedIndex]?.address?.toLowerCase();
-
-  const { sortElement} = useClasses(sortStyles);
-  const [sortBy, setSortBy] = useState('time');
-  const [sortDirection, setSortDirection] = useState('desc');
 
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
+      const selectedTokenAddress =
+        selectedIndex === -1
+          ? undefined
+          : collections[selectedIndex]?.address?.toLowerCase();
+      console.log('selectedIndex11', { selectedIndex, sortBy, sortDirection });
       let data = await getPaginatedItems(
         PAGE_SIZE,
         take,
         sortBy,
         sortDirection,
         selectedTokenAddress,
-        setTake,
+        setTake
       );
       data = data.filter((x) =>
         whitelist.includes(x.staticData.asset.assetAddress.toLowerCase())
@@ -90,7 +108,6 @@ const FreshTradesPage = () => {
       const isEnd = data.some(({ meta }) => !meta);
 
       //console.log('IS END', {paginationEnded, isEnd, pieces, data})
-
       //console.log('FRESH', {data, PAGE_SIZE, take, isEnd})
 
       if (isEnd) {
@@ -105,16 +122,44 @@ const FreshTradesPage = () => {
       getCollectionById();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchCounter, paginationEnded, selectedTokenAddress, sortBy, sortDirection]);
+  }, [searchCounter, paginationEnded, selectedIndex, sortBy, sortDirection]);
 
-  const handleSelection = (i: number | undefined) => {
+  const handleCollectionSelection = (i: number) => {
     if (i !== selectedIndex) {
       setCollection([]);
       setSelectedIndex(i);
       setTake(0);
       setSearchCounter(0);
       setPaginationEnded(false);
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        i +
+        '&sortBy=' +
+        sortBy +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
     }
+  };
+
+  const handleSortChange = (event: any) => {
+    setCollection([]);
+    setTake(0);
+    setSearchCounter(0);
+    setPaginationEnded(false);
+    const value = event.target.value.split(',');
+    setSortBy(value[0]);
+    setSortDirection(value[1]);
+    let newPath =
+      sampleLocation.pathname +
+      '?collIndex=' +
+      selectedIndex +
+      '&sortBy=' +
+      value[0] +
+      '&sortDirection=' +
+      value[1];
+    navigate(newPath);
   };
 
   return (
@@ -133,9 +178,9 @@ const FreshTradesPage = () => {
             key={`all`}
             label={'All'}
             variant="outlined"
-            onClick={() => handleSelection(undefined)}
+            onClick={() => handleCollectionSelection(-1)}
             className={`${filterChip}${
-              selectedIndex === undefined ? ' selected' : ''
+              selectedIndex === -1 ? ' selected' : ''
             }`}
           />
           {collections.map((collection, i) => {
@@ -144,7 +189,7 @@ const FreshTradesPage = () => {
                 key={`${collection.address}-${i}`}
                 label={collection.display_name}
                 variant="outlined"
-                onClick={() => handleSelection(i)}
+                onClick={() => handleCollectionSelection(i)}
                 className={`${filterChip}${
                   selectedIndex === i ? ' selected' : ''
                 }`}
@@ -159,26 +204,18 @@ const FreshTradesPage = () => {
           variant="outlined"
           color="primary"
           IconComponent={SortSharp}
-          defaultValue={'time,desc'}
+          defaultValue={sortBy+','+sortDirection}
           inputProps={{
             name: 'sort',
             id: 'uncontrolled-native',
           }}
-          onChange={(event: any) => {
-            setCollection([]);
-            setTake(0);
-            setSearchCounter(0);
-            setPaginationEnded(false);
-            const value = event.target.value.split(',');
-            setSortBy(value[0]);
-            setSortDirection(value[1]);
-          }}
+          onChange={handleSortChange}
         >
-        <MenuItem value={'time,asc'}>Time ascending</MenuItem>
-        <MenuItem value={'time,desc'}>Time descending</MenuItem>
-        <MenuItem value={'price,asc'}>Price ascending</MenuItem>
-        <MenuItem value={'price,desc'}>Price descending</MenuItem>
-      </Select>
+          <MenuItem value={'time,asc'}>Time ascending</MenuItem>
+          <MenuItem value={'time,desc'}>Time descending</MenuItem>
+          <MenuItem value={'price,asc'}>Price ascending</MenuItem>
+          <MenuItem value={'price,desc'}>Price descending</MenuItem>
+        </Select>
       </Grid>
       <Grid container spacing={1}>
         {collection

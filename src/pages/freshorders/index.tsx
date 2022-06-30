@@ -11,12 +11,7 @@ import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList
 import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useWhitelistedAddresses } from '../../hooks/useWhitelistedAddresses/useWhitelistedAddresses';
 import { SetStateAction, useCallback, useEffect, useState } from 'react';
-import {
-  useParams,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import {
   Drawer,
@@ -183,7 +178,7 @@ const FreshOrdersPage = () => {
         '&tab=' +
         currentTab +
         '&sortBy=' +
-        sortByParam +
+        sortBy +
         '&sortDirection=' +
         sortDirection;
       navigate(newPath);
