@@ -1,14 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { tryMultiCallCore } from 'hooks/useMulticall2/useMulticall2';
-import {
-  useERC20Contract,
-  useMulticall2Contract,
-} from 'hooks/useContracts/useContracts';
+import { useMulticall2Contract } from 'hooks/useContracts/useContracts';
 import {
   getAssetEntityId,
   OrderType,
   parseOrder,
   StringAssetType,
+  OwnedFilterType,
 } from 'utils/subgraph';
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 import { useCallback } from 'react';
@@ -18,19 +16,23 @@ import {
   getTokenStaticCalldata,
   processTokenStaticCallResults,
 } from 'utils/calls';
-import { Filters } from 'ui/Filters/Filters';
+import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
-  QUERY_ASSETS_BY_PRICE,
+  QUERY_PONDSAMA_TotalSupply,
+  QUERY_PONDSAMA_ACTIVE_ID,
+  QUERY_PONDSAMA_OWNED_ID,
+  QUERY_PONDSAMA_NOTOWNED_ID,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
+import { Account } from 'components';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -52,7 +54,7 @@ export type TokenStaticFetchInput = {
   offset: BigNumber;
 };
 
-const chooseAssets = (
+const chooseMoonsamaAssets = (
   assetType: StringAssetType,
   assetAddress: string,
   offset: BigNumber,
@@ -87,6 +89,8 @@ const chooseAssets = (
         id: getAssetEntityId(assetAddress, x),
       };
     });
+  } else if (!ids.length) {
+    return [];
   } else {
     const rnum =
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
@@ -118,7 +122,7 @@ const chooseAssets = (
 export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
-  filter: Filters | undefined,
+  filter: MoonsamaFilter | undefined,
   sortBy: SortOption
 ) => {
   console.log('useMoonsamaTokenStaticDataCallbackArrayWithFilter', {
@@ -127,7 +131,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
     filter,
     subcollectionId,
   });
-  const { chainId } = useActiveWeb3React();
+  const { chainId, account } = useActiveWeb3React();
   const multi = useMulticall2Contract();
 
   const fetchUri = useFetchTokenUriCallback();
@@ -150,6 +154,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
+  let subgraph = coll ? coll?.subgraph : '';
 
   const fetchTokenStaticData = useCallback(
     async (
@@ -161,7 +166,54 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
-      // console.log('ids', ids);
+      const owned: OwnedFilterType | undefined = filter?.owned;
+      if (owned != undefined && owned != OwnedFilterType.All) {
+        const moonsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
+        const moonsamaTotalSupply1 = await request(
+          subgraph,
+          moonsamaTotalyQuery
+        );
+        let moonsamaTotalSupply = parseInt(
+          moonsamaTotalSupply1.contract.totalSupply
+        );
+        let res = [],
+          tempIds: number[] = [],
+          moonsamaQuery: any,
+          res1;
+        if (moonsamaTotalSupply <= 1000) {
+          if (owned == OwnedFilterType.OWNED && account)
+            moonsamaQuery = QUERY_PONDSAMA_OWNED_ID(
+              0,
+              moonsamaTotalSupply,
+              account
+            );
+          else if (owned == OwnedFilterType.NOTOWNED && account)
+            moonsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(
+              0,
+              moonsamaTotalSupply,
+              account
+            );
+          res1 = await request(subgraph, moonsamaQuery);
+          res = res1.tokens;
+        } else {
+          let from = 0;
+          while (from < moonsamaTotalSupply) {
+            if (owned == OwnedFilterType.OWNED && account)
+              moonsamaQuery = QUERY_PONDSAMA_OWNED_ID(from, 1000, account);
+            else if (owned == OwnedFilterType.NOTOWNED && account)
+              moonsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(from, 1000, account);
+            let res1 = await request(subgraph, moonsamaQuery);
+            for (let i = 0; i < res1.tokens.length; i++)
+              res.push(res1.tokens[i]);
+            from += 1000;
+          }
+        }
+        for (let i = 0; i < res.length; i++) {
+          if (ids.includes(parseInt(res[i].numericId))) tempIds.push(parseInt(res[i].numericId));
+        }
+        ids = tempIds;
+      }
+
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
@@ -198,26 +250,12 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let ordersFetch: any[] = [];
 
-      // let assetIdsJSONString = JSON.stringify(ids);
-
-      // if (coll?.type === 'ERC721') {
-      //   const query = QUERY_USER_ERC721(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // if (coll?.type === 'ERC1155') {
-      //   const query = QUERY_USER_ERC1155(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // return [];
-
       // if we don't have a price range, it's just business as usual
       if (
         sortBy == SortOption.TOKEN_ID_ASC ||
         sortBy == SortOption.TOKEN_ID_DESC
       ) {
-        let chosenAssets = chooseAssets(
+        let chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
           offset,
@@ -244,7 +282,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
 
           // console.log('no price range');
-          chosenAssets = chooseAssets(
+          chosenAssets = chooseMoonsamaAssets(
             assetType,
             assetAddress,
             offset,
@@ -319,7 +357,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           }
           pager = pager.add(BigNumber.from(num));
 
-          chosenAssets = chooseAssets(
+          chosenAssets = chooseMoonsamaAssets(
             assetType,
             assetAddress,
             pager,
@@ -379,8 +417,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const result = await fetchStatics(theAssets, orders);
       // console.log('final result', result);
-      let totalLength1 = num ==1 ? num : orders.length;
-      return { data:result, length: totalLength1 };
+      let totalLength1 = num == 1 ? num : orders.length;
+      return { data: result, length: totalLength1 };
     },
     [
       chainId,
@@ -390,6 +428,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       JSON.stringify(priceRange),
       JSON.stringify(selectedOrderType),
       sortBy,
+      filter,
     ]
   );
 

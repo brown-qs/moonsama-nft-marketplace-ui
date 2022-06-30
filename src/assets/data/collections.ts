@@ -84,7 +84,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmRffvf3cGzarRaJEH99JRrXqyZyyie6gPr1yp7JFMB7Z2',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-moonsama-v2',
     },
     {
       chainId: 1285,

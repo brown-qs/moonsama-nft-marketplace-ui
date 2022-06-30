@@ -9,20 +9,21 @@ const CollectionPage = () => {
     type: string;
     subcollectionId: string;
   };
-  let isPondsamaCollection =
-    address == '0xe4edcaaea73684b310fc206405ee80abcec73ee0'.toLowerCase();
-
-  let isMoonsamaCollection =
-    address == '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase();
-
+  let navigateCollectionPage = 0; //defaultPage
+  if (address.toLowerCase() == '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase())
+    // Moonsama
+    navigateCollectionPage = 1;
+  else if (
+    address.toLowerCase() == '0xe4edcaaea73684b310fc206405ee80abcec73ee0'.toLowerCase()
+  )
+    //Pondsama
+    navigateCollectionPage = 2;
   return (
     <>
       <div>
-        {isPondsamaCollection && <PondsamaCollectionPage />}
-        {isMoonsamaCollection && <MoonsamaCollectionPage />}
-        {!isPondsamaCollection && !isMoonsamaCollection && (
-          <CollectionDefaultPage />
-        )}
+        {navigateCollectionPage == 1 && <MoonsamaCollectionPage />}
+        {navigateCollectionPage == 2 && <PondsamaCollectionPage />}
+        {navigateCollectionPage == 0 && <CollectionDefaultPage />}
       </div>
     </>
   );

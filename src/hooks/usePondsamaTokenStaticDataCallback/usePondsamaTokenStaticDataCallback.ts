@@ -64,8 +64,7 @@ const choosePondsamaAssets = (
   ids: number[],
   minId: number,
   maxId: number,
-  direction: SortOption,
-  collectionNameFilter = 2
+  direction: SortOption
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: Asset[];
@@ -92,7 +91,7 @@ const choosePondsamaAssets = (
         id: getAssetEntityId(assetAddress, x),
       };
     });
-  } else if (!ids.length && collectionNameFilter == 2) {
+  } else if (!ids.length) {
     return [];
   } else {
     const rnum =

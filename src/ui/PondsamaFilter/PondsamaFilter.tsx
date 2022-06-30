@@ -211,18 +211,9 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
       selectedPondTraits.map((str) => {
         if (str != 'Neon' && str != 'Organic') tempPondTraits.push(str);
       });
-      // selectedPondTraits.filter((db) => {
-      //   db != 'Neon';
-      // });
-      // selectedPondTraits.filter((db) => {
-      //   db != 'Organic';
-      // });
       setSelectedPondTraits(tempPondTraits);
     }
     if (neonOrOrganicValue == NeonOrOrganicType.NEON) {
-      // selectedPondTraits.filter((db) => {
-      //   db != 'Organic';
-      // });
       let tempPondTraits: string[] = [];
       selectedPondTraits.map((str) => {
         if (str != 'Organic') tempPondTraits.push(str);
@@ -231,9 +222,6 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
       setSelectedPondTraits(tempPondTraits);
     }
     if (neonOrOrganicValue == NeonOrOrganicType.ORGANIC) {
-      // selectedPondTraits.filter((db) => {
-      //   db != 'Neon';
-      // });
       let tempPondTraits: string[] = [];
       selectedPondTraits.map((str) => {
         if (str != 'Neon') tempPondTraits.push(str);

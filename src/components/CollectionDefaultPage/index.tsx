@@ -221,7 +221,6 @@ const CollectionDefaultPage = () => {
     searchCounter,
     paginationEnded,
     searchSize,
-    JSON.stringify(filters?.traits),
     sortBy,
   ]);
 
@@ -421,7 +420,6 @@ const CollectionDefaultPage = () => {
             <div>
               <Filters
                 onFiltersUpdate={handleFiltersUpdate}
-                assetAddress={asset.assetAddress}
               />
             </div>
           )}

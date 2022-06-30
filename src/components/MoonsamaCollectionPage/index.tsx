@@ -421,7 +421,6 @@ const MoonsamaCollectionPage = () => {
             <div>
               <MoonsamaFilter
                 onFiltersUpdate={handleFiltersUpdate}
-                assetAddress={asset.assetAddress}
               />
             </div>
           )}

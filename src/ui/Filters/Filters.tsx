@@ -9,25 +9,21 @@ import { useClasses } from 'hooks';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
-import { MOONSAMA_TRAITS } from 'utils/constants';
 import { OrderType } from 'utils/subgraph';
 import { styles } from './Filters.style';
 
 export interface Filters {
   priceRange: number[];
-  traits: string[];
   selectedOrderType: OrderType | undefined;
 }
 
 interface Props {
   onFiltersUpdate: (x: Filters) => void;
-  assetAddress: string;
 }
 
-export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
+export const Filters = ({ onFiltersUpdate }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
   const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
-  const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
   >(undefined);
@@ -50,18 +46,12 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
       let newFilter: Filters = JSON.parse(filter);
       setSelectedOrderType(newFilter?.selectedOrderType);
       setPriceRange(newFilter?.priceRange);
-      setSelectedTraits(newFilter?.traits);
     }
   }, []);
-
-  const isMoonsama =
-    assetAddress.toLowerCase() ==
-    '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a'.toLowerCase();
 
   const handleApplyFilters = () => {
     onFiltersUpdate({
       selectedOrderType,
-      traits: selectedTraits,
       priceRange,
     });
     setIsDrawerOpened(false);
@@ -76,7 +66,6 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
   };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
-    // console.log(event.target.value);
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
@@ -98,16 +87,6 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
 
   const handleOrderTypeClick = (orderType: OrderType | undefined) => {
     setSelectedOrderType(orderType);
-  };
-
-  const handleTraitClick = (trait: string) => {
-    if (selectedTraits.includes(trait)) {
-      setSelectedTraits(
-        selectedTraits.filter((selectedTrait) => selectedTrait !== trait)
-      );
-      return;
-    }
-    setSelectedTraits([...selectedTraits, trait]);
   };
 
   return (
@@ -232,32 +211,6 @@ export const Filters = ({ onFiltersUpdate, assetAddress }: Props) => {
                 */}
               </AccordionDetails>
             </Accordion>
-            {isMoonsama && (
-              <Accordion defaultExpanded square className={filterAccordion}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel2a-content"
-                  id="panel2a-header"
-                >
-                  <Typography className={accordionHeader}>Traits</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <div className={accordionContent}>
-                    {Object.keys(MOONSAMA_TRAITS).map((trait, i) => (
-                      <Chip
-                        label={trait}
-                        key={`${trait}-${i}`}
-                        variant="outlined"
-                        onClick={() => handleTraitClick(trait)}
-                        className={`${filterChip} ${
-                          selectedTraits.includes(trait) && 'selected'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </AccordionDetails>
-              </Accordion>
-            )}
             <Button
               className={applyFiltersButton}
               onClick={handleApplyFilters}
