@@ -19,10 +19,12 @@ import {
   processTokenStaticCallResults,
 } from 'utils/calls';
 import { Filters } from 'ui/Filters/Filters';
+import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
+  QUERY_ASSETS_BY_PRICE,
 } from 'subgraph/orderQueries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -48,102 +50,6 @@ export type TokenStaticCallbackInput = {
 export type TokenStaticFetchInput = {
   num: number;
   offset: BigNumber;
-};
-
-export const useTokenStaticDataCallback = ({
-  assetAddress,
-  assetType,
-}: TokenStaticCallbackInput) => {
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-
-  const fetchTokenStaticData = useCallback(
-    async (num: number, offset: BigNumber) => {
-      if (!assetAddress || !assetType || !num) {
-        return [];
-      }
-
-      // just because Indexes can be super huge
-      const assets: Asset[] = Array.from({ length: num }, (_, i) => {
-        const x = offset.add(i).toString();
-        return {
-          assetId: x,
-          assetType,
-          assetAddress,
-          id: getAssetEntityId(assetAddress, x),
-        };
-      });
-
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
-
-      const results = await tryMultiCallCore(multi, calls);
-
-      if (!results) {
-        return [];
-      }
-
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: staticData[i],
-        };
-      });
-    },
-    [chainId, assetAddress, assetType]
-  );
-
-  return fetchTokenStaticData;
-};
-
-export const useTokenStaticDataCallbackArray = () => {
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-
-  const fetchTokenStaticData = useCallback(
-    async (assets: Asset[]) => {
-      if (!assets) {
-        return [];
-      }
-
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
-
-      const results = await tryMultiCallCore(multi, calls);
-
-      if (!results) {
-        return [];
-      }
-
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: staticData[i],
-        };
-      });
-    },
-    [chainId]
-  );
-
-  return fetchTokenStaticData;
 };
 
 const chooseAssets = (
@@ -209,13 +115,13 @@ const chooseAssets = (
   return chosenAssets;
 };
 
-export const useTokenStaticDataCallbackArrayWithFilter = (
+export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
   filter: Filters | undefined,
   sortBy: SortOption
 ) => {
-  console.log('useTokenStaticDataCallbackArrayWithFilter', {
+  console.log('useMoonsamaTokenStaticDataCallbackArrayWithFilter', {
     assetAddress,
     assetType,
     filter,
@@ -225,7 +131,7 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
   const multi = useMulticall2Contract();
 
   const fetchUri = useFetchTokenUriCallback();
-  let ids: number[] = [];
+  let ids = useMoonsamaAttrIds(filter?.traits);
   let coll = useRawcollection(assetAddress ?? '');
   if (!!subcollectionId && subcollectionId !== '0') {
     ids =
@@ -473,8 +379,8 @@ export const useTokenStaticDataCallbackArrayWithFilter = (
 
       const result = await fetchStatics(theAssets, orders);
       // console.log('final result', result);
-      let totalLength1 = num == 1 ? num : orders.length;
-      return { data: result, length: totalLength1 };
+      let totalLength1 = num ==1 ? num : orders.length;
+      return { data:result, length: totalLength1 };
     },
     [
       chainId,
