@@ -322,7 +322,7 @@ export const AccountDialog = () => {
     if (error) {
       return (
         <div className={styles.dialogContainer}>
-          {error instanceof UnsupportedChainIdError && <>
+          {(error instanceof UnsupportedChainIdError || isMobile) && <>
             <div>
               Wrong Network
             </div>
