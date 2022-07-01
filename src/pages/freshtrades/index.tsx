@@ -1,5 +1,6 @@
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import { TokenTrade } from 'components/TokenTrade/TokenTrade';
 import { useActiveWeb3React, useClasses } from 'hooks';
@@ -38,13 +39,16 @@ const FreshTradesPage = () => {
   const sortDirectionParam = searchParams.get('sortDirection') ?? 'desc';
   const collIndexRes = searchParams.get('collIndex');
   const collIndexParam = collIndexRes ? parseInt(collIndexRes) : -1;
-  const [take, setTake] = useState<number>(0);
+  const pageParamRes = searchParams.get('page');
+  const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
+  const [take, setTake] = useState<number>((pageParam - 1) * PAGE_SIZE);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(collIndexParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [sortBy, setSortBy] = useState(sortByParam);
   const [sortDirection, setSortDirection] = useState(sortDirectionParam);
+  const [page, setPage] = useState<number>(pageParam);
   const { placeholderContainer, container, filterChip } = useClasses(styles);
 
   const getPaginatedItems = useLatestTradesWithStaticCallback();
@@ -54,7 +58,7 @@ const FreshTradesPage = () => {
     if (chainId) {
       setCollection([]);
       // setSelectedIndex(-1);
-      setTake(0);
+      // setTake(0);
       setSearchCounter(0);
       setPaginationEnded(false);
       setPageLoading(false);
@@ -62,26 +66,26 @@ const FreshTradesPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         selectedIndex +
+        '&page=' +
+        page +
         '&sortBy=' +
         sortBy +
         '&sortDirection=' +
         sortDirection;
       navigate(newPath);
-      console.log('selectedIndex11', { selectedIndex, sortBy, sortDirection });
-
     }
   }, [chainId]);
 
-  const handleScrollToBottom = useCallback(() => {
-    if (pageLoading) return;
-    setTake((state) => (state += PAGE_SIZE));
-    setSearchCounter((state) => (state += 1));
-  }, []);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   setTake((state) => (state += PAGE_SIZE));
+  //   setSearchCounter((state) => (state += 1));
+  // }, []);
 
-  useBottomScrollListener(handleScrollToBottom, {
-    offset: 400,
-    debounce: 1000,
-  });
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
 
   const whitelist = useWhitelistedAddresses(); // REMOVEME later
 
@@ -92,7 +96,6 @@ const FreshTradesPage = () => {
         selectedIndex === -1
           ? undefined
           : collections[selectedIndex]?.address?.toLowerCase();
-      console.log('selectedIndex11', { selectedIndex, sortBy, sortDirection });
       let data = await getPaginatedItems(
         PAGE_SIZE,
         take,
@@ -113,10 +116,12 @@ const FreshTradesPage = () => {
       if (isEnd) {
         const pieces = data.filter(({ meta }) => !!meta);
         setPaginationEnded(true);
-        setCollection((state) => state.concat(pieces));
+        // setCollection((state) => state.concat(pieces));
+        setCollection(pieces);
         return;
       }
-      setCollection((state) => state.concat(data));
+      // setCollection((state) => state.concat(data));
+      setCollection(data);
     };
     if (!paginationEnded) {
       getCollectionById();
@@ -135,6 +140,8 @@ const FreshTradesPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         i +
+        '&page=' +
+        page +
         '&sortBy=' +
         sortBy +
         '&sortDirection=' +
@@ -155,12 +162,37 @@ const FreshTradesPage = () => {
       sampleLocation.pathname +
       '?collIndex=' +
       selectedIndex +
+      '&page=' +
+      page +
       '&sortBy=' +
       value[0] +
       '&sortDirection=' +
       value[1];
     navigate(newPath);
   };
+
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      if (!pageLoading) {
+        setPage(value);
+        setTake((state) => (state = PAGE_SIZE * (value - 1)));
+        setSearchCounter((state) => (state += 1));
+        let newPath =
+          sampleLocation.pathname +
+          '?collIndex=' +
+          selectedIndex +
+          '&page=' +
+          value +
+          '&sortBy=' +
+          sortByParam +
+          '&sortDirection=' +
+          sortDirection;
+        console.log('pageLoading1', { pageLoading, newPath });
+        navigate(newPath);
+      }
+    },
+    []
+  );
 
   return (
     <>
@@ -204,7 +236,7 @@ const FreshTradesPage = () => {
           variant="outlined"
           color="primary"
           IconComponent={SortSharp}
-          defaultValue={sortBy+','+sortDirection}
+          defaultValue={sortBy + ',' + sortDirection}
           inputProps={{
             name: 'sort',
             id: 'uncontrolled-native',
@@ -252,6 +284,19 @@ const FreshTradesPage = () => {
         //   </div>
         // </div>
       )}
+      <div className={placeholderContainer}>
+        <Pagination
+          count={100}
+          siblingCount={0}
+          boundaryCount={2}
+          color="primary"
+          size="large"
+          page={page}
+          onChange={handlePageChange}
+          showFirstButton
+          showLastButton
+        />
+      </div>
     </>
   );
 };

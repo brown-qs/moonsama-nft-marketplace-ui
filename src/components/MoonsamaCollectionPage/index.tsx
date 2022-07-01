@@ -116,6 +116,7 @@ const MoonsamaCollectionPage = () => {
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
+      if (pageLoading) return;
       let href = window.location.href;
       let temp = href.split('?');
       let path = '?' + temp[1];

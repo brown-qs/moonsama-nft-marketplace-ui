@@ -127,7 +127,7 @@ const FreshOrdersPage = () => {
   const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
   const [selectedIndex, setSelectedIndex] =
     useState<number>(selectedIndexParam);
-  const [take, setTake] = useState<number>(0);
+  const [take, setTake] = useState<number>((pageParam - 1) * PAGE_SIZE);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
@@ -163,11 +163,10 @@ const FreshOrdersPage = () => {
     if (chainId) {
       setBuyOrders([]);
       setSellOrders([]);
-      setSelectedIndex(
-        collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
-      );
-      // setTake((page - 1) * PAGE_SIZE);
-      setTake(0);
+      // setSelectedIndex(
+      //   collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
+      // );
+      // setTake(0);
       setPaginationEnded(false);
       setPageLoading(false);
       setIsDrawerOpened(false);
@@ -175,6 +174,8 @@ const FreshOrdersPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         selectedIndex +
+        '&page=' +
+        page +
         '&tab=' +
         currentTab +
         '&sortBy=' +
@@ -196,6 +197,8 @@ const FreshOrdersPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         selectedIndex +
+        '&page=' +
+        page +
         '&tab=' +
         currentTab +
         '&sortBy=' +
@@ -211,6 +214,8 @@ const FreshOrdersPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         selectedIndex +
+        '&page=' +
+        page +
         '&tab=' +
         currentTab +
         '&sortBy=' +
@@ -227,6 +232,8 @@ const FreshOrdersPage = () => {
       sampleLocation.pathname +
       '?collIndex=' +
       selectedIndex +
+      '&page=' +
+      page +
       '&tab=' +
       newValue +
       '&sortBy=' +
@@ -246,6 +253,8 @@ const FreshOrdersPage = () => {
         sampleLocation.pathname +
         '?collIndex=' +
         i +
+        '&page=' +
+        page +
         '&tab=' +
         currentTab +
         '&sortBy=' +
@@ -256,37 +265,37 @@ const FreshOrdersPage = () => {
     }
   };
 
-  const handleScrollToBottom = useCallback(() => {
-    if (pageLoading) return;
-    setTake((state) => (state += PAGE_SIZE));
-  }, []);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   setTake((state) => (state += PAGE_SIZE));
+  // }, []);
 
-  useBottomScrollListener(handleScrollToBottom, {
-    offset: 400,
-    debounce: 1000,
-  });
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
 
-  // const handlePageChange = useCallback(
-  //   (event: React.ChangeEvent<unknown>, value: number) => {
-  //     // let href = window.location.href;
-  //     // let temp = href.split('?');
-  //     // let path = '?' + temp[1];
-  //     // let newPath = sampleLocation.pathname;
-  //     // let ind = path.search('&page=');
-  //     // if (ind != -1) {
-  //     //   newPath = newPath + path.slice(0, ind);
-  //     //   ind += 3;
-  //     //   for (; ind < path.length; ind++) {
-  //     //     if (path[ind] == '&') break;
-  //     //   }
-  //     //   newPath = newPath + '&page=' + value + path.slice(ind, path.length);
-  //     // } else newPath = newPath + path + '&page=' + value;
-  //     // navigate(newPath);
-  //     setPage(value);
-  //     setTake((state) => (state = PAGE_SIZE * (value - 1)));
-  //   },
-  //   []
-  // );
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      if (pageLoading) return;
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        value +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        sortByParam +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
+      setPage(value);
+      setTake((state) => (state = PAGE_SIZE * (value - 1)));
+    },
+    []
+  );
 
   useEffect(() => {
     const getCollectionById = async () => {
@@ -324,16 +333,16 @@ const FreshOrdersPage = () => {
 
         setPaginationEnded(true);
 
-        setSellOrders((state) => state.concat(sellPieces));
-        setBuyOrders((state) => state.concat(buyPieces));
-        // setSellOrders(sellPieces);
-        // setBuyOrders(buyPieces);
+        // setSellOrders((state) => state.concat(sellPieces));
+        // setBuyOrders((state) => state.concat(buyPieces));
+        setSellOrders(sellPieces);
+        setBuyOrders(buyPieces);
         return;
       }
-      setSellOrders((state) => state.concat(sellData));
-      setBuyOrders((state) => state.concat(buyData));
-      // setSellOrders(sellData);
-      // setBuyOrders(buyData);
+      // setSellOrders((state) => state.concat(sellData));
+      // setBuyOrders((state) => state.concat(buyData));
+      setSellOrders(sellData);
+      setBuyOrders(buyData);
     };
     if (!paginationEnded) {
       getCollectionById();
@@ -462,7 +471,7 @@ const FreshOrdersPage = () => {
           <Loader />
         </div>
       )}
-      {/* <div className={placeholderContainer}>
+      <div className={placeholderContainer}>
         <Pagination
           count={100}
           siblingCount={0}
@@ -474,7 +483,7 @@ const FreshOrdersPage = () => {
           showFirstButton
           showLastButton
         />
-      </div> */}
+      </div>
     </>
   );
 };
