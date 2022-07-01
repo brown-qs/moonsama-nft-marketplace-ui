@@ -59,6 +59,8 @@ export const AccountDialog = () => {
     useWeb3React();
   const previousAccount = usePrevious(account);
 
+
+
   // close on connection, when logged out before
   useEffect(() => {
     if (account && !previousAccount && isAccountDialogOpen) {
@@ -316,6 +318,7 @@ export const AccountDialog = () => {
   */
 
   function getModalContent() {
+    console.log("121312321", { isMobile, error, connector, walletView, account})
     if (error) {
       return (
         <div className={styles.dialogContainer}>
