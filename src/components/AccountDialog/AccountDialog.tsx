@@ -421,7 +421,7 @@ export const AccountDialog = () => {
         )}
         {walletView !== WALLET_VIEWS.PENDING && (
           <Typography variant="body2" className={styles.row}>
-            New to Ethereum? &nbsp;
+            !!New to Ethereum? &nbsp;
             <ExternalLink href="https://ethereum.org/wallets">
               Learn more about wallets
             </ExternalLink>
