@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   placeholder: {
     width: '100%',
     height: 'auto',
@@ -24,4 +24,4 @@ export const useStyles = makeStyles((theme) => ({
       transform: 'scale(1)',
     },
   },
-}));
+});

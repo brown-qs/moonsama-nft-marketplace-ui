@@ -1,12 +1,11 @@
-import { Theme } from '@material-ui/core';
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
 type Props = {
   success?: boolean;
   pending?: boolean;
 };
 
-export const useStyles = makeStyles<Theme, Props>((theme) => ({
+export const styles = (theme: Theme) => ({
   dialogContainer: {
     display: 'flex',
     padding: 32,
@@ -30,11 +29,11 @@ export const useStyles = makeStyles<Theme, Props>((theme) => ({
     color: theme.palette.text.primary,
   },
   iconWrapper: {
-    color: ({ pending, success }) =>
+    color: ({ pending, success }: Props) =>
       pending
         ? theme.palette.text.primary
         : success
         ? theme.palette.success.main
         : theme.palette.error.main,
   },
-}));
+});

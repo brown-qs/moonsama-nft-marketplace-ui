@@ -1,7 +1,8 @@
-import Button from '@material-ui/core/Button/Button';
+import Button from '@mui/material/Button/Button';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
+import { useClasses } from 'hooks';
 import React from 'react';
-import { useStyles } from './OptionCard.styles';
+import { styles as style } from './OptionCard.styles';
 
 export default function OptionCard({
   link = null,
@@ -25,7 +26,7 @@ export default function OptionCard({
   id: string;
 }) {
   console.log({ icon });
-  const styles = useStyles();
+  const styles = useClasses(style);
   const content = (
     <div className={styles.optionElementContainer}>
       <div className={styles.optionCardLeft}>

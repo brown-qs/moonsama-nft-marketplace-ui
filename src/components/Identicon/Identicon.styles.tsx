@@ -1,7 +1,6 @@
-import { Theme } from '@material-ui/core';
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles<Theme>((theme) => ({
+export const styles = (theme: Theme) => ({
   identiconContainer: {
     height: 'auto',
     width: '100%',
@@ -11,4 +10,4 @@ export const useStyles = makeStyles<Theme>((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}));
+});

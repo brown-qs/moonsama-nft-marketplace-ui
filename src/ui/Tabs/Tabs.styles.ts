@@ -1,6 +1,4 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
-
-export const useStyles = makeStyles((theme) => ({
+export const styles = () => ({
   tab: {
     minWidth: 'unset',
     minHeight: 'unset',
@@ -22,4 +20,4 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: 0,
     padding: 0,
   },
-}));
+});

@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { request } from 'graphql-request';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_ESCROW_BALANCE } from '../../subgraph/escrowQueries';
 import { Balance } from './types';
 import { useBlockNumber } from '../../state/application/hooks';
@@ -12,7 +12,7 @@ export const useEscrowBalance = (
   tokenAddress: string,
   tokenId?: number | string
 ) => {
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const blockNumber = useBlockNumber();
 
   const [balance, setBalance] = useState<Balance | undefined>();
@@ -40,21 +40,14 @@ export const escrowBalanceCore = async (
   userAddress: string,
   tokenAddress: string,
   tokenId?: number | string,
-  blockNumber?: number
+  blockNumber?: number,
+  chainId?: number
 ) => {
   const tId = tokenId ? tokenId.toString() : '0';
   const id = `${tokenAddress.toLowerCase()}-${tId.toString()}-${userAddress.toLowerCase()}`;
   console.log({ blockNumber, tId, id });
 
-  /*
-    const result = blockNumber
-        ? await request(SUBGRAPH_URL, queryEscrowBalanceAtBlock, { id, block: { number: blockNumber } })
-        : await request(SUBGRAPH_URL, queryEscrowBalance, { id });
-    */
-
-  const result = await request(SUBGRAPH_URL, QUERY_ESCROW_BALANCE, { id });
-  //console.log(result);
-  //console.debug('YOLO getEscrowBalance', result);
+  const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], QUERY_ESCROW_BALANCE, { id });
 
   const eb = result?.escrowBalance;
 

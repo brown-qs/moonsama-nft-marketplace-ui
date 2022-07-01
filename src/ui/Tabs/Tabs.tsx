@@ -1,9 +1,8 @@
+import { Tab, Tabs as MaterialTabs } from '@mui/material';
+import { useClasses } from 'hooks';
 import React, { Fragment, ReactNode } from 'react';
-import MaterialTabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
-
-import { useStyles } from './Tabs.styles';
+import { styles } from './Tabs.styles';
 
 const a11yProps = (index: number) => {
   return {
@@ -16,22 +15,29 @@ type TabsProps = {
   tabs: { label: string; view: ReactNode }[];
   containerClassName?: string;
   tabsClassName?: string;
+  currentTab?: number ;
+  onTabChanged?: Function;
 };
 
 export const Tabs = ({
   tabs,
   containerClassName,
   tabsClassName,
+  currentTab,
+  onTabChanged
 }: TabsProps) => {
-  const [currentTab, setCurrentTab] = React.useState<number>(0);
-  const { tab, tabsStyles, selected } = useStyles();
+  const { tab, tabsStyles, selected } = useClasses(styles);
 
   const handleChange = (event: unknown, newValue: number) => {
-    setCurrentTab(newValue);
+    if (typeof onTabChanged === 'function') {
+      onTabChanged(newValue);
+    }
   };
 
   const handleChangeIndex = (index: number) => {
-    setCurrentTab(index);
+    if (typeof onTabChanged === 'function') {
+      onTabChanged(index);
+    }
   };
 
   return (

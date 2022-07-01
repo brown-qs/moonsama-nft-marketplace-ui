@@ -1,34 +1,28 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
-
+import { Theme } from '@mui/material';
 import { fontWeight } from 'theme/typography';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   pageContainer: {
     paddingTop: theme.spacing(8),
     marginBottom: theme.spacing(5),
   },
   imageContainer: {
-    display: 'flex',
-    justifyContent: 'flex-start',
     maxWidth: '60%',
     maxHeight: '80%',
+    marginBottom: '20px',
     padding: 0,
     [theme.breakpoints.down('md')]: {
       maxWidth: 'unset',
-      padding: theme.spacing(1),
     },
+    position: 'relative'
   },
   image: {
-    width: '70%',
+    width: '100%',
     height: 'auto',
     borderRadius: 0,
     objectFit: 'contain',
     background: '#111',
     backgroundSize: 'cover',
-
-    [theme.breakpoints.down('sm')]: {
-      width: '100%',
-    },
   },
   name: {
     marginBottom: theme.spacing(1),
@@ -58,7 +52,6 @@ export const useStyles = makeStyles((theme) => ({
     width: theme.spacing(6),
   },
   tabsContainer: {
-    marginTop: theme.spacing(12),
     width: '100%',
   },
   tabs: {
@@ -87,7 +80,13 @@ export const useStyles = makeStyles((theme) => ({
   price: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: theme.spacing(5),
+    marginBottom: theme.spacing(1),
+  },
+  artist: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    display: 'flex',
+    alignItems: 'center',
   },
   externals: {
     display: 'flex',
@@ -149,4 +148,11 @@ export const useStyles = makeStyles((theme) => ({
     border: '2px solid #111',
     margin: '0 5px 5px 0',
   },
-}));
+  rarityChip: {
+    fontSize: '14px',
+    color: '#c5c5c5',
+    background: 'transparent',
+    border: '2px solid #111',
+    margin: '0 5px 5px 0',
+  },
+});

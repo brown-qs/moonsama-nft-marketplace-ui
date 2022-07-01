@@ -1,4 +1,4 @@
-import { PaletteOptions } from '@material-ui/core/styles/createPalette';
+import { PaletteOptions } from '@mui/material/styles/createPalette';
 
 const primary = '#2DE2E6';
 const secondary = '#FF3864';

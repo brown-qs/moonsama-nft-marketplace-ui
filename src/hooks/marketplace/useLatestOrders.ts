@@ -1,13 +1,13 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
 import {
+  DEFAULT_CHAIN,
   DEFAULT_ORDERBOOK_PAGINATION,
-  SUBGRAPH_MAX_BLOCK_DELAY,
-  SUBGRAPH_URL,
+  MARKETPLACE_SUBGRAPH_URLS,
+  SUBGRAPH_MAX_BLOCK_DELAY
 } from '../../constants';
 import {
-  QUERY_LATEST_ORDERS,
-  QUERY_USER_ACTIVE_ORDERS,
+  QUERY_LATEST_ORDERS
 } from '../../subgraph/orderQueries';
 import { Order } from './types';
 import { parseOrder } from '../../utils/subgraph';
@@ -29,7 +29,7 @@ export const useLatestOrders = ({
   num = DEFAULT_ORDERBOOK_PAGINATION,
 }: LatestOrdersQuery) => {
   const blockNumber = useBlockNumber();
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
 
   //console.log('useLatestOrders', blockNumber);
 
@@ -37,7 +37,7 @@ export const useLatestOrders = ({
 
   const fetchAssetOrders = useCallback(async () => {
     const query = QUERY_LATEST_ORDERS(from, num as number);
-    const response = await request(SUBGRAPH_URL, query);
+    const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
 
     //console.debug('YOLO useLatestOrders', response);
 
@@ -58,11 +58,13 @@ export const useLatestOrders = ({
       .filter((item: Order | undefined) => !!item);
 
     setResult({ latestOrders });
-  }, [blockNumber, account]);
+  }, [blockNumber, account, chainId]);
 
   useEffect(() => {
-    fetchAssetOrders();
-  }, [blockNumber, account]);
+    if (!!chainId) {
+      fetchAssetOrders();
+    }
+  }, [blockNumber, account, chainId]);
 
   return result;
 };

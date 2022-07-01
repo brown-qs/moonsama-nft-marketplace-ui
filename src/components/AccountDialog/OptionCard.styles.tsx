@@ -1,8 +1,7 @@
-import { Theme } from '@material-ui/core';
-import { green } from '@material-ui/core/colors';
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
+import { green } from '@mui/material/colors';
 
-export const useStyles = makeStyles<Theme>((theme) => ({
+export const styles = (theme: Theme) => ({
   optionElementContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -68,4 +67,4 @@ export const useStyles = makeStyles<Theme>((theme) => ({
       borderRadius: '50%',
     },
   },
-}));
+});

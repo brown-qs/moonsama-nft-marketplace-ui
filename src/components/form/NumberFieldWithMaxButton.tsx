@@ -1,9 +1,9 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import { FormControl, InputAdornment, OutlinedInput } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
+import { FormControl, InputAdornment, OutlinedInput } from '@mui/material';
+import Button from '@mui/material/Button';
 import React from 'react';
 import { appStyles } from '../../app.styles';
-import { useStyles } from './NumberFieldWithMaxButton.styles';
+import { styles } from './NumberFieldWithMaxButton.styles';
+import { useClasses } from '../../hooks';
 
 export const NumberFieldWithMaxButton = (props: any) => {
   const fieldType = props.type || 'number';
@@ -11,8 +11,8 @@ export const NumberFieldWithMaxButton = (props: any) => {
   const value = props.value ?? undefined;
   const setValue = props.setValue;
 
-  const { formMaxButton } = appStyles();
-  const { outlinedInput } = useStyles();
+  const { formMaxButton } = useClasses(appStyles);
+  const { outlinedInput } = useClasses(styles);
 
   const _setMaxNumber = () => {
     setMaxValue?.();
@@ -44,7 +44,6 @@ export const NumberFieldWithMaxButton = (props: any) => {
             </InputAdornment>
           }
           value={value}
-          labelWidth={0}
         />
       </FormControl>
     </React.Fragment>

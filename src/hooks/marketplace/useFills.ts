@@ -1,6 +1,6 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_FILLS } from '../../subgraph/fillQueries';
 import { Fill } from './types';
 import { parseFill } from '../../utils/subgraph';
@@ -8,7 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useActiveWeb3React } from 'hooks';
 
 export const useFills = () => {
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const blockNumber = useBlockNumber();
 
   const [fills, setFills] = useState<Fill[] | undefined>();
@@ -17,16 +17,8 @@ export const useFills = () => {
     if (!account) {
       return;
     }
-    /*
-        const result = blockNumber
-            ? await request(SUBGRAPH_URL, queryFillsAtBlock, {
-                buyer: buyerAddress.toLowerCase(),
-                block: { number: blockNumber },
-            })
-            : await request(SUBGRAPH_URL, queryFills, { buyer: buyerAddress.toLowerCase() });
-        */
 
-    const result = await request(SUBGRAPH_URL, QUERY_FILLS, {
+    const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], QUERY_FILLS, {
       buyer: account.toLowerCase(),
     });
 
@@ -46,11 +38,11 @@ export const useFills = () => {
     }
     const res = rawFills.map((x: any) => parseFill(x));
     setFills(res);
-  }, [account, blockNumber]);
+  }, [account, blockNumber, chainId]);
 
   useEffect(() => {
     fetchFills();
-  }, [account, blockNumber]);
+  }, [account, blockNumber, chainId]);
 
   return fills;
 };

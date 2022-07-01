@@ -1,7 +1,7 @@
-import { makeStyles } from '@material-ui/core';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   assetLink: {
     color: theme.palette.primary.main,
   },
-}));
+});

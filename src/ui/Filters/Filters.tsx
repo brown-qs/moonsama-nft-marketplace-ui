@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Slider from '@mui/material/Slider';
-import { Button, Drawer } from 'ui';
-import { useStyles } from './Filters.style';
-import { Chip } from '@material-ui/core';
-import { MOONSAMA_TRAITS } from 'utils/constants';
 import FilterIcon from '@mui/icons-material/FilterListSharp';
+import { Chip, Stack, TextField } from '@mui/material';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
+import { useClasses } from 'hooks';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Button, Drawer } from 'ui';
 import { OrderType } from 'utils/subgraph';
+import { styles } from './Filters.style';
 
 export interface Filters {
   priceRange: number[];
-  traits: string[];
   selectedOrderType: OrderType | undefined;
 }
 
@@ -24,9 +23,10 @@ interface Props {
 
 export const Filters = ({ onFiltersUpdate }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<number[]>([1, 400]);
-  const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
-  const [selectedOrderType, setSelectedOrderType] = useState<OrderType | undefined>(undefined);
+  const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
+  const [selectedOrderType, setSelectedOrderType] = useState<
+    OrderType | undefined
+  >(undefined);
   const {
     filtersDrawerContent,
     applyFiltersButton,
@@ -35,13 +35,23 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     accordionContent,
     filterChip,
     priceRangeWrapper,
+    priceInput,
     filtersTitle,
-  } = useStyles();
+  } = useClasses(styles);
+
+  const [searchParams] = useSearchParams();
+  const filter = searchParams.get('filter') ?? '';
+  useEffect(() => {
+    if (filter.length >= 1) {
+      let newFilter: Filters = JSON.parse(filter);
+      setSelectedOrderType(newFilter?.selectedOrderType);
+      setPriceRange(newFilter?.priceRange);
+    }
+  }, []);
 
   const handleApplyFilters = () => {
     onFiltersUpdate({
       selectedOrderType,
-      traits: selectedTraits,
       priceRange,
     });
     setIsDrawerOpened(false);
@@ -51,23 +61,32 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     event: Event,
     newValue: number | number[]
   ) => {
+    console.log('click', newValue);
     setPriceRange(newValue as number[]);
   };
 
-  const handleOrderTypeClick = (orderType: OrderType | undefined) => {
-    setSelectedOrderType(orderType)
-  };
-
-  const handleTraitClick = (trait: string) => {
-    if (selectedTraits.includes(trait)) {
-      setSelectedTraits(
-        selectedTraits.filter((selectedTrait) => selectedTrait !== trait)
-      );
-
+  const handlePriceRangeChange2 = (event: any, to: boolean) => {
+    if (!event.target.value && event.target.value !== 0) {
       return;
     }
 
-    setSelectedTraits([...selectedTraits, trait]);
+    const val = Number.parseFloat(event.target.value);
+
+    if (!val && val !== 0) {
+      return;
+    }
+
+    const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
+
+    console.log('click', newRange);
+
+    if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
+      setPriceRange(newRange);
+    }
+  };
+
+  const handleOrderTypeClick = (orderType: OrderType | undefined) => {
+    setSelectedOrderType(orderType);
   };
 
   return (
@@ -82,10 +101,10 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
       </Button>
       <Drawer
         anchor="left"
-        hideBackdrop
         open={isDrawerOpened}
         onClose={() => setIsDrawerOpened(false)}
         onOpen={() => setIsDrawerOpened(true)}
+        onBackdropClick={() => setIsDrawerOpened(false)}
       >
         <Typography variant="h6" className={filtersTitle}>
           Filters
@@ -100,23 +119,33 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
               >
                 <Typography className={accordionHeader}>Order Type</Typography>
               </AccordionSummary>
+
               <AccordionDetails>
                 <div className={accordionContent}>
                   <Chip
                     label="Active buy order"
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.BUY)}
-                    className={`${filterChip} ${selectedOrderType == OrderType.BUY && 'selected'}`} />
+                    className={`${filterChip} ${
+                      selectedOrderType == OrderType.BUY && 'selected'
+                    }`}
+                  />
                   <Chip
                     label="Active sell order"
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.SELL)}
-                    className={`${filterChip} ${selectedOrderType == OrderType.SELL && 'selected'}`} />
+                    className={`${filterChip} ${
+                      selectedOrderType == OrderType.SELL && 'selected'
+                    }`}
+                  />
                   <Chip
                     label="None"
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(undefined)}
-                    className={`${filterChip} ${selectedOrderType == undefined && 'selected'}`} />
+                    className={`${filterChip} ${
+                      selectedOrderType == undefined && 'selected'
+                    }`}
+                  />
                 </div>
               </AccordionDetails>
             </Accordion>
@@ -129,6 +158,33 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                 <Typography className={accordionHeader}>Price</Typography>
               </AccordionSummary>
               <AccordionDetails>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={{ xs: 1, sm: 2, md: 8 }}
+                  justifyContent="flex-end"
+                  alignItems="center"
+                >
+                  <TextField
+                    className={priceInput}
+                    placeholder="Min"
+                    variant="outlined"
+                    onChange={(event: any) =>
+                      handlePriceRangeChange2(event, false)
+                    }
+                    defaultValue={priceRange[0]}
+                  />
+                  <div>TO</div>
+                  <TextField
+                    className={priceInput}
+                    placeholder="Max"
+                    variant="outlined"
+                    onChange={(event: any) =>
+                      handlePriceRangeChange2(event, true)
+                    }
+                    defaultValue={priceRange[1]}
+                  />
+                </Stack>
+                {/*
                 <Slider
                   getAriaLabel={() => 'Price range'}
                   value={priceRange}
@@ -152,29 +208,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                   <div>{`${priceRange[0]} MOVR`}</div>
                   <div>{`${priceRange[1]} MOVR`}</div>
                 </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={accordionHeader}>Traits</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={accordionContent}>
-                  {Object.keys(MOONSAMA_TRAITS).map((trait) => (
-                    <Chip
-                      label={trait}
-                      variant="outlined"
-                      onClick={() => handleTraitClick(trait)}
-                      className={`${filterChip} ${
-                        selectedTraits.includes(trait) && 'selected'
-                      }`}
-                    />
-                  ))}
-                </div>
+                */}
               </AccordionDetails>
             </Accordion>
             <Button
@@ -184,6 +218,13 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
               color="primary"
             >
               Apply Filters
+            </Button>
+            <Button
+              onClick={() => setIsDrawerOpened(false)}
+              className={applyFiltersButton}
+              variant="outlined"
+            >
+              Cancel
             </Button>
           </div>
         </div>

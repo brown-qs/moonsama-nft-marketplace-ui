@@ -1,21 +1,18 @@
+import { TypographyProps } from '@mui/material';
 import { ReactNode } from 'react';
-import { useStyles } from './GlitchText.styles';
+import { StyledGlitch } from './GlitchText.styles';
 
 export const GlitchText = ({
   children,
-  fontSize,
-  className,
+  ...props
 }: {
   children: ReactNode;
-  fontSize?: number;
-  className?: string;
-}) => {
-  const { glitch } = useStyles({ fontSize });
+} & TypographyProps) => {
   return (
-    <h1 className={`${glitch} ${className}`}>
+    <StyledGlitch {...props}>
       <span aria-hidden="true">{children}</span>
       {children}
       <span aria-hidden="true">{children}</span>
-    </h1>
+    </StyledGlitch>
   );
 };

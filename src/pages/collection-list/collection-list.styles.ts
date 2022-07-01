@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const collectionListStyles = makeStyles((theme) => ({
+export const collectionListStyles = (theme: Theme) => ({
   card: {
     borderRadius: 0,
   },
@@ -41,4 +41,18 @@ export const collectionListStyles = makeStyles((theme) => ({
   collectionDescription: {
     fontSize: '12px',
   },
-}));
+  placeholderContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    padding: 8,
+    margin: '20 0',
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+});

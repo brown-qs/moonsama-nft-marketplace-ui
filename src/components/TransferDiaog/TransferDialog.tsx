@@ -1,8 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { yupResolver } from '@hookform/resolvers/yup';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Divider from '@material-ui/core/Divider';
-import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
 import { AssetLink } from 'components/AssetLink/AssetLink';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import { AddressDisplayComponent } from 'components/form/AddressDisplayComponent';
@@ -25,9 +25,10 @@ import * as yup from 'yup';
 import { appStyles } from '../../app.styles';
 import { ChainId } from '../../constants';
 import { useTransferDialog } from '../../hooks/useTransferDialog/useTransferDialog';
-import { useStyles } from './TransferDialog.styles';
-import { Box, FormControl, OutlinedInput } from '@material-ui/core';
+import { styles } from './TransferDialog.styles';
+import { Box, FormControl, OutlinedInput } from '@mui/material';
 import { Fraction } from 'utils/Fraction';
+import { useClasses } from '../../hooks';
 
 const makeTransferFormDataSchema = (): yup.ObjectSchema<TransferFormData> =>
   yup
@@ -52,7 +53,9 @@ export const TransferDialog = () => {
   const { isTransferDialogOpen, setTransferDialogOpen, transferData } =
     useTransferDialog();
   const [orderLoaded, setOrderLoaded] = useState<boolean>(false);
-  const [globalError, setGlobalError] = useState<unknown | undefined>(undefined);
+  const [globalError, setGlobalError] = useState<unknown | undefined>(
+    undefined
+  );
 
   const [quantityText, setQuantityText] = useState<string | undefined>(
     undefined
@@ -69,16 +72,16 @@ export const TransferDialog = () => {
     formValue,
     fieldError,
     formButton,
-  } = appStyles();
+  } = useClasses(appStyles);
 
   const { dialogContainer, loadingContainer, successContainer, successIcon } =
-    useStyles();
+    useClasses(styles);
 
   const { chainId } = useActiveWeb3React();
 
   const handleClose = () => {
     setTransferDialogOpen(false);
-    setGlobalError(undefined)
+    setGlobalError(undefined);
     setFinalTxSubmitted(false);
   };
 
@@ -107,7 +110,7 @@ export const TransferDialog = () => {
 
   const userBalance = useBalances([transferData?.asset])?.[0];
 
-  const decimals = transferData?.decimals ?? 0
+  const decimals = transferData?.decimals ?? 0;
 
   let quantity: BigNumber;
   let youhave: string | undefined;
@@ -139,7 +142,6 @@ export const TransferDialog = () => {
     quantity
   );
 
-
   console.warn('transferdialog', {
     finalTxSubmitted,
     transferSubmitted,
@@ -148,10 +150,8 @@ export const TransferDialog = () => {
     quantity: quantity.toString(),
     quantityText,
     amountError,
-    to: getValues('recipient') ?? ''
-
+    to: getValues('recipient') ?? '',
   });
-
 
   const renderBody = () => {
     if (!orderLoaded) {
@@ -173,9 +173,15 @@ export const TransferDialog = () => {
         <div className={successContainer}>
           <Typography>Something went wrong</Typography>
           <Typography color="textSecondary" variant="h5">
-            {(globalError as Error)?.message as string ?? 'Unknown error'}
+            {((globalError as Error)?.message as string) ?? 'Unknown error'}
           </Typography>
-          <Button className={formButton} onClick={() => {setGlobalError(undefined)}} color="primary">
+          <Button
+            className={formButton}
+            onClick={() => {
+              setGlobalError(undefined);
+            }}
+            color="primary"
+          >
             Back
           </Button>
         </div>
@@ -281,7 +287,10 @@ export const TransferDialog = () => {
                 label="Amount"
                 setMaxValue={() => {
                   setQuantityText(
-                    Fraction.from(userBalance?.toString() ?? '0', decimals)?.toFixed(decimals)
+                    Fraction.from(
+                      userBalance?.toString() ?? '0',
+                      decimals
+                    )?.toFixed(decimals)
                   );
                 }}
                 className={formValue}
@@ -301,7 +310,6 @@ export const TransferDialog = () => {
                     <OutlinedInput
                       id="recipient"
                       type="text"
-                      labelWidth={0}
                       // onChange={(event: any) => setTo(event.target.value)}
                       onChange={onChange}
                       onBlur={onBlur}
@@ -321,7 +329,7 @@ export const TransferDialog = () => {
               try {
                 await transferCallback?.();
               } catch (err) {
-                setGlobalError(err)
+                setGlobalError(err);
                 setFinalTxSubmitted(false);
               }
             }}

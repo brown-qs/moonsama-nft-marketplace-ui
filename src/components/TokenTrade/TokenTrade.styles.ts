@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -26,7 +26,6 @@ export const useStyles = makeStyles((theme) => ({
     backgroundSize: 'cover',
   },
   nameContainer: {
-    marginTop: 20,
     display: 'flex',
     fontSize: 16,
     justifyContent: 'space-between',
@@ -34,16 +33,13 @@ export const useStyles = makeStyles((theme) => ({
   stockContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 12,
   },
   lastPriceContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 12,
   },
   bidContainer: {
     display: 'flex',
-    marginTop: 12,
   },
   tokenName: {
     overflow: 'hidden',
@@ -57,6 +53,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   mr: {
     fontSize: '12px',
+    lineHeight: 2,
     marginRight: theme.spacing(1),
   },
-}));
+});

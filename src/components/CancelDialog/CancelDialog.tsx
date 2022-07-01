@@ -1,16 +1,11 @@
-import { useMemo, useState } from 'react';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { BigNumber } from '@ethersproject/bignumber';
-
-import { useActiveWeb3React, useCancelDialog } from '../../hooks';
+import { useState } from 'react';
+import { CircularProgress, Typography, Divider } from '@mui/material';
+import { useActiveWeb3React, useCancelDialog, useClasses } from '../../hooks';
 import { SuccessIcon } from 'icons';
 import { Dialog, Button } from 'ui';
-import { useStyles } from './CancelDialog.styles';
-
+import { styles } from './CancelDialog.styles';
 import { ChainId } from '../../constants';
-import { getExplorerLink, getRandomInt } from 'utils';
+import { getExplorerLink } from 'utils';
 import { useSubmittedCancelTx } from 'state/transactions/hooks';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import {
@@ -25,7 +20,9 @@ export const CancelDialog = () => {
   const { isCancelDialogOpen, setCancelDialogOpen, cancelData } =
     useCancelDialog();
   const [orderLoaded, setOrderLoaded] = useState<boolean>(false);
-  const [globalError, setGlobalError] = useState<unknown | undefined>(undefined);
+  const [globalError, setGlobalError] = useState<unknown | undefined>(
+    undefined
+  );
 
   const {
     dialogContainer,
@@ -35,18 +32,16 @@ export const CancelDialog = () => {
     infoContainer,
     successContainer,
     successIcon,
-    nakedInput
-  } = useStyles();
+    nakedInput,
+  } = useClasses(styles);
 
-  const {
-    formButton
-  } = appStyles()
+  const { formButton } = useClasses(appStyles);
 
   const { chainId } = useActiveWeb3React();
 
   const handleClose = () => {
     setCancelDialogOpen(false);
-    setGlobalError(undefined)
+    setGlobalError(undefined);
     setFinalTxSubmitted(false);
   };
 
@@ -81,9 +76,15 @@ export const CancelDialog = () => {
         <div className={successContainer}>
           <Typography>Something went wrong</Typography>
           <Typography color="textSecondary" variant="h5">
-            {(globalError as Error)?.message as string ?? 'Unknown error'}
+            {((globalError as Error)?.message as string) ?? 'Unknown error'}
           </Typography>
-          <Button className={formButton} onClick={() => {setGlobalError(undefined)}} color="primary">
+          <Button
+            className={formButton}
+            onClick={() => {
+              setGlobalError(undefined);
+            }}
+            color="primary"
+          >
             Back
           </Button>
         </div>
@@ -147,13 +148,13 @@ export const CancelDialog = () => {
 
         <Button
           onClick={async () => {
-              setFinalTxSubmitted(true);
-              try {
-                await cancelOrderCallback?.();
-              } catch (err) {
-                setGlobalError(err)
-                setFinalTxSubmitted(false);
-              }
+            setFinalTxSubmitted(true);
+            try {
+              await cancelOrderCallback?.();
+            } catch (err) {
+              setGlobalError(err);
+              setFinalTxSubmitted(false);
+            }
           }}
           className={button}
           variant="contained"

@@ -1,49 +1,88 @@
-import Grid from '@material-ui/core/Grid';
-import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
+import { Chip, Stack } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
+import { Order } from '../../hooks/marketplace/types';
+import { TokenMeta } from '../../hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import {
-  Button,
+  useLatestBuyOrdersForTokenWithStaticCallback,
+  useLatestSellOrdersForTokenWithStaticCallback,
+} from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
+import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList/useRawCollectionsFromList';
+import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
+import { useWhitelistedAddresses } from '../../hooks/useWhitelistedAddresses/useWhitelistedAddresses';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useBottomScrollListener } from 'react-bottom-scroll-listener';
+import {
+  Drawer,
   GlitchText,
   Loader,
   Table,
   TableBody,
   TableCell,
+  TableSortLabel,
   TableHeader,
   TableRow,
   Tabs,
-  Drawer,
 } from 'ui';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Order } from 'hooks/marketplace/types';
-import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
-import { useBottomScrollListener } from 'react-bottom-scroll-listener';
-import { useStyles } from './styles';
-import {
-  useLatestBuyOrdersForTokenWithStaticCallback,
-  useLatestSellOrdersForTokenWithStaticCallback,
-} from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
-import {
-  inferOrderTYpe,
-  OrderType,
-} from '../../utils/subgraph';
-import { useActiveWeb3React } from '../../hooks';
-import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
-import { Chip, Stack } from '@mui/material';
-import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
+import { orderFilter } from '../../utils/marketplace';
+import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
+import { useActiveWeb3React, useClasses } from '../../hooks';
+import { styles } from './styles';
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
+type SortDirection = 'asc' | 'desc';
 
 const PAGE_SIZE = 10;
-
-const geTableHeader = () => {
+const ExtendedTableHeader = ({
+  handleSort,
+  sortDirection,
+  sortBy,
+}: {
+  handleSort: (sortBy: string) => void;
+  sortDirection: SortDirection;
+  sortBy: string;
+}) => {
   return (
     <TableHeader>
       <TableRow>
         <TableCell>Item</TableCell>
-        <TableCell>Unit Price</TableCell>
-        <TableCell>Quantity</TableCell>
+        <TableCell sortDirection={sortBy === 'price' ? sortDirection : false}>
+          <TableSortLabel
+            active={sortBy === 'price'}
+            direction={sortBy === 'price' ? sortDirection : 'asc'}
+            onClick={() => {
+              handleSort('price');
+            }}
+          >
+            Unit Price
+          </TableSortLabel>
+        </TableCell>
+        <TableCell
+          sortDirection={sortBy === 'quantity' ? sortDirection : false}
+        >
+          <TableSortLabel
+            active={sortBy === 'quantity'}
+            direction={sortBy === 'quantity' ? sortDirection : 'asc'}
+            onClick={() => {
+              handleSort('quantity');
+            }}
+          >
+            Quantity
+          </TableSortLabel>
+        </TableCell>
         <TableCell>From</TableCell>
         <TableCell>Strategy</TableCell>
+        <TableCell sortDirection={sortBy === 'time' ? sortDirection : false}>
+          <TableSortLabel
+            active={sortBy === 'time'}
+            direction={sortBy === 'time' ? sortDirection : 'asc'}
+            onClick={() => {
+              handleSort('time');
+            }}
+          >
+            Created
+          </TableSortLabel>
+        </TableCell>
         <TableCell>Expiration</TableCell>
         <TableCell></TableCell>
       </TableRow>
@@ -52,6 +91,8 @@ const geTableHeader = () => {
 };
 
 const FreshOrdersPage = () => {
+  const { chainId, account } = useActiveWeb3React();
+
   const [buyOrders, setBuyOrders] = useState<
     {
       meta: TokenMeta | undefined;
@@ -68,13 +109,35 @@ const FreshOrdersPage = () => {
     }[]
   >([]);
 
-  const collections = useRawCollectionsFromList()
-
-  const [selectedIndex, setSelectedIndex] = useState<number>(collections.findIndex(x => x.display_name = 'Moonsama') ?? 0)
-  const [take, setTake] = useState<number>(0);
+  const collections = useRawCollectionsFromList();
+  let navigate = useNavigate();
+  const sampleLocation = useLocation();
+  const [searchParams] = useSearchParams();
+  const sortByParam = searchParams.get('sortBy') ?? 'time';
+  const tabParamRes = searchParams.get('tab');
+  const tabParam = tabParamRes ? parseInt(tabParamRes) : 0;
+  const sortDirectionParam = searchParams.get('sortDirection') ?? 'desc';
+  const selectedIndexParamRes = searchParams.get('collIndex');
+  const tempIndx =
+    collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0;
+  const selectedIndexParam = selectedIndexParamRes
+    ? parseInt(selectedIndexParamRes)
+    : tempIndx;
+  const pageParamRes = searchParams.get('page');
+  const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
+  const [selectedIndex, setSelectedIndex] =
+    useState<number>(selectedIndexParam);
+  const [take, setTake] = useState<number>((pageParam - 1) * PAGE_SIZE);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState(sortByParam);
+  const [sortDirection, setSortDirection] = useState(
+    sortDirectionParam as SortDirection
+  );
+  const [page, setPage] = useState<number>(pageParam);
+  const [currentTab, setCurrentTab] = useState<number>(tabParam);
+
   const {
     placeholderContainer,
     container,
@@ -85,38 +148,172 @@ const FreshOrdersPage = () => {
     selectLabel,
     dropDown,
     filterControls,
-    filterChip
-  } = useStyles();
+    filterChip,
+  } = useClasses(styles);
   const whitelist = useWhitelistedAddresses(); // REMOVEME later
 
-  const { chainId } = useActiveWeb3React();
-  const getPaginatedSellOrders = useLatestSellOrdersForTokenWithStaticCallback();
+  const getPaginatedSellOrders =
+    useLatestSellOrdersForTokenWithStaticCallback();
   const getPaginatedBuyOrders = useLatestBuyOrdersForTokenWithStaticCallback();
 
-  const selectedTokenAddress = collections[selectedIndex]?.address?.toLowerCase()
+  const selectedTokenAddress =
+    collections[selectedIndex]?.address?.toLowerCase();
 
+  useEffect(() => {
+    if (chainId) {
+      setBuyOrders([]);
+      setSellOrders([]);
+      // setSelectedIndex(
+      //   collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
+      // );
+      // setTake(0);
+      setPaginationEnded(false);
+      setPageLoading(false);
+      setIsDrawerOpened(false);
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        page +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        sortBy +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
+    }
+  }, [chainId, JSON.stringify(collections)]);
+
+  const handleSortUpdate = (_sortBy: string) => {
+    setBuyOrders([]);
+    setSellOrders([]);
+    setTake(0);
+    setPaginationEnded(false);
+    let newPath;
+    if (_sortBy != sortBy) {
+      newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        page +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        _sortBy +
+        '&sortDirection=asc';
+      setSortBy(_sortBy);
+      setSortDirection('asc');
+    } else {
+      let tempSortDirection: SortDirection =
+        sortDirection === 'asc' ? 'desc' : 'asc';
+      setSortDirection(tempSortDirection);
+      newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        page +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        _sortBy +
+        '&sortDirection=' +
+        tempSortDirection;
+    }
+    navigate(newPath);
+  };
+
+  const handleTabChange = (newValue: number) => {
+    setCurrentTab(newValue);
+    let newPath =
+      sampleLocation.pathname +
+      '?collIndex=' +
+      selectedIndex +
+      '&page=' +
+      page +
+      '&tab=' +
+      newValue +
+      '&sortBy=' +
+      sortByParam +
+      '&sortDirection=' +
+      sortDirection;
+    navigate(newPath);
+  };
   const handleSelection = (i: number) => {
     if (i !== selectedIndex) {
-      setBuyOrders([])
-      setSellOrders([])
-      setSelectedIndex(i)
-      setTake(0)
+      setBuyOrders([]);
+      setSellOrders([]);
+      setSelectedIndex(i);
+      setTake(0);
       setPaginationEnded(false);
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        i +
+        '&page=' +
+        page +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        sortByParam +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
     }
-  }
+  };
 
-  const handleScrollToBottom = useCallback(() => {
-    setTake((state) => (state += PAGE_SIZE));
-  }, []);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   setTake((state) => (state += PAGE_SIZE));
+  // }, []);
 
-  useBottomScrollListener(handleScrollToBottom, { offset: 400 });
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
+
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      if (pageLoading) return;
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        value +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        sortByParam +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
+      setPage(value);
+      setTake((state) => (state = PAGE_SIZE * (value - 1)));
+    },
+    []
+  );
 
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-
-      let buyData = await getPaginatedBuyOrders(selectedTokenAddress, PAGE_SIZE, take);
-      let sellData = await getPaginatedSellOrders(selectedTokenAddress, PAGE_SIZE, take);
+      let buyData = await getPaginatedBuyOrders(
+        selectedTokenAddress,
+        PAGE_SIZE,
+        take,
+        sortBy,
+        sortDirection
+      );
+      let sellData = await getPaginatedSellOrders(
+        selectedTokenAddress,
+        PAGE_SIZE,
+        take,
+        sortBy,
+        sortDirection
+      );
 
       buyData = buyData.filter((x) =>
         whitelist.includes(x.order.buyAsset.assetAddress.toLowerCase())
@@ -136,20 +333,22 @@ const FreshOrdersPage = () => {
 
         setPaginationEnded(true);
 
-        setSellOrders((state) => state.concat(sellPieces));
-        setBuyOrders((state) => state.concat(buyPieces));
-
+        // setSellOrders((state) => state.concat(sellPieces));
+        // setBuyOrders((state) => state.concat(buyPieces));
+        setSellOrders(sellPieces);
+        setBuyOrders(buyPieces);
         return;
       }
-
-      setSellOrders((state) => state.concat(sellData));
-      setBuyOrders((state) => state.concat(buyData));
+      // setSellOrders((state) => state.concat(sellData));
+      // setBuyOrders((state) => state.concat(buyData));
+      setSellOrders(sellData);
+      setBuyOrders(buyData);
     };
     if (!paginationEnded) {
       getCollectionById();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [take, paginationEnded, selectedTokenAddress]);
+  }, [take, paginationEnded, selectedTokenAddress, sortBy, sortDirection]);
 
   const getTableBody = (
     filteredCollection:
@@ -165,7 +364,13 @@ const FreshOrdersPage = () => {
       <TableBody>
         {filteredCollection && filteredCollection.length > 0 ? (
           filteredCollection.map(
-            (token, i) => token && <TokenOrder {...token} />
+            (token, i) =>
+              token && (
+                <TokenOrder
+                  key={`${token.staticData.asset.id}-${i}`}
+                  {...token}
+                />
+              )
           )
         ) : (
           <TableRow>
@@ -181,7 +386,7 @@ const FreshOrdersPage = () => {
   return (
     <>
       <div className={container}>
-        <GlitchText fontSize={48}>Latest offers</GlitchText>
+        <GlitchText variant="h1">Latest offers</GlitchText>
       </div>
 
       <Drawer
@@ -194,26 +399,49 @@ const FreshOrdersPage = () => {
       </Drawer>
 
       <Grid container className={pageContainer} justifyContent="center">
-        <Stack flexDirection="row">
+        <Stack
+          direction={{ xs: 'row' }}
+          flexWrap={{ xs: 'wrap' }}
+          justifyContent="center"
+          alignItems="center"
+        >
           {collections.map((collection, i) => {
-              return <Chip
+            return (
+              <Chip
                 key={`${collection.address}-${i}`}
                 label={collection.display_name}
                 variant="outlined"
                 onClick={() => handleSelection(i)}
-                className={`${filterChip}${selectedIndex === i ? ' selected': ''}`} />
-            })}
+                className={`${filterChip}${
+                  selectedIndex === i ? ' selected' : ''
+                }`}
+              />
+            );
+          })}
         </Stack>
         <Tabs
           containerClassName={tabsContainer}
           tabsClassName={tabs}
+          currentTab={currentTab}
+          onTabChanged={(value: number) => {
+            setCurrentTab(value);
+            handleTabChange(value);
+          }}
           tabs={[
             {
               label: 'Sell Offers',
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
-                  {geTableHeader()}
-                  {getTableBody(sellOrders)}
+                  <ExtendedTableHeader
+                    handleSort={handleSortUpdate}
+                    sortDirection={sortDirection}
+                    sortBy={sortBy}
+                  />
+                  {getTableBody(
+                    sellOrders?.filter((order) =>
+                      orderFilter(order.order, account)
+                    )
+                  )}
                 </Table>
               ),
             },
@@ -221,21 +449,41 @@ const FreshOrdersPage = () => {
               label: 'Buy Offers',
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
-                  {geTableHeader()}
-                  {getTableBody(buyOrders)}
+                  <ExtendedTableHeader
+                    handleSort={handleSortUpdate}
+                    sortDirection={sortDirection}
+                    sortBy={sortBy}
+                  />
+                  {getTableBody(
+                    buyOrders?.filter((order) =>
+                      orderFilter(order.order, account)
+                    )
+                  )}
                 </Table>
               ),
             },
           ]}
         />
-        <div style={{ marginTop: 40, width: '100%' }} />
+        {/* <div style={{ marginTop: 40, width: '100%' }} /> */}
       </Grid>
-
       {pageLoading && (
         <div className={placeholderContainer}>
           <Loader />
         </div>
       )}
+      <div className={placeholderContainer}>
+        <Pagination
+          count={100}
+          siblingCount={0}
+          boundaryCount={2}
+          color="primary"
+          size="large"
+          page={page}
+          onChange={handlePageChange}
+          showFirstButton
+          showLastButton
+        />
+      </div>
     </>
   );
 };

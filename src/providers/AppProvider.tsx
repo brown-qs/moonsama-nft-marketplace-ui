@@ -37,9 +37,9 @@ export const AppProviders = ({ children }: AppProvidersProps) => (
                 <BidDialogContextController>
                   <PurchaseDialogContextController>
                     <TransferDialogContextController>
-                      <Router>
-                        <Theme>{children}</Theme>
-                      </Router>
+                        <Router>
+                          <Theme>{children}</Theme>
+                        </Router>
                     </TransferDialogContextController>
                   </PurchaseDialogContextController>
                 </BidDialogContextController>

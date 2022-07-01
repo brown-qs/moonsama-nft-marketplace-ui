@@ -1,7 +1,6 @@
-import { Theme } from '@material-ui/core';
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles<Theme>((theme) => ({
+export const styles = (theme: Theme) => ({
   dialogContainer: {
     display: 'flex',
     padding: '0 32px 32px 32px',
@@ -86,4 +85,4 @@ export const useStyles = makeStyles<Theme>((theme) => ({
     marginTop: '8px',
     fontSize: '12px',
   },
-}));
+});

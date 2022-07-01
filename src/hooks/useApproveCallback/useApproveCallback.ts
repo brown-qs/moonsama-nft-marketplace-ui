@@ -3,13 +3,12 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { TransactionResponse } from '@ethersproject/providers';
 import { useActiveWeb3React } from 'hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BalanceQuery } from 'hooks/marketplace/types';
 import {
   useERC20Contract,
   useERC1155Contract,
   useERC721Contract,
+  useMulticall2Contract,
 } from 'hooks/useContracts/useContracts';
-import token from 'pages/token';
 import {
   useHasPendingApproval,
   useTransactionAdder,
@@ -19,6 +18,8 @@ import { StringAssetType } from 'utils/subgraph';
 import { WAREHOUSE_ADDRESS, ChainId } from '../../constants';
 import { AllowanceQuery } from './useApproveCallback.types';
 import { useBlockNumber } from 'state/application/hooks';
+import { getTokenAllowanceCalls, processTokenAllowanceCalls } from 'utils/allowances';
+import { tryMultiCallCore } from 'hooks/useMulticall2/useMulticall2';
 
 export enum ApprovalState {
   UNKNOWN,
@@ -35,7 +36,7 @@ export function useAllowance(
   const blockumber = useBlockNumber();
   const [allowance, setAllowance] = useState<BigNumber | undefined>();
 
-  const { assetAddress, assetType } = query;
+  const { assetAddress, assetType, assetId } = query;
 
   const erc20 = useERC20Contract(assetAddress, true);
   const erc1155 = useERC1155Contract(assetAddress, true);
@@ -95,7 +96,7 @@ export function useAllowance(
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
-  query: AllowanceQuery & { amountToApprove?: string | BigNumber }
+  query: AllowanceQuery & { amountToApprove?: string | BigNumber },
 ): [ApprovalState, () => Promise<void>] {
   const { chainId, account } = useActiveWeb3React();
 
@@ -115,7 +116,8 @@ export function useApproveCallback(
   const pendingApproval = useHasPendingApproval(
     assetAddress,
     operator,
-    assetType
+    assetType,
+    assetId
   );
 
   // check the current approval status
@@ -199,7 +201,7 @@ export function useApproveCallback(
             approval: {
               tokenAddress: assetAddress,
               tokenType: assetType,
-              spender: operator,
+              spender: operator
             },
           });
         })
@@ -229,6 +231,7 @@ export function useApproveCallback(
               tokenAddress: assetAddress,
               tokenType: assetType,
               spender: operator,
+              //tokenId: tokenId
             },
           });
         })
@@ -278,4 +281,47 @@ export function useApproveCallback(
   ]);
 
   return [approvalState, approve];
+}
+
+
+export function useAllowances(
+  queries: AllowanceQuery[],
+  owner?: string
+): (BigNumber | undefined)[] | undefined {
+  const { account, chainId } = useActiveWeb3React();
+  const blockumber = useBlockNumber();
+  const [allowances, setAllowances] = useState<(BigNumber | undefined)[] | undefined>();
+
+  const multi = useMulticall2Contract();
+
+  let calls = getTokenAllowanceCalls(queries, owner)
+
+  const allowanceCheck = useCallback(async () => {
+    if (!owner || !calls || calls.length === 0) {
+      setAllowances([]);
+      return;
+    }
+
+    const results = await tryMultiCallCore(multi, calls, false);
+
+    if (!results) {
+      setAllowances([]);
+      return;
+    }
+    //console.log('yolo tryMultiCallCore res', results);
+    //console.log('results', results)
+    const x = processTokenAllowanceCalls(queries, results);
+
+    //console.log('processed', x)
+
+    setAllowances(x.map(x => x?.allowance));
+  }, [chainId, blockumber, owner]);
+
+  useEffect(() => {
+    if (owner) {
+      allowanceCheck();
+    }
+  }, [chainId, blockumber, owner]);
+
+  return allowances;
 }

@@ -1,159 +1,73 @@
-import {
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Collapse,
-  IconButton,
-  Typography,
-} from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { GlitchText } from 'ui';
-import { appStyles } from '../../app.styles';
-import { collectionListStyles } from './collection-list.styles';
+import Grid from '@mui/material/Grid';
+import { GlitchText, Loader } from 'ui';
+
 import {
   useRawCollectionsFromList,
   RawCollection,
 } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
-import {
-  CollectionMeta,
-  useFetchCollectionMeta,
-} from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
-import { ExternalLink, Media } from 'components';
-import { getExplorerLink, truncateHexString } from 'utils';
-import { useActiveWeb3React } from 'hooks';
-import { StringAssetType } from 'utils/subgraph';
+import { useFetchCollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useActiveWeb3React, useClasses } from 'hooks';
+import { StringAssetType } from '../../utils/subgraph';
+import { NETWORK_NAME } from '../../constants';
+import { CollectionListItem } from 'components/CollectionListItem/CollectionListItem';
+import { useBottomScrollListener } from 'react-bottom-scroll-listener';
+import { collectionListStyles } from './collection-list.styles';
 
 export const CollectionListPage = () => {
+  const { chainId } = useActiveWeb3React();
   const rawCollections = useRawCollectionsFromList();
   const metas = useFetchCollectionMeta(rawCollections);
 
-  //console.warn('HERE', { rawCollections, metas });
+  const DEFAULT_PAGE_SIZE = 30;
+  const [take, setTake] = useState<number>(0);
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const { placeholderContainer } = useClasses(collectionListStyles);
+  let collections: RawCollection[] = rawCollections.slice(
+    0,
+    take + DEFAULT_PAGE_SIZE
+  );
+  const handleScrollToBottom = useCallback(() => {
+    if (pageLoading) return;
+    if (rawCollections.length < take + DEFAULT_PAGE_SIZE) setPageLoading(true);
+    console.log('SCROLLBOTTOM');
+    collections = rawCollections.slice(0, take + DEFAULT_PAGE_SIZE);
+    setPageLoading(false)
+    setTake((state) => (state += DEFAULT_PAGE_SIZE));
+  }, [DEFAULT_PAGE_SIZE]);
 
-  const collections: RawCollection[] = rawCollections ?? [];
+  useBottomScrollListener(handleScrollToBottom);
 
-  return (
+  console.log('this runs', collections);
+  return collections && collections.length > 0 ? (
     <>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-        <GlitchText fontSize={48}>Featured collections</GlitchText>
+        <GlitchText variant="h1">Featured collections</GlitchText>
       </div>
-
       <Grid container spacing={2} style={{ marginTop: 12 }}>
         {collections.map((collection: RawCollection, i) => {
-          return CollectionListItem(collection, metas[i], i);
+          return (
+            <CollectionListItem
+              collection={collection}
+              salt={i}
+              meta={metas[i]}
+            />
+          );
         })}
       </Grid>
+      {pageLoading && (
+        <div className={placeholderContainer}>
+          <Loader />
+        </div>
+      )}
     </>
-  );
-};
-
-const CollectionListItem = (
-  collection: RawCollection,
-  meta: CollectionMeta | undefined,
-  i: number
-) => {
-  const [isCollectionExpanded, setExpanded] = useState(false);
-
-  const { chainId } = useActiveWeb3React();
-
-  const handleExpandClick = () => {
-    setExpanded(!isCollectionExpanded);
-  };
-
-  const { expand, expandOpen } = appStyles();
-  const {
-    mediaContainer,
-    cardTitle,
-    collectionName,
-    collectionSymbol,
-    collectionType,
-    card,
-    collectionDescription,
-  } = collectionListStyles();
-
-  //console.warn('META', { meta });
-
-  const isErc20 = collection.type.valueOf() === StringAssetType.ERC20.valueOf();
-
-  return (
-    <>
-      <Grid
-        item
-        key={`${collection?.address ?? 'collection'}-${i}`}
-        xl={3}
-        md={4}
-        sm={6}
-        xs={12}
-      >
-        <Card className={card}>
-          <Link
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-            to={
-              isErc20
-                ? `/token/${collection.type}/${collection.address}/0`
-                : `/collection/${collection.type}/${collection.address}`
-            }
-          >
-            <div className={mediaContainer}>
-              <Media uri={meta?.image} />
-            </div>
-            {/*<CardMedia
-              className={cardMediaImage}
-              src={WHITE_SUSU}
-              title={collection.display_name}
-            />*/}
-          </Link>
-          <CardContent>
-            <Typography
-              className={cardTitle}
-              variant="body2"
-              color="textSecondary"
-              component="div"
-            >
-              <div className={collectionName}>{collection.display_name}</div>
-              <div className={collectionSymbol}>{collection.symbol}</div>
-            </Typography>
-            <div className={collectionType}>{collection.type}</div>
-            {collection?.address && chainId && (
-              <ExternalLink
-                href={getExplorerLink(chainId, collection.address, 'address')}
-              >
-                {truncateHexString(collection.address)}↗
-              </ExternalLink>
-            )}
-          </CardContent>
-
-          <Collapse in={isCollectionExpanded} timeout="auto" unmountOnExit>
-            <CardContent style={{ padding: '8px 16px' }}>
-              <Typography paragraph className={collectionDescription}>
-                {meta?.description}
-              </Typography>
-              {meta?.external_link && (
-                <ExternalLink href={meta?.external_link}>
-                  External site↗
-                </ExternalLink>
-              )}
-            </CardContent>
-          </Collapse>
-          <CardActions disableSpacing style={{ maxHeight: 0 }}>
-            <IconButton
-              className={isCollectionExpanded ? expandOpen : expand}
-              onClick={handleExpandClick}
-              aria-expanded={isCollectionExpanded}
-              aria-label="show more"
-              style={{ marginTop: '-32px' }}
-            >
-              <ExpandMoreIcon />
-            </IconButton>
-          </CardActions>
-        </Card>
-      </Grid>
-    </>
+  ) : (
+    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+      <GlitchText variant="h1">
+        {chainId
+          ? `No collections found on ${NETWORK_NAME[chainId]}`
+          : 'No collections found'}
+      </GlitchText>
+    </div>
   );
 };

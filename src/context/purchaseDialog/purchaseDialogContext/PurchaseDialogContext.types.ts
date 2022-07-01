@@ -1,6 +1,7 @@
 import { ChainId } from '../../../constants';
 import { Order } from 'hooks/marketplace/types';
 import { OrderType } from '../../../utils/subgraph';
+import { ApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 
 export type PurchaseData = {
   order: Order;
@@ -9,6 +10,7 @@ export type PurchaseData = {
   name?: string;
   symbol?: string;
   decimals?: number;
+  approvedPaymentCurrency: ApprovedPaymentCurrency;
 } | null;
 
 export type PurchaseDialogContextType = {

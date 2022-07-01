@@ -1,11 +1,11 @@
-import { CircularProgress } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
+import { CircularProgress } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { ExternalLink } from 'components';
 import { ChainId } from '../../constants';
-import { useActiveWeb3React } from 'hooks';
+import { useActiveWeb3React, useClasses } from 'hooks';
 import { useAllTransactions } from 'state/transactions/hooks';
 import { getExplorerLink } from 'utils';
-import { useStyles } from './Transaction.styles';
+import { styles as style } from './Transaction.styles';
 import { CheckCircle, Triangle } from 'react-feather';
 
 export const Transaction = ({ hash }: { hash: string }) => {
@@ -20,7 +20,7 @@ export const Transaction = ({ hash }: { hash: string }) => {
     tx &&
     (tx.receipt?.status === 1 || typeof tx.receipt?.status === 'undefined');
 
-  const styles = useStyles({ success, pending });
+  const styles = useClasses(style);
 
   return (
     <div>

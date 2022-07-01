@@ -1,14 +1,13 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import styled from '@emotion/styled';
+import { NavLink } from 'react-router-dom';
+import { theme } from 'theme/Theme';
 
-export const useStyles = makeStyles((theme) => ({
-  link: {
-    color: ({ isActive }: { isActive: boolean }) =>
-      isActive ? theme.palette.text.primary : theme.palette.text.secondary,
-    '&:hover': {
-      color: theme.palette.primary.main,
-    },
-    fontSize: theme.typography.fontSize,
-    transition: 'color .2s',
-    fontWeight: 600,
-  },
-}));
+export const StyledNav = styled(NavLink)`
+  color: ${theme.palette.text.secondary};
+  font-size: 13px;
+  transition: color 0.2s;
+  font-weight: 600;
+  &:hover {
+    color: ${theme.palette.text.primary};
+  }
+`;

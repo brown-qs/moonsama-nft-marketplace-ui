@@ -37,6 +37,14 @@ export const addTransaction = createAction<{
     asset: Asset;
     amount: BigNumber;
   };
+  craft?: {
+    blueprintId: string;
+    amount: string;
+  },
+  burn?: {
+    assetAddress: string;
+    assetId: string;
+  }
   summary?: string;
 }>('transactions/addTransaction');
 export const clearAllTransactions = createAction<{ chainId: ChainId }>(

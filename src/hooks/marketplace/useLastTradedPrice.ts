@@ -1,10 +1,11 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_LAST_TRADED_PRICE } from '../../subgraph/lastTradedPrice';
 import { LastTradedPrice } from './types';
 import { getAssetEntityId, parseLastTradedPrice } from '../../utils/subgraph';
 import { useState, useCallback, useEffect } from 'react';
+import { useActiveWeb3React } from 'hooks';
 
 export interface LastTradedPriceQuery {
   assetAddress: string;
@@ -16,6 +17,7 @@ export const useLastTradedPrice = ({
   assetId,
 }: LastTradedPriceQuery) => {
   const blockNumber = useBlockNumber();
+  const {chainId} = useActiveWeb3React()
 
   const [result, setResult] = useState<LastTradedPrice | undefined>(undefined);
 
@@ -25,8 +27,7 @@ export const useLastTradedPrice = ({
     //console.log({assetEntityId});
 
     const query = QUERY_LAST_TRADED_PRICE(assetEntityId);
-    //console.error({query, SUBGRAPH_URL})
-    const response = await request(SUBGRAPH_URL, query);
+    const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
 
     //console.error('YOLO useLastTradedPrice', response);
 
@@ -48,11 +49,11 @@ export const useLastTradedPrice = ({
     console.error('YOLO useLastTradedPrice', lastTradedPrice);
 
     setResult(lastTradedPrice);
-  }, [assetAddress, assetId, blockNumber]);
+  }, [assetAddress, assetId, blockNumber, chainId]);
 
   useEffect(() => {
     fetchAssetOrders();
-  }, [fetchAssetOrders, blockNumber]);
+  }, [fetchAssetOrders, blockNumber, chainId]);
 
   return result;
 };
@@ -62,6 +63,7 @@ export const useLastTradedPriceOnce = ({
   assetId,
 }: LastTradedPriceQuery) => {
   const [result, setResult] = useState<LastTradedPrice | undefined>(undefined);
+  const {chainId} = useActiveWeb3React()
 
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
@@ -69,8 +71,7 @@ export const useLastTradedPriceOnce = ({
     //console.log({assetEntityId});
 
     const query = QUERY_LAST_TRADED_PRICE(assetEntityId);
-    //console.error({query, SUBGRAPH_URL})
-    const response = await request(SUBGRAPH_URL, query);
+    const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
 
     //console.error('YOLO useLastTradedPrice', response);
 
@@ -85,11 +86,11 @@ export const useLastTradedPriceOnce = ({
     console.error('YOLO useLastTradedPrice', lastTradedPrice);
 
     setResult(lastTradedPrice);
-  }, [assetAddress, assetId]);
+  }, [assetAddress, assetId, chainId]);
 
   useEffect(() => {
     fetchAssetOrders();
-  }, [fetchAssetOrders]);
+  }, [fetchAssetOrders, chainId]);
 
   return result;
 };

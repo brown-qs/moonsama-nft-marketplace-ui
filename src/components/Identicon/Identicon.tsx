@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useStyles } from './Identicon.styles';
-
-import { useActiveWeb3React } from '../../hooks';
+import { styles as style } from './Identicon.styles';
+import { useActiveWeb3React, useClasses } from '../../hooks';
 import Jazzicon from 'jazzicon';
 import { useMediaQuery } from 'beautiful-react-hooks';
 
 export default function Identicon() {
-  const styles = useStyles();
+  const styles = useClasses(style);
   const { account } = useActiveWeb3React();
   const ref = useRef<HTMLDivElement>();
   const hideAddress = useMediaQuery(`(max-width: 500px)`);

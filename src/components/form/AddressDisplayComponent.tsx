@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react';
-import Button from '@material-ui/core/Button';
-import { Box, Tooltip, Typography } from '@material-ui/core';
+import Button from '@mui/material/Button';
+import { Box, Tooltip, Typography } from '@mui/material';
 import FileCopyOutlinedIcon from '@mui/icons-material/FileCopyOutlined';
-import { useStyles } from './AddressDisplayComponent.styles';
+import { styles } from './AddressDisplayComponent.styles';
 import { getExplorerLink } from 'utils';
-import { useActiveWeb3React } from 'hooks';
+import { useActiveWeb3React, useClasses } from 'hooks';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 
 const CHARS_SHOWN = 3;
@@ -57,7 +57,7 @@ export const AddressDisplayComponent = (props: {
   const text = props.children?.toString() || '';
   const charsShown = props.charsShown ? props.charsShown : CHARS_SHOWN;
 
-  const { copyButton } = useStyles();
+  const { copyButton } = useClasses(styles);
   const { chainId } = useActiveWeb3React();
 
   const _apply_ellipsis = (): string => {

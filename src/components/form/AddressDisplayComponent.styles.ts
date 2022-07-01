@@ -1,6 +1,4 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
-
-export const useStyles = makeStyles((theme) => ({
+export const styles = () => ({
   copyButton: {
     fontSize: '13px',
     margin: '5px 0 0 -5px',
@@ -16,4 +14,4 @@ export const useStyles = makeStyles((theme) => ({
       color: '#d2023e',
     },
   },
-}));
+});

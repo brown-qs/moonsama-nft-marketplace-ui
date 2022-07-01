@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const appStyles = makeStyles((theme) => ({
+export const appStyles = (theme: Theme) => ({
   divider: {
     background: theme.palette.text.secondary,
     opacity: 0.5,
@@ -27,7 +27,7 @@ export const appStyles = makeStyles((theme) => ({
   // Column
   col: {
     '[class*=formValue]': {
-      'min-height': 30,
+      minHeight: 30,
       color: 'fucsia',
     },
   },
@@ -78,6 +78,7 @@ export const appStyles = makeStyles((theme) => ({
     color: theme.palette.primary.main,
   },
   formMaxButton: {
+    color: '#FFFFFF',
     backgroundColor: theme.palette.primary.main,
     borderRadius: '0 8px 8px 0',
   },
@@ -105,4 +106,4 @@ export const appStyles = makeStyles((theme) => ({
     transform: 'rotate(180deg)',
     marginLeft: 'auto',
   },
-}));
+});

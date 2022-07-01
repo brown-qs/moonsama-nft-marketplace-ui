@@ -13,8 +13,12 @@ export const useDecimalOverrides = () => {
   const collections = useRawCollectionsFromList();
 
   return useMemo(() => {
-    const map: {[key: string]: number} = {}
-    collections.map((x) => x.decimals !== undefined ? map[x.address.toLowerCase()] = x.decimals : undefined);
-    return map
+    const map: { [key: string]: number } = {};
+    collections.map((x) =>
+      x.decimals !== undefined
+        ? (map[x.address.toLowerCase()] = x.decimals)
+        : undefined
+    );
+    return map;
   }, [chainId]);
 };

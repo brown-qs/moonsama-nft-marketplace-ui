@@ -1,162 +1,226 @@
 import { ReactNode } from 'react';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import CssBaseline from '@mui/material/CssBaseline';
 import {
-  ThemeProvider,
+  StyledEngineProvider,
   createTheme,
   ThemeOptions,
-} from '@material-ui/core/styles';
-
+} from '@mui/material/styles';
+import { ThemeProvider } from '@emotion/react';
 import { useThemeOptions } from 'hooks';
 import { typography } from './typography';
 import { lightPalette, palette } from './palette';
-import {
-  PaletteOptions,
-  SimplePaletteColorOptions,
-} from '@material-ui/core/styles/createPalette';
+import { PaletteOptions } from '@mui/material/styles/createPalette';
 
 const defaultTheme = createTheme();
 
 const getDefaultOptions = (colors: PaletteOptions): ThemeOptions => ({
   typography,
-  overrides: {
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 576,
+      md: 768,
+      lg: 992,
+      xl: 1440,
+    },
+  },
+  components: {
+    MuiMenuItem: {
+      styleOverrides: {
+        root: { 
+          "&.Mui-selected": { backgroundColor: "rgb(210, 2, 62) !important" },
+          "&.Mui-selected:hover": { backgroundColor: "rgb(210, 2, 62)" },
+          "backgroundColor": "#000",
+          "&:hover": {
+            background: "#602",
+          },
+        }
+      }
+    },
     MuiCssBaseline: {
-      '@global': {
+      styleOverrides: {
         '*::-webkit-scrollbar': {
           width: '0.5em',
           cursor: 'pointer',
         },
         '*::-webkit-scrollbar-track': {
-          '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
+          '*WebkitBoxShadow': 'inset 0 0 6px rgba(0, 0, 0, 0)',
         },
         '*::-webkit-scrollbar-thumb': {
-          backgroundColor: 'rgba(210, 2, 62, 0.6)',
+          backgroundColor: 'rgba(210, 2, 62, 1)',
           outline: '0',
         },
       },
     },
-    MuiButton: {
-      root: {
-        borderRadius: 0,
-        textTransform: 'none',
-        height: defaultTheme.spacing(5),
-        fontSize: defaultTheme.typography.fontSize,
-      },
-      outlinedPrimary: {
-        color: colors.text?.primary || 'white',
-        borderColor: colors.text?.disabled || 'white',
-        '&:hover': {
-          backgroundColor: '#111',
-          color: 'white',
-          borderColor: 'inherit',
+    MuiTypography: {
+      styleOverrides: {
+        h1: {
+          fontSize: 36,
+          [defaultTheme.breakpoints.down('lg')]: {
+            fontSize: 24,
+          },
+        },
+        h2: {
+          fontSize: 24,
+          [defaultTheme.breakpoints.down('lg')]: {
+            fontSize: 14,
+          },
         },
       },
-      contained: {
-        '&.Mui-disabled': {
-          backgroundColor: `${defaultTheme.palette.grey[900]}  !important`,
-          color: defaultTheme.palette.grey[800] + ' !important',
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+          textTransform: 'none',
+          height: defaultTheme.spacing(5),
+          fontSize: defaultTheme.typography.fontSize,
+        },
+        outlinedPrimary: {
+          color: colors.text?.primary || 'white',
+          borderColor: colors.text?.disabled || 'white',
+          '&:hover': {
+            backgroundColor: '#111',
+            color: 'white',
+            borderColor: 'inherit',
+          },
+        },
+        contained: {
+          '&.Mui-disabled': {
+            backgroundColor: `${defaultTheme.palette.grey[900]}  !important`,
+            color: defaultTheme.palette.grey[800] + ' !important',
+          },
         },
       },
     },
     MuiToolbar: {
-      regular: {
-        [defaultTheme.breakpoints.up('sm')]: {
-          minHeight: defaultTheme.spacing(10),
+      styleOverrides: {
+        regular: {
+          [defaultTheme.breakpoints.up('sm')]: {
+            minHeight: defaultTheme.spacing(10),
+          },
         },
       },
     },
     MuiOutlinedInput: {
-      root: {
-        borderRadius: 0,
-        height: defaultTheme.spacing(5),
-        width: '380px',
-        maxWidth: '100%',
-        paddingRight: '0 !important',
-
-        [defaultTheme.breakpoints.down('sm')]: {
-          width: '100%',
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+          height: defaultTheme.spacing(5),
+          width: '380px',
+          maxWidth: '100%',
+          [defaultTheme.breakpoints.down('sm')]: {
+            width: '100%',
+          },
         },
-      },
-      notchedOutline: {
-        borderColor: colors.text?.disabled || 'white',
+        notchedOutline: {
+          borderColor: colors.text?.disabled || 'white',
+        },
       },
     },
     MuiDialog: {
-      paper: {
-        backgroundColor: colors.background?.default,
-        borderRadius: defaultTheme.spacing(2),
+      styleOverrides: {
+        paper: {
+          backgroundColor: colors.background?.default,
+          borderRadius: defaultTheme.spacing(2),
+        },
       },
     },
     MuiDrawer: {
-      paper: {
-        backgroundColor: '#000',
-        padding: '20px',
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#000',
+          padding: '20px',
+        },
       },
     },
     MuiIconButton: {
-      root: {
-        color: 'white',
+      styleOverrides: {
+        root: {
+          color: 'white',
+        },
       },
     },
     MuiSelect: {
-      icon: {
-        color: 'white',
+      styleOverrides: {
+        icon: {
+          color: 'white',
+        },
       },
     },
     MuiTable: {
-      root: {
-        backgroundColor: '#111',
-        border: '0 !important',
+      styleOverrides: {
+        root: {
+          backgroundColor: '#111',
+          border: '0 !important',
+        },
       },
     },
     MuiTableRow: {
-      root: {
-        borderBottom: '1px solid #000',
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #000',
+        },
       },
     },
     MuiTableCell: {
-      root: {
-        border: '0 !important',
-      },
-      head: {
-        lineHeight: 1,
+      styleOverrides: {
+        root: {
+          border: '0 !important',
+        },
+        head: {
+          lineHeight: 1,
+        },
       },
     },
     MuiSvgIcon: {
-      root: {
-        color: '#fff',
+      styleOverrides: {
+        root: {
+          color: '#fff',
+        },
       },
     },
     MuiPaper: {
-      root: {
-        '& a': {
-          textDecoration: 'none',
-        },
-        '& a:hover': {
-          textDecoration: 'underline',
-          color: '#d2023e',
+      styleOverrides: {
+        root: {
+          '& a': {
+            textDecoration: 'none',
+          },
+          '& a:hover': {
+            textDecoration: 'underline',
+            color: '#d2023e',
+          },
         },
       },
     },
     MuiFormControl: {
-      root: {
-        maxWidth: '100%',
+      styleOverrides: {
+        root: {
+          maxWidth: '100%',
+        },
       },
     },
     MuiInputAdornment: {
-      positionStart: {
-        '& .MuiOutlinedInput-root': {
-          borderRadius: '8px 0 0 8px',
+      styleOverrides: {
+        positionStart: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px 0 0 8px',
+          },
         },
       },
     },
     MuiGrid: {
-      root: {
-        justifyContent: 'center',
+      styleOverrides: {
+        root: {
+          justifyContent: 'center',
+        },
       },
     },
     MuiCircularProgress: {
-      root: {
-        margin: '0 auto',
+      styleOverrides: {
+        root: {
+          margin: '0 auto',
+        },
       },
     },
   },
@@ -167,7 +231,7 @@ const themeOptions: ThemeOptions = {
   ...getDefaultOptions(palette),
 };
 
-const theme = createTheme(themeOptions);
+export const theme = createTheme(themeOptions);
 
 const lightTheme = createTheme({
   palette: lightPalette,
@@ -176,12 +240,14 @@ const lightTheme = createTheme({
 
 const Theme = ({ children }: { children: ReactNode }) => {
   const { isDarkTheme } = useThemeOptions();
-
+  const handleTheme = () => (isDarkTheme ? theme : lightTheme);
   return (
-    <ThemeProvider theme={isDarkTheme ? theme : lightTheme}>
-      <CssBaseline />
-      {children}
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={handleTheme}>
+        <CssBaseline enableColorScheme />
+        {children}
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 };
 

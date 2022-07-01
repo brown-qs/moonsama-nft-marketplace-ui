@@ -1,8 +1,8 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
 import tokenBackgroundImage from '../../assets/images/token-bg.jpg';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -36,7 +36,7 @@ export const useStyles = makeStyles((theme) => ({
   stockContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 12,
+    //marginTop: 12,
   },
   lastPriceContainer: {
     display: 'flex',
@@ -56,4 +56,11 @@ export const useStyles = makeStyles((theme) => ({
   mr: {
     marginRight: theme.spacing(1),
   },
-}));
+  traitChip: {
+    fontSize: '12px',
+    color: '#c5c5c5',
+    background: 'transparent',
+    border: '2px solid #111',
+    margin: '0 5px 5px 0',
+  },
+});

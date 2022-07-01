@@ -1,6 +1,6 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_ACTIVE_ORDERS, QUERY_ORDERS } from '../../subgraph/orderQueries';
 import { Order } from './types';
 import { parseOrder } from '../../utils/subgraph';
@@ -9,7 +9,7 @@ import { useState, useCallback, useEffect } from 'react';
 
 // these orders do not have the strategy objects attached
 export const useSellerOrders = (onlyActive = false) => {
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const blockNumber = useBlockNumber();
 
   const [orders, setOrders] = useState<Order[] | undefined>();
@@ -18,20 +18,9 @@ export const useSellerOrders = (onlyActive = false) => {
     if (!account) {
       return;
     }
-    /*
-        const result = blockNumber
-        ? await request(
-            SUBGRAPH_URL,
-            onlyActive ? QUERY_ACTIVE_ORDERS_AT_BLOCK : QUERY_ORDERS_AT_BLOCK,
-            { seller: sellerAddress.toLowerCase(), block: { number: blockNumber } }
-            )
-        : await request(SUBGRAPH_URL, onlyActive ? QUERY_ACTIVE_ORDERS : QUERY_ORDERS, {
-            seller: sellerAddress.toLowerCase(),
-            });
-        */
 
     const result = await request(
-      SUBGRAPH_URL,
+      MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
       onlyActive ? QUERY_ACTIVE_ORDERS : QUERY_ORDERS,
       {
         seller: account.toLowerCase(),

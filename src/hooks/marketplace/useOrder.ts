@@ -1,16 +1,18 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_ORDER } from '../../subgraph/orderQueries';
 import { Order } from './types';
 import { parseOrder } from '../../utils/subgraph';
 import { useState, useCallback, useEffect } from 'react';
+import { useActiveWeb3React } from 'hooks';
 
 const fetchOrderFromSubgraph = async (
   orderHash: string,
-  blockNumber: number | undefined
+  blockNumber: number | undefined,
+  chainId?: number
 ) => {
-  const result = await request(SUBGRAPH_URL, QUERY_ORDER, { orderHash });
+  const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], QUERY_ORDER, { orderHash });
 
   console.debug('YOLO getOrder', result);
 
@@ -54,13 +56,14 @@ export const useOrder = (orderHash: string) => {
 // THIS IS WRONG IT SHOULD BE 1 CALL NOT 1 CALL PER ORDER !! JUST FOR DEV
 export const useOrders = (ordersHashes: string[]) => {
   const blockNumber = useBlockNumber();
+  const {chainId} = useActiveWeb3React()
 
   const [orders, setOrders] = useState<Order[] | undefined>([]);
 
   const fetchOrders = useCallback(async () => {
     const orders = await Promise.all(
       ordersHashes.map(async (orderHash) => {
-        const order = await fetchOrderFromSubgraph(orderHash, blockNumber);
+        const order = await fetchOrderFromSubgraph(orderHash, blockNumber, chainId);
         return order;
       })
     );
@@ -68,11 +71,11 @@ export const useOrders = (ordersHashes: string[]) => {
     const filteredOrders = orders.filter(Boolean) as Order[];
 
     setOrders(filteredOrders);
-  }, [ordersHashes, blockNumber]);
+  }, [ordersHashes, blockNumber, chainId]);
 
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders, ordersHashes, blockNumber]);
+  }, [fetchOrders, ordersHashes, blockNumber, chainId]);
 
   return orders;
 };

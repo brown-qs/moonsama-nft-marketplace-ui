@@ -1,8 +1,9 @@
-import { LinkProps } from '@material-ui/core';
-import { useStyles } from './ExternalLink.styles';
+import { LinkProps } from '@mui/material';
+import { useClasses } from 'hooks';
+import { styles as style } from './ExternalLink.styles';
 
-export const ExternalLink = ({ href, children }: LinkProps) => {
-  const styles = useStyles();
+export const ExternalLink = ({ href, children, fontSize }: any) => {
+  const styles = useClasses(style);
 
   return (
     <a
@@ -10,6 +11,7 @@ export const ExternalLink = ({ href, children }: LinkProps) => {
       target="_blank"
       rel="noreferrer"
       className={styles.externalLink}
+      style={{fontSize: fontSize ?? '12px'}}
     >
       {children}
     </a>

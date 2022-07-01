@@ -121,10 +121,16 @@ export const QUERY_ACTIVE_ORDERS_AT_BLOCK = gql`
   }
 `;
 
-export const QUERY_ASSET_ORDERS = (isBuy: boolean, onlyActive: boolean, assetEntityId: string) => gql`
+export const QUERY_ASSET_ORDERS = (
+  isBuy: boolean,
+  onlyActive: boolean,
+  assetEntityId: string
+) => gql`
   query getAssetOrders {
     ${META}
-    orders(where: {${onlyActive ? 'active: true, ' : ''}${isBuy ? 'buyAsset' : 'sellAsset'}: "${assetEntityId}"}) {
+    orders(where: {${onlyActive ? 'active: true, ' : ''}${
+  isBuy ? 'buyAsset' : 'sellAsset'
+}: "${assetEntityId}"}) {
       ${ORDER_FIELDS}
     }
   }
@@ -143,6 +149,15 @@ export const QUERY_ASSET_ORDERS_AT_BLOCK = (
     }
   }
 `;
+
+export const QUERY_FLOOR_ORDER = (assetAddress: string) => gql`
+  query getFloorOrder {
+    ${META}
+    orders(where: {active: true, sellAsset_starts_with: "${assetAddress.toLowerCase()}"}, orderBy: pricePerUnit, orderDirection: asc, first: 1) {
+      ${ORDER_FIELDS}
+    }
+  }
+`
 
 export const QUERY_TOKEN_PAGE_ORDERS = (
   onlyActive: boolean,
@@ -244,8 +259,74 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    orders(where: {active: true, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", ${orderType == OrderType.BUY ? 'buyAsset_in': 'sellAsset_in'}: ${assetIdsJSONString}}, orderBy: createdAt, orderDirection: desc) {
+    orders(where: {active: true, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", ${
+  orderType === OrderType.BUY ? 'buyAsset_in' : 'sellAsset_in'
+}: ${assetIdsJSONString}}, orderBy: createdAt, orderDirection: desc) {
       ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_PONDSAMA_ACTIVE_ID = (
+  from: number,
+  count: number
+  ) => gql`
+  query getUserActiveOrders {
+    tokens(
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
+      where: {owner_not: "0x0000000000000000000000000000000000000000"}
+    ) {
+      id
+      numericId
+    }
+  }
+`;
+
+export const QUERY_PONDSAMA_OWNED_ID = (
+  from: number,
+  count: number,
+  owner: string
+  ) => gql`
+  query getUserActiveOrders {
+    tokens(
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
+      where: {owner: "${owner}"}
+    ) {
+      id
+      numericId
+    }
+  }
+`;
+
+
+export const QUERY_PONDSAMA_NOTOWNED_ID = (
+  from: number,
+  count: number,
+  owner: string
+  ) => gql`
+  query getUserActiveOrders {
+    tokens(
+      orderBy: numericId,
+      skip: ${from},
+      first: ${count},
+      where: {owner_not: "${owner}"}
+    ) {
+      id
+      numericId
+    }
+  }
+`;
+
+export const QUERY_PONDSAMA_TotalSupply = (
+  id: string
+) => gql`
+  query getUserActiveOrders {
+    contract(id: "${id}") {
+      totalSupply
     }
   }
 `;
@@ -254,11 +335,13 @@ export const QUERY_LATEST_SELL_ORDERS_FOR_TOKEN = (
   buyAssetId: string,
   sellAssetAddress: string,
   from: number,
-  num: number
+  num: number,
+  sortBy: string,
+  direction: string,
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, buyAsset: "${buyAssetId}", sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: createdAt, orderDirection: desc, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, buyAsset: "${buyAssetId}", sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -270,11 +353,13 @@ export const QUERY_LATEST_BUY_ORDERS_FOR_TOKEN = (
   sellAssetId: string,
   buyAssetAddress: string,
   from: number,
-  num: number
+  num: number,
+  sortBy: string,
+  direction: string,
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, sellAsset: "${sellAssetId}", buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: createdAt, orderDirection: desc, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, sellAsset: "${sellAssetId}", buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -310,6 +395,52 @@ export const QUERY_LATEST_BUY_ORDERS_WITHOUT_TOKEN = (
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_ORDERS_FOR_TOKEN = (
+  assetAddress: string,
+  orderBy: string,
+  orderDirection: boolean,
+  from: number,
+  num: number,
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    orders: orders(where: {active: true, sellAsset_starts_with: "${assetAddress?.toLowerCase()}"}, orderBy: ${orderBy == 'price' ? 'askPerUnitNominator' : 'createdAt'}, orderDirection: ${orderDirection ? 'asc' : 'desc'}, skip: ${from}, first: ${
+      num ?? DEFAULT_ORDERBOOK_PAGINATION
+    }) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_ASSETS_BY_PRICE = (
+  assetIdsJSONString: string,
+  from: number,
+  num: number,
+  orderDirection: boolean,
+) => gql`
+  query getAssesByPriceOrder {
+    ${META}
+    orders(groupBy: {
+      query: {
+        pricePerUnit: {
+          as: "minOfPricePerUnit",
+          fn: {
+            aggregate: MIN
+          }
+        }
+      },
+      sort: [
+        { alias: "minOfPricePerUnit", direction: ${orderDirection ? 'ASC' : 'DESC'} }
+      ],
+      having: {active: true, sellAsset_in: ${assetIdsJSONString}}
+    }, skip: ${from}, first: ${num}) {
+      groups {
+        minOfPricePerUnit
+      }
     }
   }
 `;

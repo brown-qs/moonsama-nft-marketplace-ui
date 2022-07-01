@@ -1,15 +1,18 @@
 import { request } from 'graphql-request';
 import { parseFill } from '../../utils/subgraph';
-import { SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { QUERY_FILL } from '../../subgraph/fillQueries';
 import { useState, useCallback, useEffect } from 'react';
 import { Fill } from './types';
+import { useActiveWeb3React } from 'hooks';
 
 export const useFill = (transactionHash: string) => {
   const [fill, setFill] = useState<Fill | undefined>();
 
+  const {chainId} = useActiveWeb3React()
+
   const fetchFill = useCallback(async () => {
-    const result = await request(SUBGRAPH_URL, QUERY_FILL, { transactionHash });
+    const result = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], QUERY_FILL, { transactionHash });
     console.debug('YOLO getFill', result);
 
     if (!result) {
@@ -22,7 +25,7 @@ export const useFill = (transactionHash: string) => {
 
     console.debug('YOLO getFill', { fill: f });
     setFill(f);
-  }, []);
+  }, [chainId]);
 
   useEffect(() => {
     fetchFill();

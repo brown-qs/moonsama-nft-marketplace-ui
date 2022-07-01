@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   balanceContainer: {
     [theme.breakpoints.down(500)]: {
       display: 'none',
@@ -15,4 +15,4 @@ export const useStyles = makeStyles((theme) => ({
   balance: {
     marginRight: '5px',
   },
-}));
+});

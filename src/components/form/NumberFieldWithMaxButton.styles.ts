@@ -1,7 +1,5 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
-
-export const useStyles = makeStyles((theme) => ({
+export const styles = () => ({
   outlinedInput: {
     padding: 0,
   },
-}));
+});

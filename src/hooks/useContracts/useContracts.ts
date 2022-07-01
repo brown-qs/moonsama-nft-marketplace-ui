@@ -1,10 +1,13 @@
 import { Contract } from '@ethersproject/contracts';
 import {
+  BURN_SEMAPHORE_ADDRESSES,
   ChainId,
   MARKETPLACE_V1_ADDRESS,
   MULTICALL_NETWORKS,
   RECOGNIZED_COLLECTIONS_ADDRESS,
   WAREHOUSE_ADDRESS,
+  WORKBENCHV2_ADDRESSES,
+  WORKBENCH_ADDRESSES,
 } from '../../constants';
 import { useMemo } from 'react';
 import { getContract } from 'utils';
@@ -16,6 +19,7 @@ import {
 import { MULTICALL2_ABI } from 'abi/multicall';
 import { ERC1155_ABI, ERC20_ABI, ERC721_ABI } from 'abi/token';
 import { useActiveWeb3React } from 'hooks';
+import { BURN_SEMAPHORE_ABI, WORKBENCHV2_ABI, WORKBENCH_ABI } from 'abi/loot';
 
 export const useContract = (
   address: string | undefined,
@@ -110,4 +114,27 @@ export function useERC1155Contract(
   withSignerIfPossible = true
 ): Contract | null {
   return useContract(address, ERC1155_ABI, withSignerIfPossible);
+}
+
+export function useWorkbenchContract(
+  version: string | undefined = 'V1',
+  withSignerIfPossible = true
+): Contract | null {
+  const { chainId } = useActiveWeb3React();
+  return useContract(
+    version === 'V1' ? (chainId ? WORKBENCH_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined) : (chainId ? WORKBENCHV2_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined),
+    version === 'V1' ? WORKBENCH_ABI : WORKBENCHV2_ABI,
+    withSignerIfPossible
+  );
+}
+
+export function useBurnSemaphoreContract(
+  withSignerIfPossible = true
+): Contract | null {
+  const { chainId } = useActiveWeb3React();
+  return useContract(
+    chainId ? BURN_SEMAPHORE_ADDRESSES[chainId ?? ChainId.MOONRIVER] : undefined,
+    BURN_SEMAPHORE_ABI,
+    withSignerIfPossible
+  );
 }

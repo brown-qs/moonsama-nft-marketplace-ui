@@ -1,8 +1,8 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   logo: {
-    width: 180,
+    width: 140,
     height: 'auto',
     '& > img': {
       maxWidth: '100%',
@@ -18,13 +18,13 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
   },
   navItem: {
-    margin: '0 20px',
-
-    a: {
-      textDecoration: 'none !important',
-    },
+    margin: '0 15px',
+    textDecoration: 'none !important',
+    flexShrink: 0
+    
   },
   navItemDrawer: {
+    display: 'block',
     margin: '20px',
     textDecoration: 'none !important',
     '> a': {
@@ -48,4 +48,4 @@ export const useStyles = makeStyles((theme) => ({
       top: '8px',
     },
   },
-}));
+});

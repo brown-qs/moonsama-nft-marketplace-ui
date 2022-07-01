@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useStyles } from './PriceBox.styles';
+import { StyledPriceBox } from './PriceBox.styles';
 
 export const PriceBox = ({
   children,
@@ -7,6 +7,7 @@ export const PriceBox = ({
   size = 'medium',
   margin = true,
   color,
+  ...props
 }: {
   children: ReactNode;
   variant?: 'primary' | 'secondary';
@@ -14,10 +15,15 @@ export const PriceBox = ({
   margin?: boolean;
   color?: string;
 }) => {
-  const { priceBox } = useStyles({ variant, size, margin, color });
   return (
-    <div className={priceBox}>
-      <div>{children}</div>
-    </div>
+    <StyledPriceBox
+      variant={variant}
+      size={size}
+      margin={margin}
+      color={color}
+      {...props}
+    >
+      {children}
+    </StyledPriceBox>
   );
 };

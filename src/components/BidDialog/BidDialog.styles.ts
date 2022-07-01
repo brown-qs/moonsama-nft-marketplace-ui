@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   dialogContainer: {
     display: 'flex',
     padding: theme.spacing(4),
@@ -42,4 +42,39 @@ export const useStyles = makeStyles((theme) => ({
     height: 'auto',
     marginBottom: theme.spacing(2),
   },
-}));
+  flexEnd: {
+    alignSelf: 'flex-end',
+  },
+  flexStart: {
+    alignSelf: 'flex-start',
+  },
+  columGap : {
+    flex: '1 0 15px'
+  },
+  mr15: {
+    paddingRight: '15px'
+  },
+  placeButtonTopSpace: {
+    marginTop: '20px'
+  },
+  imageContainer: {
+    width: '40%',
+    textAlign: 'center',
+    overflow: 'hidden',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    borderRadius: 0,
+    justifyContent: 'center',
+  },
+  detailContainer: {
+    width: '50%',
+  },
+  image: {
+    width: '100%',
+    height: 'auto',
+    borderRadius: 0,
+    background: '#111',
+    backgroundSize: 'cover',
+  },
+});

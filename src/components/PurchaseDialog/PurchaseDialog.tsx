@@ -1,17 +1,27 @@
-import { parseEther, parseUnits } from '@ethersproject/units';
 import { appStyles } from '../../app.styles';
 
-import { useEffect, useState } from 'react';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { useEffect, useState, useMemo } from 'react';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { usePurchaseDialog } from '../../hooks/usePurchaseDialog/usePurchaseDialog';
+import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
+import { useFetchTokenUri } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri';
+
+import { Media } from 'components';
 import { Dialog, Button } from 'ui';
-import { useStyles } from './PurchaseDialog.styles';
+import { Asset } from 'hooks/marketplace/types';
+import { styles } from './PurchaseDialog.styles';
 import { SuccessIcon } from 'icons';
-import { ChainId, FRACTION_TO_BPS, PROTOCOL_FEE_BPS } from '../../constants';
-import { useActiveWeb3React } from 'hooks';
+import {
+  ChainId,
+  DEFAULT_CHAIN,
+  FRACTION_TO_BPS,
+  NATIVE_TOKEN_SYMBOL,
+  PROTOCOL_FEE_BPS,
+} from '../../constants';
+import { useActiveWeb3React, useClasses } from 'hooks';
 import {
   getQuantity,
   getUnitPrice,
@@ -31,13 +41,12 @@ import {
   useFillOrderCallback,
 } from 'hooks/marketplace/useFillOrderCallback';
 import { useBalances } from 'hooks/useBalances/useBalances';
-import { Box, Grid } from '@material-ui/core';
+import { Box, Grid } from '@mui/material';
 import { AddressDisplayComponent } from 'components/form/AddressDisplayComponent';
 import { CoinQuantityField, UNIT } from 'components/form/CoinQuantityField';
 import { Fraction } from 'utils/Fraction';
 import { AddressZero } from '@ethersproject/constants';
 import { Fee, useFees } from 'hooks/useFees/useFees';
-import { Asset } from 'hooks/marketplace/types';
 import { sellNative } from './sellNative.logic';
 import { sellElse } from './sellElse';
 import { buyNative } from './buyNative';
@@ -50,7 +59,9 @@ export const PurchaseDialog = () => {
   const [finalTxSubmitted, setFinalTxSubmitted] = useState<boolean>(false);
   const { isPurchaseDialogOpen, setPurchaseDialogOpen, purchaseData } =
     usePurchaseDialog();
-  const [globalError, setGlobalError] = useState<unknown | undefined>(undefined);
+  const [globalError, setGlobalError] = useState<unknown | undefined>(
+    undefined
+  );
 
   const [inputAmountText, setInputAmountText] = useState<string | undefined>(
     undefined
@@ -58,14 +69,19 @@ export const PurchaseDialog = () => {
 
   const { chainId, account } = useActiveWeb3React();
 
-  const { dialogContainer, loadingContainer, successIcon, successContainer } =
-    useStyles();
+  const {
+    dialogContainer,
+    loadingContainer,
+    successIcon,
+    successContainer,
+    image,
+  } = useClasses(styles);
 
   //console.log({ orderLoaded, purchaseData });
   const handleClose = () => {
     setLoading(false);
     setPurchaseDialogOpen(false);
-    setGlobalError(undefined)
+    setGlobalError(undefined);
     setOrderLoaded(false);
     setApprovalSubmitted(false);
     setFinalTxSubmitted(false);
@@ -78,6 +94,23 @@ export const PurchaseDialog = () => {
   if (!orderLoaded && account && order && orderType) {
     setOrderLoaded(true);
   }
+
+  const Assets = useMemo(() => {
+    if (orderType == OrderType.BUY) {
+      if (order?.buyAsset) {
+        return [order.buyAsset] as Asset[];
+      }
+    }
+    if (orderType == OrderType.SELL) {
+      if (order?.sellAsset) {
+        return [order.sellAsset] as Asset[];
+      }
+    }
+    return [] as Asset[];
+  }, [order]);
+  const staticData = useTokenStaticData(Assets);
+  const metas = useFetchTokenUri(staticData);
+  const assetMeta = metas?.[0];
 
   const title = 'Take offer';
   let symbol: string | undefined = purchaseData?.symbol ?? 'NFT';
@@ -99,8 +132,9 @@ export const PurchaseDialog = () => {
 
   const orderHash = order?.id;
 
-  const decimals = purchaseData?.decimals ?? 0
+  const decimals = purchaseData?.decimals ?? 0;
   const isAssetFungible = decimals > 0;
+  const approvedPaymentCurrency = purchaseData?.approvedPaymentCurrency;
 
   const partialAllowed = order?.partialAllowed;
   const ppu = getUnitPrice(
@@ -117,20 +151,22 @@ export const PurchaseDialog = () => {
   const userAsset = order?.buyAsset;
   const getAsset = order?.sellAsset;
 
-  const isGetAssetNative =
-    getAsset?.assetType?.valueOf() === StringAssetType.NATIVE.valueOf();
+  const isGetAssetPayment =
+    getAsset?.assetType?.valueOf() ===
+      approvedPaymentCurrency?.assetType.valueOf() &&
+    getAsset?.assetAddress === approvedPaymentCurrency?.assetAddress;
 
-  const isGiveAssetNative = !isGetAssetNative
+  const isGiveAssetPayment = !isGetAssetPayment;
 
-  let giveAssetDecimals = 0
-  let getAssetDecimals = 0
-  
-  if(isGetAssetNative) {
-    getAssetDecimals = 18
-    giveAssetDecimals = decimals
+  let giveAssetDecimals = 0;
+  let getAssetDecimals = 0;
+
+  if (isGetAssetPayment) {
+    getAssetDecimals = 18;
+    giveAssetDecimals = decimals;
   } else {
-    getAssetDecimals = decimals
-    giveAssetDecimals = 18
+    giveAssetDecimals = 18;
+    getAssetDecimals = decimals;
   }
 
   const total = getQuantity(
@@ -139,18 +175,6 @@ export const PurchaseDialog = () => {
     askPerUnitNominator,
     askPerUnitDenominator
   );
-
-  useEffect(() => {
-    if (total) {
-      if (!partialAllowed) {
-        setInputAmountText(total?.toString());
-      }
-
-      if (total.eq('1')) {
-        setInputAmountText(total?.toString());
-      }
-    }
-  }, [partialAllowed, total]);
 
   let meat;
 
@@ -164,14 +188,14 @@ export const PurchaseDialog = () => {
     assetType = userAsset?.assetType;
 
     // we sell our erc20 into a buy order
-    if (isGiveAssetNative) {
+    if (isGiveAssetPayment) {
       meat = sellNative(
         ppu,
         total,
         inputAmountText,
         giveAssetDecimals,
         getAssetDecimals
-      )
+      );
     } else {
       meat = sellElse(
         userAsset,
@@ -180,7 +204,7 @@ export const PurchaseDialog = () => {
         inputAmountText,
         giveAssetDecimals,
         getAssetDecimals
-      )
+      );
     }
   } else {
     action = 'BUY';
@@ -192,24 +216,25 @@ export const PurchaseDialog = () => {
     assetType = getAsset?.assetType;
 
     // we buy into a sell order, which is the native token
-    if (isGetAssetNative) {
+    if (isGetAssetPayment) {
       meat = buyNative(
         ppu,
         total,
         inputAmountText,
         giveAssetDecimals,
         getAssetDecimals
-      )
+      );
 
       // we buy into a sell order, which is an NFT
     } else {
+      console.log('buyELSE', partialAllowed);
       meat = buyElse(
         ppu,
         total,
         inputAmountText,
         giveAssetDecimals,
         getAssetDecimals
-      )
+      );
     }
   }
 
@@ -222,8 +247,16 @@ export const PurchaseDialog = () => {
     userGiveDisplay,
     feeAsset,
     showFee,
-    displayTotal
-  } = meat
+    displayTotal,
+  } = meat;
+
+  useEffect(() => {
+    if (total && displayTotal) {
+      if (!partialAllowed || total.eq('1')) {
+        setInputAmountText(displayTotal?.toString());
+      }
+    }
+  }, [partialAllowed, total, displayTotal]);
 
   const [approvalState, approveCallback] = useApproveCallback({
     assetAddress: userAsset?.assetAddress,
@@ -243,14 +276,16 @@ export const PurchaseDialog = () => {
 
   const hasEnough = userAssetBalance?.gte(userGive);
 
-  const displayBalance = Fraction.from(userAssetBalance?.toString(), giveAssetDecimals)?.toFixed(giveAssetDecimals > 0 ? 5: 0)
+  const displayBalance = Fraction.from(
+    userAssetBalance?.toString(),
+    giveAssetDecimals
+  )?.toFixed(giveAssetDecimals > 0 ? 5 : 0);
 
   useEffect(() => {
     if (approvalState === ApprovalState.PENDING) {
       setApprovalSubmitted(true);
     }
   }, [approvalState, approvalSubmitted]);
-  
 
   fee = useFees([feeAsset])?.[0];
   royaltyFee =
@@ -261,14 +296,14 @@ export const PurchaseDialog = () => {
     netto = userGet.sub(protocolFee).sub(royaltyFee);
   }
 
-  console.log('fee', {
+  console.log('debug fill fee', {
     showFee,
     royaltyFee,
     protocolFee,
-    isGiveAssetNative,
+    isGiveAssetPayment,
     giveAssetDecimals,
-    isGetAssetNative,
-    getAssetDecimals
+    isGetAssetPayment,
+    getAssetDecimals,
   });
 
   const {
@@ -305,7 +340,7 @@ export const PurchaseDialog = () => {
   });
   */
 
- console.warn('FILL', {
+  console.warn('debug FILL', {
     hasEnough,
     buyer: account?.toString(),
     quantity: quantity?.toString(),
@@ -315,8 +350,8 @@ export const PurchaseDialog = () => {
     ppu: ppu?.toString(),
     askPerUnitDenominator: askPerUnitDenominator?.toString(),
     askPerUnitNominator: askPerUnitNominator?.toString(),
-    isGetAssetNative,
-    isGiveAssetNative,
+    isGetAssetPayment,
+    isGiveAssetPayment,
     getAssetDecimals,
     giveAssetDecimals,
     showApproveFlow,
@@ -324,7 +359,7 @@ export const PurchaseDialog = () => {
     fillOrderState,
     fillSubmitted,
     error,
-    amountToApprove: userGive?.toString()
+    amountToApprove: userGive?.toString(),
   });
 
   const {
@@ -334,7 +369,6 @@ export const PurchaseDialog = () => {
     button,
     //
     row,
-    col,
     //
     formBox,
     formLabel,
@@ -345,7 +379,7 @@ export const PurchaseDialog = () => {
     formSubheader,
     fieldError,
     formButton,
-  } = appStyles();
+  } = useClasses(appStyles);
 
   const renderBody = () => {
     if (!orderLoaded) {
@@ -367,9 +401,15 @@ export const PurchaseDialog = () => {
         <div className={successContainer}>
           <Typography>Something went wrong</Typography>
           <Typography color="textSecondary" variant="h5">
-            {(globalError as Error)?.message as string ?? 'Unknown error'}
+            {((globalError as Error)?.message as string) ?? 'Unknown error'}
           </Typography>
-          <Button className={formButton} onClick={() => {setGlobalError(undefined)}} color="primary">
+          <Button
+            className={formButton}
+            onClick={() => {
+              setGlobalError(undefined);
+            }}
+            color="primary"
+          >
             Back
           </Button>
         </div>
@@ -436,45 +476,62 @@ export const PurchaseDialog = () => {
 
             <Typography className={formSubheader}>Token Details</Typography>
 
-            <div className={row}>
-              <div className={col}>
-                <div className={formLabel}>Address</div>
-                <AddressDisplayComponent
-                  className={`${formValue} ${formValueTokenDetails}`}
-                  charsShown={5}
-                >
-                  {assetAddress ?? '?'}
-                </AddressDisplayComponent>
-              </div>
-              <div className={col}>
-                <div className={formLabel}>ID</div>
-                <div className={`${formValue} ${formValueTokenDetails}`}>
-                  {assetId}
+            <Grid container spacing={1} justifyContent="center">
+              <Grid item md={4} xs={12}>
+                <Media uri={assetMeta?.image} className={image} />
+              </Grid>
+              <Grid
+                item
+                md={8}
+                xs={12}
+                justifyContent="flex-end"
+                display="flex"
+                flexDirection="column"
+              >
+                <div className={row}>
+                  <div className={formLabel}>Address</div>
+                  <AddressDisplayComponent
+                    className={`${formValue} ${formValueTokenDetails}`}
+                    charsShown={5}
+                  >
+                    {assetAddress ?? '?'}
+                  </AddressDisplayComponent>
                 </div>
-              </div>
-              <div className={col}>
-                <div className={formLabel}>Price per unit</div>
-                <div
-                  className={`${formValue} ${formValueTokenDetails}`}
-                  style={{
-                    justifyContent: 'flex-end',
-                  }}
-                >
-                  {displayppu} MOVR
+                <div className={row}>
+                  <div className={formLabel}>ID</div>
+                  <div className={`${formValue} ${formValueTokenDetails}`}>
+                    {assetId}
+                  </div>
                 </div>
-              </div>
-              <div className={col}>
-                <div className={formLabel}>{availableLabel}</div>
-                <div
-                  className={`${formValue} ${formValueTokenDetails}`}
-                  style={{
-                    justifyContent: 'flex-end',
-                  }}
-                >
-                  {displayTotal ?? '?'} {symbolString}
+                <div className={row}>
+                  <div className={formLabel}>Price per unit</div>
+                  <div
+                    className={`${formValue} ${formValueTokenDetails}`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      flexWrap: 'nowrap',
+                    }}
+                  >
+                    {`${displayppu} ${
+                      approvedPaymentCurrency?.symbol ??
+                      NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]
+                    }`}
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className={row}>
+                  <div className={formLabel}>{availableLabel}</div>
+                  <div
+                    className={`${formValue} ${formValueTokenDetails}`}
+                    style={{
+                      justifyContent: 'flex-end',
+                    }}
+                  >
+                    {displayTotal ?? '?'} {symbolString}
+                  </div>
+                </div>
+              </Grid>
+            </Grid>
             <Divider
               variant="fullWidth"
               className={`${divider} ${borderStyleDashed}`}
@@ -499,10 +556,18 @@ export const PurchaseDialog = () => {
                       value={inputAmountText}
                       setValue={setInputAmountText}
                       setMaxValue={() => {
-                        console.log('maaax', total?.toString())
-                        console.log( Fraction.from(total?.toString() ?? '0', giveAssetDecimals)?.toFixed(giveAssetDecimals))
+                        console.log('maaax', total?.toString());
+                        console.log(
+                          Fraction.from(
+                            total?.toString() ?? '0',
+                            giveAssetDecimals
+                          )?.toFixed(giveAssetDecimals)
+                        );
                         setInputAmountText(
-                          Fraction.from(total?.toString() ?? '0', giveAssetDecimals)?.toFixed(giveAssetDecimals)
+                          Fraction.from(
+                            total?.toString() ?? '0',
+                            giveAssetDecimals
+                          )?.toFixed(giveAssetDecimals)
                         );
                       }}
                       withMaxButton={true}
@@ -526,7 +591,9 @@ export const PurchaseDialog = () => {
                 <div className={infoContainer}>
                   <Typography className={formLabel}>You get brutto</Typography>
                   <Typography className={formValueGet}>
-                    {userGetDisplay} MOVR
+                    {userGetDisplay}{' '}
+                    {approvedPaymentCurrency?.symbol ??
+                      NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                   </Typography>
                 </div>
 
@@ -535,7 +602,8 @@ export const PurchaseDialog = () => {
                     <Typography className={formLabel}>Protocol fee</Typography>
                     <Typography className={`${formValue}`}>
                       {Fraction.from(protocolFee?.toString(), 18)?.toFixed(5)}{' '}
-                      MOVR
+                      {approvedPaymentCurrency?.symbol ??
+                        NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                     </Typography>
                   </div>
                 )}
@@ -545,7 +613,8 @@ export const PurchaseDialog = () => {
                     <Typography className={formLabel}>Royalty fee</Typography>
                     <Typography className={`${formValue}`}>
                       {Fraction.from(royaltyFee.toString(), 18)?.toFixed(5)}{' '}
-                      MOVR
+                      {approvedPaymentCurrency?.symbol ??
+                        NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                     </Typography>
                   </div>
                 )}
@@ -554,7 +623,9 @@ export const PurchaseDialog = () => {
                   <div className={infoContainer}>
                     <Typography className={formLabel}>You get netto</Typography>
                     <Typography className={`${formValueGet}`}>
-                      {Fraction.from(netto.toString(), 18)?.toFixed(5)} MOVR
+                      {Fraction.from(netto.toString(), 18)?.toFixed(5)}{' '}
+                      {approvedPaymentCurrency?.symbol ??
+                        NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                     </Typography>
                   </div>
                 )}
@@ -572,10 +643,18 @@ export const PurchaseDialog = () => {
                       value={inputAmountText}
                       setValue={setInputAmountText}
                       setMaxValue={() => {
-                        console.log('maaax', total?.toString())
-                        console.log( Fraction.from(total?.toString() ?? '0', getAssetDecimals)?.toFixed(getAssetDecimals))
+                        console.log('maaax', total?.toString());
+                        console.log(
+                          Fraction.from(
+                            total?.toString() ?? '0',
+                            getAssetDecimals
+                          )?.toFixed(getAssetDecimals)
+                        );
                         setInputAmountText(
-                          Fraction.from(total?.toString() ?? '0', getAssetDecimals)?.toFixed(getAssetDecimals)
+                          Fraction.from(
+                            total?.toString() ?? '0',
+                            getAssetDecimals
+                          )?.toFixed(getAssetDecimals)
                         );
                       }}
                       withMaxButton={true}
@@ -600,14 +679,18 @@ export const PurchaseDialog = () => {
                 <div className={infoContainer}>
                   <Typography className={formLabel}>Your balance</Typography>
                   <Typography className={formValue}>
-                    {displayBalance ?? '?'} MOVR
+                    {displayBalance ?? '?'}{' '}
+                    {approvedPaymentCurrency?.symbol ??
+                      NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                   </Typography>
                 </div>
 
                 <div className={infoContainer}>
                   <Typography className={formValueGive}>You give</Typography>
                   <Typography className={formValue}>
-                    {userGiveDisplay} MOVR
+                    {userGiveDisplay}{' '}
+                    {approvedPaymentCurrency?.symbol ??
+                      NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}
                   </Typography>
                 </div>
               </>
@@ -630,12 +713,12 @@ export const PurchaseDialog = () => {
           </Button>
         ) : (
           <Button
-            onClick={async () => {       
+            onClick={async () => {
               setFinalTxSubmitted(true);
               try {
                 await fillOrderCallback?.();
               } catch (err) {
-                setGlobalError(err)
+                setGlobalError(err);
                 setFinalTxSubmitted(false);
               }
             }}
@@ -664,7 +747,7 @@ export const PurchaseDialog = () => {
 
   return (
     <Dialog
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth={true}
       open={isPurchaseDialogOpen}
       onClose={loading ? undefined : handleClose}

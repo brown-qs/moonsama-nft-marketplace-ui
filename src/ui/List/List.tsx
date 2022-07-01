@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
-import ListMaterial from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
-import Divider from '@material-ui/core/Divider';
+import ListMaterial from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
+import Divider from '@mui/material/Divider';
 
-import { useThemeOptions } from 'hooks';
+import { useClasses, useThemeOptions } from 'hooks';
 
-import { useStyles } from './List.styles';
+import { styles } from './List.styles';
 
 import WhiteLogo from 'assets/images/logo_white.svg';
 import Logo from 'assets/images/logo.svg';
@@ -23,7 +23,7 @@ type ListProps = {
 
 export const List = ({ listItems }: ListProps) => {
   const { isDarkTheme } = useThemeOptions();
-  const { divider } = useStyles();
+  const { divider } = useClasses(styles);
   return (
     <ListMaterial>
       {listItems.map(({ primaryText, image, secondaryText }) => (

@@ -1,13 +1,13 @@
 import { useWeb3React } from '@web3-react/core';
 import { network } from 'connectors';
 import { NetworkContextName } from '../../constants';
-import { useEagerConnect, useInactiveListener } from 'hooks';
+import { useClasses, useEagerConnect, useInactiveListener } from 'hooks';
 import { useEffect, useState } from 'react';
-import { useStyles } from './Web3ReactManager.styles';
-import { CircularProgress } from '@material-ui/core';
+import { styles as style } from './Web3ReactManager.styles';
+import { CircularProgress } from '@mui/material';
 
 export const Web3ReactManager = ({ children }: { children: JSX.Element }) => {
-  const styles = useStyles();
+  const styles = useClasses(style);
   const { active } = useWeb3React();
   const {
     active: networkActive,

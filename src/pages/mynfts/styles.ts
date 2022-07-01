@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   placeholderContainer: {
     width: '100%',
     display: 'flex',
@@ -22,4 +22,4 @@ export const useStyles = makeStyles((theme) => ({
     marginTop: 12,
     textAlign: 'left',
   },
-}));
+});

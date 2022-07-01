@@ -22,6 +22,8 @@ export const QUERY_LAST_TRADED_PRICE = (assetEntityId: string) => gql`
       amount
       unitPrice
       orderType
+      askPerUnitNominator
+      askPerUnitDenominator
     }
   }
 `;

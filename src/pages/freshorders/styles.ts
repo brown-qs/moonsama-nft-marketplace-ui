@@ -1,8 +1,7 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   pageContainer: {
-    paddingTop: theme.spacing(1),
     marginBottom: theme.spacing(5),
   },
   placeholderContainer: {
@@ -67,4 +66,4 @@ export const useStyles = makeStyles((theme) => ({
       borderColor: '#710021 !important',
     },
   },
-}));
+});

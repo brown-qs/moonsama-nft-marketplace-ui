@@ -1,4 +1,4 @@
-import { SvgIconProps, useTheme } from '@material-ui/core';
+import { SvgIconProps, useTheme } from '@mui/material';
 
 export const SearchIcon = (props: SvgIconProps) => {
   const theme = useTheme();

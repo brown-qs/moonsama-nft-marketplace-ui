@@ -118,7 +118,7 @@ export const tryMultiCallCore = async (
 
     const retarray = await multi.callStatic.tryAggregate(
       requireSuccess,
-      calls.map((call, i: number) => {
+      calls.map((call) => {
         const itf = new Interface(call[0]);
         return [
           call[1].toLowerCase(),

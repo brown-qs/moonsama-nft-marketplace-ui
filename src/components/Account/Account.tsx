@@ -1,33 +1,33 @@
 import { Button } from 'ui';
 import { HeaderBalance } from 'components/HeaderBalance/HeaderBalance';
 import { UnsupportedChainIdError } from '@web3-react/core';
-import { useAccountDialog, useActiveWeb3React } from 'hooks';
+import { useAccountDialog, useActiveWeb3React, useClasses } from 'hooks';
 import { truncateAddress } from 'utils';
 import Identicon from 'components/Identicon/Identicon';
-import Power from '@mui/icons-material/Power';
-import { Activity, Key } from 'react-feather';
-import { useMediaQuery } from 'beautiful-react-hooks';
+import { Activity } from 'react-feather';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWalletSharp';
-import { useStyles } from './Account.styles';
+import { styles } from './Account.styles';
 
 export const Account = () => {
   const { account, error } = useActiveWeb3React();
   const { setAccountDialogOpen } = useAccountDialog();
-  const hideAddress = useMediaQuery(`(max-width: 500px)`);
+  const theme = useTheme()
+  const hideAddress = useMediaQuery(theme.breakpoints.down('sm'));
 
   const showError = error ? true : false;
   const errMessage =
     error instanceof UnsupportedChainIdError ? 'Wrong Network' : 'Error';
 
-  const { button } = useStyles();
+  const { button } = useClasses(styles);
 
   return (
-    <>
       <Button
         className={button}
         size="medium"
         onClick={() => setAccountDialogOpen(true)}
-      >
+      > 
         {account && <HeaderBalance />}
 
         {showError ? (
@@ -55,6 +55,5 @@ export const Account = () => {
           'Connect'
         )}
       </Button>
-    </>
   );
 };

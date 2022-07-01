@@ -15,6 +15,8 @@ export const Media = ({
   const { getMediaType, mediaUrl, isLoading } = useFileType(uri);
   const mediaType = getMediaType();
 
+  //console.log('MEDIA', {mediaUrl, isLoading, mediaType})
+
   if (!mediaUrl) {
     return null;
   }

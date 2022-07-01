@@ -1,9 +1,11 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
 import {
+  DEFAULT_CHAIN,
   DEFAULT_ORDERBOOK_PAGINATION,
+  MARKETPLACE_SUBGRAPH_URLS,
   SUBGRAPH_MAX_BLOCK_DELAY,
-  SUBGRAPH_URL,
+  
 } from '../../constants';
 import { QUERY_USER_ACTIVE_ORDERS } from '../../subgraph/orderQueries';
 import { Order } from './types';
@@ -26,7 +28,7 @@ export const useUserOrders = ({
   num = DEFAULT_ORDERBOOK_PAGINATION,
 }: UserOrdersQuery) => {
   const blockNumber = useBlockNumber();
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
 
   console.log('useUserOrders', blockNumber);
 
@@ -38,7 +40,7 @@ export const useUserOrders = ({
       from,
       num as number
     );
-    const response = await request(SUBGRAPH_URL, query);
+    const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
 
     console.debug('YOLO useUserOrders', response);
 
@@ -61,11 +63,11 @@ export const useUserOrders = ({
     setResult({
       userOrders,
     });
-  }, [blockNumber, account]);
+  }, [blockNumber, account, chainId]);
 
   useEffect(() => {
     fetchAssetOrders();
-  }, [blockNumber, account]);
+  }, [blockNumber, account, chainId]);
 
   return result;
 };

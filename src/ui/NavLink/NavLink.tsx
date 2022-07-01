@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import MaterialLink from '@material-ui/core/Link';
-import { useStyles } from './NavLink.styles';
-import { Typography } from '@material-ui/core';
+import { theme } from 'theme/Theme';
+import { StyledNav } from './NavLink.styles';
 
 export const NavLink = ({
   href,
@@ -13,21 +11,13 @@ export const NavLink = ({
   className?: string;
   href: string;
 }) => {
-  const {
-    location: { pathname },
-  } = useHistory();
-  const isActive = pathname === href;
-  const { link } = useStyles({ isActive });
   return (
-    <Link to={href}>
-      <MaterialLink
-        component={Typography}
-        className={`${link} ${className}`}
-        color="inherit"
-        underline="none"
-      >
-        {children}
-      </MaterialLink>
-    </Link>
+    <StyledNav
+      to={href}
+      style={({ isActive }) => ({ color: isActive ? theme.palette.text.primary : '' })}
+      className={className}
+    >
+      {children}
+    </StyledNav>
   );
 };

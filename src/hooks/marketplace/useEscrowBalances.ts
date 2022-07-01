@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { request } from 'graphql-request';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import {
   QUERY_ESCROW_BALANCES_OF_USER,
   QUERY_NONZERO_ESCROW_BALANCES_OF_USER,
@@ -12,7 +12,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { stringToStringAssetType } from 'utils/subgraph';
 
 export const useEscrowBalances = (nonzero: boolean = false) => {
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const blockNumber = useBlockNumber();
 
   console.debug('YOLO getEscrowBalances', { nonzero, blockNumber });
@@ -23,22 +23,8 @@ export const useEscrowBalances = (nonzero: boolean = false) => {
     if (!account) {
       return;
     }
-
-    /*
-        const result = blockNumber
-        ? await request(
-            SUBGRAPH_URL,
-            nonzero ? queryNonZeroEscrowBalancesOfUserAtBlock : queryEscrowBalancesOfUserAtBlock,
-            { user: userAddress, block: { number: blockNumber } }
-            )
-        : await request(
-            SUBGRAPH_URL,
-            nonzero ? queryNonZeroEscrowBalancesOfUser : queryEscrowBalancesOfUser,
-            { user: userAddress }
-            );
-        */
     const result = await request(
-      SUBGRAPH_URL,
+      MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
       nonzero
         ? QUERY_NONZERO_ESCROW_BALANCES_OF_USER
         : QUERY_ESCROW_BALANCES_OF_USER,

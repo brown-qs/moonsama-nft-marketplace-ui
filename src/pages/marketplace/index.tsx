@@ -1,5 +1,5 @@
 import { GlitchText } from 'ui';
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { styled } from '@mui/material';
 import { useERC20Contract } from 'hooks/useContracts/useContracts';
 import { useActiveWeb3React } from 'hooks';
 import { useMarketplaceBalances } from 'hooks/marketplace/useMarketplaceBalances';
@@ -18,18 +18,15 @@ import {
 import { compareDesc } from 'date-fns';
 import { assetTypeToStringAssetType } from 'utils/subgraph';
 
-const useStyles = makeStyles(() => ({
-  container: {
-    textAlign: 'center',
-  },
-}));
+const StyledContainer = styled('div')`
+  tex-align: center;
+`;
 
 const MarketplacePage = () => {
-  const { container } = useStyles();
   /*
   const { account } = useActiveWeb3React();
 
-  
+  f
   console.log(account);
 
   const s = useERC20Contract('0xDC5b69374207a18e75F7cdCf5176CA63911e690d');
@@ -50,8 +47,8 @@ const MarketplacePage = () => {
   //const x = useMulticall2Static(s?.interface.fragments as any[], [['0xDC5b69374207a18e75F7cdCf5176CA63911e690d', 'balanceOf', [account]], ['0x1369eA55a479CC2A334ACa55e250DC5161677442', 'balanceOf', [account]]])
 
   const x = useMarketplaceBalances([
-    {
-      tokenAddress: '0xDC5b69374207a18e75F7cdCf5176CA63911e690d',
+ 
+    tokenAddress: '0xDC5b69374207a18e75F7cdCf5176CA63911e690d',
       tokenId: '0',
       tokenType: AssetType.ERC20,
       userAddress: account as string,
@@ -97,9 +94,9 @@ const MarketplacePage = () => {
   */
 
   return (
-    <div className={container}>
+    <StyledContainer>
       <GlitchText>Marketplace is coming soon, biatch!</GlitchText>
-    </div>
+    </StyledContainer>
   );
 };
 

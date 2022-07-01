@@ -1,21 +1,26 @@
 import { ReactNode, useState, createContext, useContext } from 'react';
-import MaterialTable, { TableProps } from '@material-ui/core/Table';
-import MaterialTableBody, { TableBodyProps } from '@material-ui/core/TableBody';
-import MaterialTableCell, { TableCellProps } from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead, { TableHeadProps } from '@material-ui/core/TableHead';
-import MaterialTableRow, { TableRowProps } from '@material-ui/core/TableRow';
-import Collapse from '@material-ui/core/Collapse';
-import IconButton from '@material-ui/core/IconButton';
+import MaterialTable, { TableProps } from '@mui/material/Table';
+import MaterialTableBody, { TableBodyProps } from '@mui/material/TableBody';
+import MaterialTableCell, { TableCellProps } from '@mui/material/TableCell';
+import MaterialTableSortLabel, { TableSortLabelProps } from '@mui/material/TableSortLabel';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead, { TableHeadProps } from '@mui/material/TableHead';
+import MaterialTableRow, { TableRowProps } from '@mui/material/TableRow';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import { tableStyles } from './Table.styles';
+import { useClasses } from 'hooks';
 
 const TableContext = createContext<{ isExpandable?: boolean }>({});
 
 export const TableCell = ({ children, ...props }: TableCellProps) => {
   return <MaterialTableCell {...props}>{children}</MaterialTableCell>;
+};
+export const TableSortLabel = ({ children, ...props }: TableSortLabelProps) => {
+  return <MaterialTableSortLabel {...props}>{children}</MaterialTableSortLabel>;
 };
 
 export const TableRow = ({
@@ -26,7 +31,7 @@ export const TableRow = ({
   const [open, setOpen] = useState<boolean>(false);
   const { isExpandable } = useContext(TableContext);
 
-  const { rowInfo } = tableStyles();
+  const { rowInfo } = useClasses(tableStyles);
 
   return (
     <>

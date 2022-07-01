@@ -1,6 +1,4 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
-
-export const useStyles = makeStyles(() => ({
+export const styles = () => ({
   image: {
     width: '100%',
     height: 'auto',
@@ -8,4 +6,4 @@ export const useStyles = makeStyles(() => ({
   imageNotShow: {
     display: 'none',
   },
-}));
+});

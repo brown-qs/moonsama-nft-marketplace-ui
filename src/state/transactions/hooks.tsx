@@ -33,6 +33,14 @@ export function useTransactionAdder(): (
       asset: Asset;
       amount: BigNumber;
     };
+    craft?: {
+      blueprintId: string;
+      amount: string;
+    },
+    burn?: {
+      assetAddress: string;
+      assetId: string;
+    }
     claim?: { recipient: string };
   }
 ) => void {
@@ -49,6 +57,8 @@ export function useTransactionAdder(): (
         fill,
         cancel,
         transfer,
+        craft,
+        burn
       }: {
         summary?: string;
         claim?: { recipient: string };
@@ -70,6 +80,14 @@ export function useTransactionAdder(): (
           asset: Asset;
           amount: BigNumber;
         };
+        craft?: {
+          blueprintId: string;
+          amount: string;
+        };
+        burn?: {
+          assetAddress: string;
+          assetId: string;
+        }
       } = {}
     ) => {
       if (!account) return;
@@ -90,6 +108,8 @@ export function useTransactionAdder(): (
           fill,
           cancel,
           transfer,
+          craft,
+          burn
         })
       );
     },
@@ -150,7 +170,8 @@ export function useSortedTransactions() {
 export function useHasPendingApproval(
   tokenAddress: string | undefined,
   spender: string | undefined,
-  tokenType: StringAssetType | undefined
+  tokenType: StringAssetType | undefined,
+  tokenId: string | undefined
 ): boolean {
   const allTransactions = useAllTransactions();
   return useMemo(
@@ -170,12 +191,35 @@ export function useHasPendingApproval(
             approval.spender === spender &&
             approval.tokenAddress === tokenAddress &&
             approval.tokenType.valueOf() === tokenType.valueOf() &&
+            //approval.tokenId === tokenId &&
             isTransactionRecent(tx)
           );
         }
       }),
     [allTransactions, spender, tokenAddress, tokenType]
   );
+}
+
+export function usePendingBurnTx(assetAddress?: string, assetId?: string): {
+  burnSubmitted: boolean;
+  burnTx: TransactionDetails | undefined;
+} {
+  const allTransactions = useAllTransactions();
+  useIsTransactionPending()
+
+  // get the txn if it has been submitted
+  const burnTx = useMemo(() => {
+    const txIndex = Object.keys(allTransactions).find((hash) => {
+      const tx = allTransactions[hash];
+      return tx.burn && assetAddress && tx.burn.assetAddress === assetAddress && assetId && tx.burn.assetId === assetId;
+    });
+    const tx = txIndex && allTransactions[txIndex]
+      ? allTransactions[txIndex]
+      : undefined;
+    return tx
+  }, [allTransactions]);
+
+  return { burnSubmitted: Boolean(burnTx), burnTx };
 }
 
 export function useSubmittedOrderTx(orderHash?: string): {

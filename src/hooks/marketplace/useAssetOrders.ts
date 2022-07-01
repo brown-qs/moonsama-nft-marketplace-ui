@@ -1,10 +1,11 @@
 import { request } from 'graphql-request';
 import { useBlockNumber } from 'state/application/hooks';
-import { SUBGRAPH_MAX_BLOCK_DELAY, SUBGRAPH_URL } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, SUBGRAPH_MAX_BLOCK_DELAY } from '../../constants';
 import { QUERY_ASSET_ORDERS } from '../../subgraph/orderQueries';
 import { Order } from './types';
 import { getAssetEntityId, parseOrder } from '../../utils/subgraph';
 import { useState, useCallback, useEffect } from 'react';
+import { useActiveWeb3React } from 'hooks';
 
 export const useAssetOrders = (
   assetAddress: string,
@@ -12,23 +13,16 @@ export const useAssetOrders = (
   isBuy = false,
   onlyActive = false
 ) => {
+
+  const {chainId} = useActiveWeb3React()
   const blockNumber = useBlockNumber();
 
   const [orders, setOrders] = useState<Order[] | undefined>();
 
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
-    /*
-    const result = blockNumber
-      ? await request(SUBGRAPH_URL, QUERY_ASSET_ORDERS_AT_BLOCK(isBuy, onlyActive), {
-          asset: assetEntityId,
-          block: { number: blockNumber },
-        })
-      : await request(SUBGRAPH_URL, QUERY_ASSET_ORDERS(isBuy, onlyActive), { asset: assetEntityId });
-  
-    */
     const result = await request(
-      SUBGRAPH_URL,
+      MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
       QUERY_ASSET_ORDERS(isBuy, onlyActive, assetEntityId)
     );
 
@@ -66,21 +60,22 @@ export const useAssetOrdersCallback = (
   isBuy = false,
   onlyActive = false
 ) => {
+  const {chainId} = useActiveWeb3React()
   const fetchAssetOrders = useCallback(async () => {
     const assetEntityId = getAssetEntityId(assetAddress, assetId);
 
     const result = await request(
-      SUBGRAPH_URL,
+      MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
       QUERY_ASSET_ORDERS(isBuy, onlyActive, assetEntityId)
     );
     const orders = result?.orders;
 
     if (!orders) {
-      return []
+      return [];
     }
     const res = orders.map((x: any) => parseOrder(x));
-    return res
-  }, [assetAddress, assetId, onlyActive, isBuy]);
+    return res;
+  }, [chainId, assetAddress, assetId, onlyActive, isBuy]);
 
   return fetchAssetOrders;
 };

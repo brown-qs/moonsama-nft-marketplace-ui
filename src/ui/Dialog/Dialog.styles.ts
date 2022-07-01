@@ -1,6 +1,6 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@mui/material';
 
-export const useStyles = makeStyles((theme) => ({
+export const styles = (theme: Theme) => ({
   dialogContainer: {
     background: 'rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(5px)',
@@ -22,4 +22,4 @@ export const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     fontSize: 32,
   },
-}));
+});

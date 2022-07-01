@@ -1,14 +1,12 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import {
   Button,
   FormControl,
   InputAdornment,
-  MenuItem,
   OutlinedInput,
-  Select,
-} from '@material-ui/core';
+} from '@mui/material';
 import { appStyles } from '../../app.styles';
 import { CoinQuantityFieldStyles } from './CoinQuantityField.styles';
+import { useClasses } from '../../hooks';
 
 export enum UNIT {
   ETHER = 1,
@@ -16,21 +14,16 @@ export enum UNIT {
 }
 
 export const CoinQuantityField = (props: any) => {
-  const setUnit = props.setUnit;
   const value: string = props.value ?? undefined;
   const setValue = props.setValue;
   const setMaxValue = props.setMaxValue;
   const withMaxButton = props.withMaxButton ?? false;
 
-  const { formMaxButton } = appStyles();
-  const { outlinedInput, coinSelect } = CoinQuantityFieldStyles();
+  const { formMaxButton } = useClasses(appStyles);
+  const { outlinedInput } = useClasses(CoinQuantityFieldStyles);
 
   const _setMaxNumber = () => {
     setMaxValue?.();
-  };
-
-  const onUnitChange = (event: any) => {
-    setUnit?.(event.target.value);
   };
 
   const onValueChange = (event: any) => {
@@ -44,11 +37,8 @@ export const CoinQuantityField = (props: any) => {
           id={props.id}
           type="text"
           className={outlinedInput}
-          //inputProps={{ min: 0 }}
-          // onChange={(event: any) => inputToBigNum(event.target.value, setSendAmount)}
           onChange={onValueChange}
           value={value}
-          labelWidth={0}
           endAdornment={
             withMaxButton ? (
               <InputAdornment position="end">

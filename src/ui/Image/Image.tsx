@@ -1,10 +1,11 @@
-import React, { ImgHTMLAttributes, useEffect, useState } from 'react';
-import { useStyles } from './Image.styles';
+import { useClasses } from 'hooks';
+import React, { ImgHTMLAttributes, useState } from 'react';
 import { Loader } from 'ui';
+import { styles } from './Image.styles';
 
 export const Image = (props: ImgHTMLAttributes<any>) => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const { image, imageNotShow } = useStyles();
+  const { image, imageNotShow } = useClasses(styles);
 
   const handleLoad = () => {
     setLoaded(true);
