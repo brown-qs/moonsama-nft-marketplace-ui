@@ -319,7 +319,7 @@ export const AccountDialog = () => {
 
   function getModalContent() {
     console.log("121312321", { isMobile, error, connector, walletView, account})
-    if (error) {
+    if (error || isMobile) {
       return (
         <div className={styles.dialogContainer}>
           {(error instanceof UnsupportedChainIdError || isMobile) && <>
@@ -347,7 +347,7 @@ export const AccountDialog = () => {
             </Button>
           </>}
 
-          {!(error instanceof UnsupportedChainIdError) && <>
+          {!(error instanceof UnsupportedChainIdError || isMobile) && <>
             <div>
               Something went wrong
             </div>
