@@ -25,7 +25,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import useAddNetworkToMetamaskCb from 'hooks/useAddNetworkToMetamask/useAddNetworkToMetamask';
 import { ChainId } from '../../constants';
-import detectEthereumProvider from '@metamask/detect-provider';
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
@@ -45,7 +44,7 @@ export const AccountDialog = () => {
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT);
 
   const sortedRecentTransactions = useSortedRecentTransactions();
-  const { addNetwork } = useAddNetworkToMetamaskCb();
+  const {addNetwork} = useAddNetworkToMetamaskCb()
 
   const pendingTransactions = sortedRecentTransactions
     .filter((tx) => !tx.receipt)
@@ -56,47 +55,11 @@ export const AccountDialog = () => {
 
   const { isAccountDialogOpen, setAccountDialogOpen } = useAccountDialog();
   // error reporting not working (e.g. on unsupported chain id)
-  const [chainId, setChainId] = useState<number>();
-  const [account, setAccount] = useState<string>("");
-  const { connector, active, error, activate, deactivate } =
+  const { chainId, account, connector, active, error, activate, deactivate } =
     useWeb3React();
   const previousAccount = usePrevious(account);
 
-  const fetchWeb3Data = useCallback(() => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const provider: any = await detectEthereumProvider({
-          mustBeMetaMask: true,
-        });
-        const id = await provider.request({ method: 'eth_chainId' });
-        const accounts = await provider.request({
-          method: 'eth_requestAccounts',
-        });
-        console.log('useActiveWeb3React1', provider, id, accounts);
-        resolve({ id: id, accounts: accounts });
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }, []);
 
-  useEffect(() => {
-    fetchWeb3Data().then((data:any) => {
-      setChainId(data.id)
-      setAccount(data.accounts[0])
-    })
-  },[])
-
-  console.log('isAccountDialogOpen', {
-    previousAccount,
-    chainId,
-    account,
-    connector,
-    active,
-    error,
-    activate,
-    deactivate,
-  });
 
   // close on connection, when logged out before
   useEffect(() => {
@@ -230,18 +193,11 @@ export const AccountDialog = () => {
 
   function getOptions() {
     const isMetamask = window.ethereum && window.ethereum.isMetaMask;
-    console.debug('getOptions isMetamask', isMetamask);
+    console.debug('getOptions isMetamask', isMetamask)
     return Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
-      console.log('Option: ', {
-        isMobile,
-        key,
-        option,
-        isMetamask,
-        ww3: !!window.web3,
-        we: !!window.ethereum,
-      });
+      console.log('Option: ', {isMobile, key, option, isMetamask, ww3: !!window.web3, we: !!window.ethereum})
       if (isMobile) {
         //disable portis on mobile for now
         //if (option.connector === portis) {
@@ -362,41 +318,41 @@ export const AccountDialog = () => {
   */
 
   function getModalContent() {
-    console.log('1111111', { isMobile, error, connector, walletView, account });
+    console.log("1111111", { isMobile, error, connector, walletView, account})
     if (error) {
       return (
         <div className={styles.dialogContainer}>
-          {error instanceof UnsupportedChainIdError && (
-            <>
-              <div>Wrong Network</div>
-              <h5>Please connect to the appropriate Ethereum network.</h5>
-              <Button
-                //className={formButton}
-                onClick={() => {
-                  addNetwork(ChainId.MOONRIVER);
-                }}
-                color="primary"
-              >
-                Switch to Moonriver
-              </Button>
-              <Button
-                //className={formButton}
-                onClick={() => {
-                  addNetwork(ChainId.MOONBEAM);
-                }}
-                color="primary"
-              >
-                Switch to Moonbeam
-              </Button>
-            </>
-          )}
+          {(error instanceof UnsupportedChainIdError) && <>
+            <div>
+              Wrong Network
+            </div>
+            <h5>Please connect to the appropriate Ethereum network.</h5>
+            <Button
+              //className={formButton}
+              onClick={() => {
+                addNetwork(ChainId.MOONRIVER)
+              }}
+              color="primary"
+            >
+              Switch to Moonriver
+            </Button>
+            <Button
+              //className={formButton}
+              onClick={() => {
+                addNetwork(ChainId.MOONBEAM)
+              }}
+              color="primary"
+            >
+              Switch to Moonbeam
+            </Button>
+          </>}
 
-          {!(error instanceof UnsupportedChainIdError) && (
-            <>
-              <div>Something went wrong!</div>
-              <h5>Error connecting. Try refreshing the page.</h5>
-            </>
-          )}
+          {!(error instanceof UnsupportedChainIdError) && <>
+            <div>
+              Something went wrong!
+            </div>
+            <h5>Error connecting. Try refreshing the page.</h5>
+          </>}
         </div>
       );
     }
@@ -408,7 +364,7 @@ export const AccountDialog = () => {
             {showConnectedAccountDetails()}
           </div>
           {account &&
-          (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
+            (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
             <div className={styles.lowerSection}>
               <div className={styles.autoRow}>
                 <Typography>Recent transactions</Typography>
