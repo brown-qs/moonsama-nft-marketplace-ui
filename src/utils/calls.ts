@@ -3,6 +3,7 @@ import { Asset } from 'hooks/marketplace/types';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { parseTokenUri } from 'utils';
 import { StringAssetType } from './subgraph';
+import detectEthereumProvider from '@metamask/detect-provider';
 
 export const getTokenStaticCalldata = (asset: Asset) => {
   if (!asset || !asset.assetAddress || !asset.assetId || !asset.assetType) {
@@ -224,3 +225,20 @@ export const processTokenStaticCallResults = (
   });
   return res;
 };
+
+export const fetchWeb3Data = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const provider: any = await detectEthereumProvider({
+        mustBeMetaMask: true,
+      });
+      const id = await provider.request({ method: 'eth_chainId' });
+      const accounts = await provider.request({
+        method: 'eth_requestAccounts',
+      });
+      resolve({ id: id, accounts: accounts });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

@@ -25,7 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import useAddNetworkToMetamaskCb from 'hooks/useAddNetworkToMetamask/useAddNetworkToMetamask';
 import { ChainId } from '../../constants';
-import detectEthereumProvider from '@metamask/detect-provider';
+import { fetchWeb3Data } from 'utils/calls';
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
@@ -56,36 +56,17 @@ export const AccountDialog = () => {
 
   const { isAccountDialogOpen, setAccountDialogOpen } = useAccountDialog();
   // error reporting not working (e.g. on unsupported chain id)
+  const { connector, active, error, activate, deactivate } = useWeb3React();
   const [chainId, setChainId] = useState<number>();
-  const [account, setAccount] = useState<string>("");
-  const { connector, active, error, activate, deactivate } =
-    useWeb3React();
+  const [account, setAccount] = useState<string>('');
   const previousAccount = usePrevious(account);
 
-  const fetchWeb3Data = useCallback(() => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const provider: any = await detectEthereumProvider({
-          mustBeMetaMask: true,
-        });
-        const id = await provider.request({ method: 'eth_chainId' });
-        const accounts = await provider.request({
-          method: 'eth_requestAccounts',
-        });
-        console.log('useActiveWeb3React1', provider, id, accounts);
-        resolve({ id: id, accounts: accounts });
-      } catch (err) {
-        reject(err);
-      }
+  useEffect(() => {
+    fetchWeb3Data().then((data: any) => {
+      setChainId(data.id);
+      setAccount(data.accounts[0]);
     });
   }, []);
-
-  useEffect(() => {
-    fetchWeb3Data().then((data:any) => {
-      setChainId(data.id)
-      setAccount(data.accounts[0])
-    })
-  },[])
 
   console.log('isAccountDialogOpen', {
     previousAccount,
