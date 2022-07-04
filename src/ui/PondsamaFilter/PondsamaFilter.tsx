@@ -597,7 +597,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                 aria-controls="panel2a-content"
                 id="panel2a-header"
               >
-                <Typography className={accordionHeader}>Nature:</Typography>
+                <Typography className={accordionHeader}>Skill:</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <div className={pondsamaAccordionContent}>
