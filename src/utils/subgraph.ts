@@ -32,12 +32,6 @@ export const enum OwnedFilterType {
   NOTOWNED = 2,
 }
 
-export const enum NeonOrOrganicType {
-  ALL = 0,
-  NEON = 1,
-  ORGANIC = 2,
-}
-
 export enum StringAssetType {
   UNKNOWN = 'UNKNOWN',
   NATIVE = 'NATIVE',

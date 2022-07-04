@@ -78,7 +78,7 @@ export const MOONSAMA_TRAITS = {
   Crown: 2,
 };
 
-export const PONDSAMA_TRAITS = {
+export const PONDSAMA_NATURE_TRAITS = {
   Calm: 1,
   Pacific: 2,
   Lazy: 3,
@@ -91,6 +91,9 @@ export const PONDSAMA_TRAITS = {
   Impatient: 10,
   Shy: 11,
   Swift: 12,
+};
+
+export const PONDSAMA_PASSIVE_TRAITS = {
   'Erratic Mimicry': 13,
   'Acquired Taste': 14,
   'Reckless Response': 15,
@@ -117,6 +120,9 @@ export const PONDSAMA_TRAITS = {
   'Heroic Stance': 29,
   'Hardening Scales': 29,
   Masochism: 29,
+};
+
+export const PONDSAMA_SkILL_TRAITS = {
   'Entropic Wave': 29,
   'Jack of All Trades': 29,
   'Lottery Day': 29,
