@@ -6,6 +6,8 @@ import { TokenMeta } from '../../hooks/useFetchTokenUri.ts/useFetchTokenUri.type
 import {
   useLatestBuyOrdersForTokenWithStaticCallback,
   useLatestSellOrdersForTokenWithStaticCallback,
+  useLatestSellOrdersForTokenTotalSupplyWithStaticCallback,
+  useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback,
 } from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
 import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
@@ -137,6 +139,9 @@ const FreshOrdersPage = () => {
   );
   const [page, setPage] = useState<number>(pageParam);
   const [currentTab, setCurrentTab] = useState<number>(tabParam);
+  const [orderTotalCount, setOrderTotalCount] = useState<number>(1);
+  const [buyTotalCount, setBuyTotalCount] = useState<number>(1);
+  const [totalCount, setTotalCount] = useState<number>(1);
 
   const {
     placeholderContainer,
@@ -155,6 +160,9 @@ const FreshOrdersPage = () => {
   const getPaginatedSellOrders =
     useLatestSellOrdersForTokenWithStaticCallback();
   const getPaginatedBuyOrders = useLatestBuyOrdersForTokenWithStaticCallback();
+  const getOrderTotal =
+    useLatestSellOrdersForTokenTotalSupplyWithStaticCallback();
+  const getBuyTotal = useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback();
 
   const selectedTokenAddress =
     collections[selectedIndex]?.address?.toLowerCase();
@@ -191,55 +199,165 @@ const FreshOrdersPage = () => {
     setSellOrders([]);
     setTake(0);
     setPaginationEnded(false);
-    let newPath;
+    setPage(1);
     if (_sortBy != sortBy) {
-      newPath =
-        sampleLocation.pathname +
-        '?collIndex=' +
-        selectedIndex +
-        '&page=' +
-        page +
-        '&tab=' +
-        currentTab +
-        '&sortBy=' +
-        _sortBy +
-        '&sortDirection=asc';
+      // newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   selectedIndex +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   _sortBy +
+      //   '&sortDirection=asc';
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let tempPath = '';
+      let ind = path.search('&sortBy=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
+      } else tempPath = path + '&sortBy=' + _sortBy;
+
+      path = tempPath;
+      ind = path.search('&sortDirection=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortDirection=asc' + path.slice(ind, path.length);
+      } else tempPath = path + '&sortDirection=asc';
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
+      navigate(newPath);
       setSortBy(_sortBy);
       setSortDirection('asc');
     } else {
       let tempSortDirection: SortDirection =
         sortDirection === 'asc' ? 'desc' : 'asc';
       setSortDirection(tempSortDirection);
-      newPath =
-        sampleLocation.pathname +
-        '?collIndex=' +
-        selectedIndex +
-        '&page=' +
-        page +
-        '&tab=' +
-        currentTab +
-        '&sortBy=' +
-        _sortBy +
-        '&sortDirection=' +
-        tempSortDirection;
+      // newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   selectedIndex +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   _sortBy +
+      //   '&sortDirection=' +
+      //   tempSortDirection;
+      //   navigate(newPath);
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let tempPath = '';
+      let ind = path.search('&sortBy=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
+      } else tempPath = path + '&sortBy=' + _sortBy;
+
+      path = tempPath;
+      ind = path.search('&sortDirection=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath +
+          '&sortDirection=' +
+          tempSortDirection +
+          path.slice(ind, path.length);
+      } else tempPath = path + '&sortDirection=' + tempSortDirection;
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
     }
-    navigate(newPath);
   };
 
   const handleTabChange = (newValue: number) => {
+    if (newValue == 0) setTotalCount(orderTotalCount);
+    else setTotalCount(buyTotalCount);
     setCurrentTab(newValue);
-    let newPath =
-      sampleLocation.pathname +
-      '?collIndex=' +
-      selectedIndex +
-      '&page=' +
-      page +
-      '&tab=' +
-      newValue +
-      '&sortBy=' +
-      sortByParam +
-      '&sortDirection=' +
-      sortDirection;
+    setPage(1);
+    setTake(0);
+    // let newPath =
+    //   sampleLocation.pathname +
+    //   '?collIndex=' +
+    //   selectedIndex +
+    //   '&page=' +
+    //   page +
+    //   '&tab=' +
+    //   newValue +
+    //   '&sortBy=' +
+    //   sortByParam +
+    //   '&sortDirection=' +
+    //   sortDirection;
+    // navigate(newPath);
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let tempPath = '';
+    let newPath = sampleLocation.pathname;
+    let ind = path.search('&tab=');
+    if (ind != -1) {
+      tempPath = path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      tempPath = tempPath + '&tab=' + newValue + path.slice(ind, path.length);
+    } else tempPath = path + '&tab=' + newValue;
+
+    path = tempPath;
+    ind = path.search('&page=');
+    if (ind != -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      newPath = newPath + '&page=1' + path.slice(ind, path.length);
+    } else newPath = newPath + path + '&page=1';
     navigate(newPath);
   };
   const handleSelection = (i: number) => {
@@ -248,19 +366,46 @@ const FreshOrdersPage = () => {
       setSellOrders([]);
       setSelectedIndex(i);
       setTake(0);
+      setPage(1);
       setPaginationEnded(false);
-      let newPath =
-        sampleLocation.pathname +
-        '?collIndex=' +
-        i +
-        '&page=' +
-        page +
-        '&tab=' +
-        currentTab +
-        '&sortBy=' +
-        sortByParam +
-        '&sortDirection=' +
-        sortDirection;
+      // let newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   i +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   sortByParam +
+      //   '&sortDirection=' +
+      //   sortDirection;
+      // navigate(newPath);
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let tempPath = '';
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('collIndex=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath = tempPath + 'collIndex=' + i + path.slice(ind, path.length);
+      } else tempPath = path + 'collIndex=' + i;
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
       navigate(newPath);
     }
   };
@@ -278,21 +423,22 @@ const FreshOrdersPage = () => {
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
       if (pageLoading) return;
-      let newPath =
-        sampleLocation.pathname +
-        '?collIndex=' +
-        selectedIndex +
-        '&page=' +
-        value +
-        '&tab=' +
-        currentTab +
-        '&sortBy=' +
-        sortByParam +
-        '&sortDirection=' +
-        sortDirection;
-      navigate(newPath);
       setPage(value);
       setTake((state) => (state = PAGE_SIZE * (value - 1)));
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=' + value;
+      navigate(newPath);
     },
     []
   );
@@ -300,6 +446,28 @@ const FreshOrdersPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
+      let orderCount = await getOrderTotal(
+        selectedTokenAddress,
+        sortBy,
+        sortDirection
+      );
+      orderCount =
+        orderCount % 10
+          ? Math.floor(orderCount / 10) + 1
+          : Math.floor(orderCount / 10);
+      setOrderTotalCount(orderCount);
+      let buyCount = await getBuyTotal(
+        selectedTokenAddress,
+        sortBy,
+        sortDirection
+      );
+      setBuyTotalCount(buyCount);
+      buyCount =
+        buyCount % 10
+          ? Math.floor(buyCount / 10) + 1
+          : Math.floor(buyCount / 10);
+      if (currentTab == 0) setTotalCount(orderCount);
+      else setTotalCount(buyCount);
       let buyData = await getPaginatedBuyOrders(
         selectedTokenAddress,
         PAGE_SIZE,
@@ -473,7 +641,7 @@ const FreshOrdersPage = () => {
       )}
       <div className={placeholderContainer}>
         <Pagination
-          count={100}
+          count={totalCount}
           siblingCount={0}
           boundaryCount={2}
           color="primary"
