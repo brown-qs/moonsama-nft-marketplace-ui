@@ -55,10 +55,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     accordionContent,
     filterChip,
     priceInput,
-    filtersTitle,
-    pondsamaFilterAccordion,
-    pondsamaAccordionContent,
-    pondsamaAttributesAccordionContent
+    filtersTitle
   } = useClasses(styles);
 
   const [searchParams] = useSearchParams();
@@ -236,22 +233,25 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                   label="Active buy order"
                   variant="outlined"
                   onClick={() => handleOrderTypeClick(OrderType.BUY)}
-                  className={`${filterChip} ${selectedOrderType === OrderType.BUY && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedOrderType === OrderType.BUY && 'selected'
+                  }`}
                 />
                 <Chip
                   label="Active sell order"
                   variant="outlined"
                   onClick={() => handleOrderTypeClick(OrderType.SELL)}
-                  className={`${filterChip} ${selectedOrderType === OrderType.SELL && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedOrderType === OrderType.SELL && 'selected'
+                  }`}
                 />
                 <Chip
                   label="None"
                   variant="outlined"
                   onClick={() => handleOrderTypeClick(undefined)}
-                  className={`${filterChip} ${selectedOrderType === undefined && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedOrderType === undefined && 'selected'
+                  }`}
                 />
               </div>
             </AccordionDetails>
@@ -307,11 +307,10 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                   <Chip
                     label="Owned"
                     variant="outlined"
-                    onClick={() =>
-                      handleOwnedTypeClick(OwnedFilterType.OWNED)
-                    }
-                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.OWNED && 'selected'
-                      }`}
+                    onClick={() => handleOwnedTypeClick(OwnedFilterType.OWNED)}
+                    className={`${filterChip} ${
+                      selectedOwnedType == OwnedFilterType.OWNED && 'selected'
+                    }`}
                   />
                   <Chip
                     label="Not OWned"
@@ -319,16 +318,18 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     onClick={() =>
                       handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
                     }
-                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.NOTOWNED &&
+                    className={`${filterChip} ${
+                      selectedOwnedType == OwnedFilterType.NOTOWNED &&
                       'selected'
-                      }`}
+                    }`}
                   />
                   <Chip
                     label="All"
                     variant="outlined"
                     onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
-                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.All && 'selected'
-                      }`}
+                    className={`${filterChip} ${
+                      selectedOwnedType == OwnedFilterType.All && 'selected'
+                    }`}
                   />
                 </div>
               ) : (
@@ -346,9 +347,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
-              <Typography className={accordionHeader}>
-                PondsamaType
-              </Typography>
+              <Typography className={accordionHeader}>PondsamaType</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <div className={accordionContent}>
@@ -356,15 +355,17 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                   label="Neon"
                   variant="outlined"
                   onClick={() => handlePondTraitClick('Neon')}
-                  className={`${filterChip} ${selectedPondTraits.includes('Neon') && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedPondTraits.includes('Neon') && 'selected'
+                  }`}
                 />
                 <Chip
                   label="Organic"
                   variant="outlined"
                   onClick={() => handlePondTraitClick('Organic')}
-                  className={`${filterChip} ${selectedPondTraits.includes('Organic') && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedPondTraits.includes('Organic') && 'selected'
+                  }`}
                 />
               </div>
             </AccordionDetails>
@@ -383,31 +384,30 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                   label="Spelly"
                   variant="outlined"
                   onClick={() => handlePondTraitClick('Spelly')}
-                  className={`${filterChip} ${selectedPondTraits.includes('Spelly') && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedPondTraits.includes('Spelly') && 'selected'
+                  }`}
                 />
                 <Chip
                   label="Nimbus"
                   variant="outlined"
                   onClick={() => handlePondTraitClick('Nimbus')}
-                  className={`${filterChip} ${selectedPondTraits.includes('Nimbus') && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedPondTraits.includes('Nimbus') && 'selected'
+                  }`}
                 />
                 <Chip
                   label="Bambo"
                   variant="outlined"
                   onClick={() => handlePondTraitClick('Bambo')}
-                  className={`${filterChip} ${selectedPondTraits.includes('Bambo') && 'selected'
-                    }`}
+                  className={`${filterChip} ${
+                    selectedPondTraits.includes('Bambo') && 'selected'
+                  }`}
                 />
               </div>
             </AccordionDetails>
           </Accordion>
-          <Accordion
-            defaultExpanded
-            square
-            className={pondsamaFilterAccordion}
-          >
+          <Accordion defaultExpanded square className={filterAccordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel2a-content"
@@ -417,8 +417,8 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
             </AccordionSummary>
             <AccordionDetails>
               <Stack
-                className={pondsamaAttributesAccordionContent}
-                direction={{ xs: 'column'}}
+                className={accordionContent}
+                direction={{ xs: 'column' }}
                 spacing={{ xs: 1 }}
                 justifyContent="flex-start"
                 alignItems="strech"
@@ -530,15 +530,16 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
               <Typography className={accordionHeader}>Nature</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <div className={pondsamaAccordionContent}>
+              <div className={accordionContent}>
                 {Object.keys(PONDSAMA_NATURE_TRAITS).map((trait, i) => (
                   <Chip
                     label={trait}
                     key={`${trait}-${i}`}
                     variant="outlined"
                     onClick={() => handlePondTraitClick(trait)}
-                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
-                      }`}
+                    className={`${filterChip} ${
+                      selectedPondTraits.includes(trait) && 'selected'
+                    }`}
                   />
                 ))}
               </div>
@@ -555,15 +556,16 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <div className={pondsamaAccordionContent}>
+              <div className={accordionContent}>
                 {Object.keys(PONDSAMA_PASSIVE_TRAITS).map((trait, i) => (
                   <Chip
                     label={trait}
                     key={`${trait}-${i}`}
                     variant="outlined"
                     onClick={() => handlePondTraitClick(trait)}
-                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
-                      }`}
+                    className={`${filterChip} ${
+                      selectedPondTraits.includes(trait) && 'selected'
+                    }`}
                   />
                 ))}
               </div>
@@ -578,15 +580,16 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
               <Typography className={accordionHeader}>Skill</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <div className={pondsamaAccordionContent}>
+              <div className={accordionContent}>
                 {Object.keys(PONDSAMA_SkILL_TRAITS).map((trait, i) => (
                   <Chip
                     label={trait}
                     key={`${trait}-${i}`}
                     variant="outlined"
                     onClick={() => handlePondTraitClick(trait)}
-                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
-                      }`}
+                    className={`${filterChip} ${
+                      selectedPondTraits.includes(trait) && 'selected'
+                    }`}
                   />
                 ))}
               </div>
