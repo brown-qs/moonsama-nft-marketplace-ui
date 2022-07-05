@@ -309,7 +309,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOwnedTypeClick(OwnedFilterType.OWNED)}
                     className={`${filterChip} ${
-                      selectedOwnedType == OwnedFilterType.OWNED && 'selected'
+                      selectedOwnedType === OwnedFilterType.OWNED && 'selected'
                     }`}
                   />
                   <Chip
@@ -319,7 +319,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                       handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
                     }
                     className={`${filterChip} ${
-                      selectedOwnedType == OwnedFilterType.NOTOWNED &&
+                      selectedOwnedType === OwnedFilterType.NOTOWNED &&
                       'selected'
                     }`}
                   />
@@ -328,7 +328,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
                     className={`${filterChip} ${
-                      selectedOwnedType == OwnedFilterType.All && 'selected'
+                      selectedOwnedType === OwnedFilterType.All && 'selected'
                     }`}
                   />
                 </div>
@@ -347,7 +347,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
-              <Typography className={accordionHeader}>PondsamaType</Typography>
+              <Typography className={accordionHeader}>Type</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <div className={accordionContent}>
