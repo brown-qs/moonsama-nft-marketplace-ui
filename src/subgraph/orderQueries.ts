@@ -294,7 +294,7 @@ export const QUERY_PONDSAMA_OWNED_ID = (
       orderBy: numericId,
       skip: ${from},
       first: ${count},
-      where: {owner: "${owner}"}
+      where: {owner: "${owner.toLowerCase()}"}
     ) {
       id
       numericId
@@ -313,7 +313,7 @@ export const QUERY_PONDSAMA_NOTOWNED_ID = (
       orderBy: numericId,
       skip: ${from},
       first: ${count},
-      where: {owner_not: "${owner}"}
+      where: {owner_not: "${owner.toLowerCase()}"}
     ) {
       id
       numericId
