@@ -8,6 +8,12 @@ export const styles = (theme: Theme) => ({
     padding: 8,
     margin: '20 0',
   },
+  paginationContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '50px 0 0 0'
+  },
   container: {
     display: 'flex',
     flexDirection: 'column',

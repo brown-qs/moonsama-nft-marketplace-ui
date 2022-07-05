@@ -1,6 +1,6 @@
-import { Paper, Typography } from '@mui/material';
+import { CardActions, CardContent, Chip, Collapse, IconButton, Paper, Typography, useTheme } from '@mui/material';
 import { Media } from 'components';
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GlitchText, PriceBox } from 'ui';
 import { truncateHexString } from 'utils';
 import { Fraction } from 'utils/Fraction';
@@ -20,6 +20,11 @@ import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrid
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useClasses } from 'hooks';
 import { orderFilter } from 'utils/marketplace';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import { appStyles } from '../../app.styles';
+import { getAttributesList } from 'utils/meta';
+import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 
 export interface TokenData {
   meta: TokenMeta | undefined;
@@ -35,14 +40,26 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
     nameContainer,
     stockContainer,
     tokenName,
-    mr,
-    lastPriceContainer,
+    traitChip
   } = useClasses(styles);
-  let navigate = useNavigate ();
+
+  const { expand, expandOpen } = useClasses(appStyles);
+
+  const theme = useTheme()
+
+  let navigate = useNavigate();
   const [fetchedOrder, setFetchedOrer] = useState<Order | undefined>(undefined);
   const decimalOverrides = useDecimalOverrides();
 
+  const [isCollectionExpanded, setExpanded] = useState(false);
+
+  const handleExpandClick = () => {
+    setExpanded(!isCollectionExpanded);
+  };
+
   const asset = staticData.asset;
+
+  const rawCollection = useRawcollection(asset?.assetAddress)
 
   const handleImageClick = () => {
     navigate(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
@@ -112,7 +129,7 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
 
   let displayName = truncateHexString(asset.assetId)
   if (meta?.name) {
-    if(asset.assetAddress.toLowerCase() === '0xfEd9e29b276C333b2F11cb1427142701d0D9f7bf'.toLowerCase()) {
+    if (asset.assetAddress.toLowerCase() === '0xfEd9e29b276C333b2F11cb1427142701d0D9f7bf'.toLowerCase()) {
       displayName = `${meta?.name} #${truncateHexString(asset.assetId)}`
     } else if (asset.assetAddress.toLowerCase() === '0xa17A550871E5F5F692a69a3ABE26e8DBd5991B75'.toLowerCase()) {
       displayName = `Plot #${truncateHexString(asset.assetId)}`
@@ -125,8 +142,8 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
     isErc721 || sup?.toString() === '1'
       ? 'unique'
       : sup
-      ? `${sup} pieces`
-      : undefined;
+        ? `${sup} pieces`
+        : undefined;
 
   return (
     <Paper className={container}>
@@ -152,16 +169,42 @@ export const Token = ({ meta, staticData, order }: TokenData) => {
               {displayPPU} {currency.symbol}
             </PriceBox>
           )}
-        </div>
-        <div className={stockContainer}>
-          {staticData?.symbol && (
-            <Typography color="textSecondary">{`${staticData.symbol} #${asset.assetId}`}</Typography>
-          )}
-          {totalSupplyString && (
-            <Typography color="textSecondary">{totalSupplyString}</Typography>
-          )}
-        </div>
+        </div></div>
+      <div className={stockContainer}>
+        {staticData?.symbol && (
+          <Typography color="textSecondary">{`${staticData.symbol} #${asset.assetId}`}</Typography>
+        )}
+        {totalSupplyString && (
+          <Typography color="textSecondary">{totalSupplyString}</Typography>
+        )}
+        <CardActions disableSpacing style={{ maxHeight: 0 }}>
+          <IconButton
+            className={isCollectionExpanded ? expandOpen : expand}
+            onClick={() => handleExpandClick()}
+            aria-expanded={isCollectionExpanded}
+            aria-label="show more"
+          //style={{ marginTop: '-32px' }}
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        </CardActions>
       </div>
+      <Collapse in={isCollectionExpanded} timeout="auto" unmountOnExit>
+        <CardContent style={{ /*padding: '8px 16px',*/ paddingTop: theme.spacing(3) }}>
+          <Typography paragraph style={{ fontSize: '12px' }}>
+            {meta?.description}
+          </Typography>
+          {rawCollection?.showAttributes && (
+            <div /*style={{ paddingTop: theme.spacing(1) }}*/>
+              <Typography color="textSecondary" style={{ fontSize: '12px' }}>
+                {getAttributesList(meta?.attributes)?.map((label) => (
+                  <Chip label={label} className={traitChip} />
+                ))}
+              </Typography>
+            </div>
+          )}
+        </CardContent>
+      </Collapse>
     </Paper>
   );
 };

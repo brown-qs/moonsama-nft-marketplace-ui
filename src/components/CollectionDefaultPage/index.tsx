@@ -16,7 +16,6 @@ import {
   useTokenStaticDataCallbackArrayWithFilter,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
 import { useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
@@ -39,7 +38,7 @@ import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData'
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 12;
 const SEARCH_PAGE_SIZE = 50;
 
 const CollectionDefaultPage = () => {
@@ -87,11 +86,11 @@ const CollectionDefaultPage = () => {
   const [page, setPage] = useState<number>(pageParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [totalLength, setTotalLength] = useState<number>(0);
-  const { placeholderContainer, container } = useClasses(styles);
+  const { placeholderContainer, container, paginationContainer } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
   let searchSize =
-    filters?.selectedOrderType == undefined
+    filters?.selectedOrderType === undefined
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
   let forTake = (pageParam - 1) * searchSize;
@@ -126,7 +125,7 @@ const CollectionDefaultPage = () => {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&page=' + value + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=' + value;
@@ -148,7 +147,7 @@ const CollectionDefaultPage = () => {
     if (filter.length >= 1) {
       let newFilter: Filters = JSON.parse(filter);
       searchSize =
-        newFilter?.selectedOrderType == undefined
+        newFilter?.selectedOrderType === undefined
           ? DEFAULT_PAGE_SIZE
           : SEARCH_PAGE_SIZE;
       setFilters(newFilter);
@@ -164,7 +163,7 @@ const CollectionDefaultPage = () => {
     const getCollectionById = async () => {
       setPageLoading(true);
       let data;
-      if (search == '') {
+      if (search === '') {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
@@ -189,7 +188,7 @@ const CollectionDefaultPage = () => {
             : Math.floor(res.length / searchSize)
         );
       }
-      const isEnd = !data || data.length == 0;
+      const isEnd = !data || data.length === 0;
       let pieces: {
         meta: TokenMeta | undefined;
         staticData: StaticTokenData;
@@ -243,7 +242,7 @@ const CollectionDefaultPage = () => {
       newPath = newPath + path.slice(0, ind);
       ind += 3;
       for (; ind < path.length; ind++) {
-        if (path[ind] == '&') break;
+        if (path[ind] === '&') break;
       }
       newPath =
         newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
@@ -268,7 +267,7 @@ const CollectionDefaultPage = () => {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
       } else newPath = newPath + path + '&search=' + tokenID;
@@ -334,7 +333,7 @@ const CollectionDefaultPage = () => {
       newPath = newPath + path.slice(0, ind);
       ind += 3;
       for (; ind < path.length; ind++) {
-        if (path[ind] == '&') break;
+        if (path[ind] === '&') break;
       }
       newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
     } else newPath = newPath + path + '&sort=' + sortBy;
@@ -488,7 +487,7 @@ const CollectionDefaultPage = () => {
           <Loader />
         </div>
       )}
-      <div className={placeholderContainer}>
+      <div className={paginationContainer}>
         <Pagination
           count={totalLength}
           siblingCount={0}

@@ -5,11 +5,9 @@ import { Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Token as TokenComponent } from 'components';
 import { useClasses } from 'hooks';
 import { Asset } from 'hooks/marketplace/types';
-import { useFetchSubcollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import {
@@ -17,7 +15,6 @@ import {
   usePondsamaTokenStaticDataCallbackArrayWithFilter,
 } from 'hooks/usePondsamaTokenStaticDataCallback/usePondsamaTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import { useForm } from 'react-hook-form';
 import {
   useParams,
@@ -45,7 +42,7 @@ import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData'
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 12;
 const SEARCH_PAGE_SIZE = 50;
 
 const PondsamaCollectionPage = () => {
@@ -84,10 +81,10 @@ const PondsamaCollectionPage = () => {
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [page, setPage] = useState<number>(pageParam);
   const [totalLength, setTotalLength] = useState<number>(0);
-  const { placeholderContainer, container } = useClasses(styles);
+  const { placeholderContainer, container, paginationContainer } = useClasses(styles);
   const { register, handleSubmit } = useForm();
   let searchSize =
-    filters?.selectedOrderType == undefined
+    filters?.selectedOrderType === undefined
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
   let forTake = (pageParam - 1) * searchSize;
@@ -126,11 +123,11 @@ const PondsamaCollectionPage = () => {
       let path = '?' + temp[1];
       let newPath = sampleLocation.pathname;
       let ind = path.search('&page=');
-      if (ind != -1) {
+      if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&page=' + value + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=' + value;
@@ -164,7 +161,7 @@ const PondsamaCollectionPage = () => {
       setPageLoading(true);
       let data;
       // console.log('FETCH ', { searchSize, address, take, paginationEnded });
-      if (search == '') {
+      if (search === '') {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
@@ -235,11 +232,11 @@ const PondsamaCollectionPage = () => {
       let path = '?' + temp[1];
       let newPath = sampleLocation.pathname;
       let ind = path.search('&search=');
-      if (ind != -1) {
+      if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
       } else newPath = newPath + path + '&search=' + tokenID;
@@ -294,11 +291,11 @@ const PondsamaCollectionPage = () => {
     let path = '?' + temp[1];
     let newPath = sampleLocation.pathname;
     let ind = path.search('&filter=');
-    if (ind != -1) {
+    if (ind !== -1) {
       newPath = newPath + path.slice(0, ind);
       ind += 3;
       for (; ind < path.length; ind++) {
-        if (path[ind] == '&') break;
+        if (path[ind] === '&') break;
       }
       newPath =
         newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
@@ -321,11 +318,11 @@ const PondsamaCollectionPage = () => {
     let path = '?' + temp[1];
     let newPath = sampleLocation.pathname;
     let ind = path.search('&sort=');
-    if (ind != -1) {
+    if (ind !== -1) {
       newPath = newPath + path.slice(0, ind);
       ind += 3;
       for (; ind < path.length; ind++) {
-        if (path[ind] == '&') break;
+        if (path[ind] === '&') break;
       }
       newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
     } else newPath = newPath + path + '&sort=' + sortBy;
@@ -477,7 +474,7 @@ const PondsamaCollectionPage = () => {
         </div>
       )}
 
-      <div className={placeholderContainer}>
+      <div className={paginationContainer}>
         <Pagination
           count={totalLength}
           siblingCount={0}
