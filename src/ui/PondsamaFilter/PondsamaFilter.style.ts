@@ -7,7 +7,7 @@ export const styles = () => ({
     height: '100%',
     maxWidth: '100%',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   applyFiltersButton: {
     width: '100%',
@@ -43,6 +43,10 @@ export const styles = () => ({
   pondsamaAccordionContent: {
     maxHeight: '150px',
     overflowY: 'auto',
+  },
+  pondsamaAttributesAccordionContent: {
+    maxHeight: '150px',
+    overflowY: 'auto'
   },
   filterChip: {
     border: '1px solid #c5c5c5 !important',

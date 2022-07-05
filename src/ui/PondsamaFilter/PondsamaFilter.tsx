@@ -58,6 +58,7 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     filtersTitle,
     pondsamaFilterAccordion,
     pondsamaAccordionContent,
+    pondsamaAttributesAccordionContent
   } = useClasses(styles);
 
   const [searchParams] = useSearchParams();
@@ -220,213 +221,209 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
         <Typography variant="h6" className={filtersTitle}>
           Filters
         </Typography>
-        <div className={filtersDrawerContent}>
-          <div>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography className={accordionHeader}>Order Type</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={accordionContent}>
-                  <Chip
-                    label="Active buy order"
-                    variant="outlined"
-                    onClick={() => handleOrderTypeClick(OrderType.BUY)}
-                    className={`${filterChip} ${
-                      selectedOrderType == OrderType.BUY && 'selected'
-                    }`}
-                  />
-                  <Chip
-                    label="Active sell order"
-                    variant="outlined"
-                    onClick={() => handleOrderTypeClick(OrderType.SELL)}
-                    className={`${filterChip} ${
-                      selectedOrderType == OrderType.SELL && 'selected'
-                    }`}
-                  />
-                  <Chip
-                    label="None"
-                    variant="outlined"
-                    onClick={() => handleOrderTypeClick(undefined)}
-                    className={`${filterChip} ${
-                      selectedOrderType == undefined && 'selected'
-                    }`}
-                  />
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={accordionHeader}>Price</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Stack
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={{ xs: 1, sm: 2, md: 8 }}
-                  justifyContent="flex-end"
-                  alignItems="center"
-                >
-                  <TextField
-                    className={priceInput}
-                    placeholder="Min"
-                    variant="outlined"
-                    onChange={(event: any) =>
-                      handlePriceRangeChange2(event, false)
-                    }
-                    defaultValue={priceRange[0]}
-                  />
-                  <div>TO</div>
-                  <TextField
-                    className={priceInput}
-                    placeholder="Max"
-                    variant="outlined"
-                    onChange={(event: any) =>
-                      handlePriceRangeChange2(event, true)
-                    }
-                    defaultValue={priceRange[1]}
-                  />
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography className={accordionHeader}>Owned</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {account ? (
-                  <div className={accordionContent}>
-                    <Chip
-                      label="Owned"
-                      variant="outlined"
-                      onClick={() =>
-                        handleOwnedTypeClick(OwnedFilterType.OWNED)
-                      }
-                      className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.OWNED && 'selected'
-                      }`}
-                    />
-                    <Chip
-                      label="Not OWned"
-                      variant="outlined"
-                      onClick={() =>
-                        handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
-                      }
-                      className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.NOTOWNED &&
-                        'selected'
-                      }`}
-                    />
-                    <Chip
-                      label="All"
-                      variant="outlined"
-                      onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
-                      className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.All && 'selected'
-                      }`}
-                    />
-                  </div>
-                ) : (
-                  <div className={accordionContent}>
-                    <Typography className={accordionHeader}>
-                      Please connect your wallet!
-                    </Typography>
-                  </div>
-                )}
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography className={accordionHeader}>
-                  PondsamaType
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={accordionContent}>
-                  <Chip
-                    label="Neon"
-                    variant="outlined"
-                    onClick={() => handlePondTraitClick('Neon')}
-                    className={`${filterChip} ${
-                      selectedPondTraits.includes('Neon') && 'selected'
-                    }`}
-                  />
-                  <Chip
-                    label="Organic"
-                    variant="outlined"
-                    onClick={() => handlePondTraitClick('Organic')}
-                    className={`${filterChip} ${
-                      selectedPondTraits.includes('Organic') && 'selected'
-                    }`}
-                  />
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography className={accordionHeader}>Breed</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={accordionContent}>
-                  <Chip
-                    label="Spelly"
-                    variant="outlined"
-                    onClick={() => handlePondTraitClick('Spelly')}
-                    className={`${filterChip} ${
-                      selectedPondTraits.includes('Spelly') && 'selected'
-                    }`}
-                  />
-                  <Chip
-                    label="Nimbus"
-                    variant="outlined"
-                    onClick={() => handlePondTraitClick('Nimbus')}
-                    className={`${filterChip} ${
-                      selectedPondTraits.includes('Nimbus') && 'selected'
-                    }`}
-                  />
-                  <Chip
-                    label="Bambo"
-                    variant="outlined"
-                    onClick={() => handlePondTraitClick('Bambo')}
-                    className={`${filterChip} ${
-                      selectedPondTraits.includes('Bambo') && 'selected'
-                    }`}
-                  />
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion
-              defaultExpanded
-              square
-              className={pondsamaFilterAccordion}
+        <Stack className={filtersDrawerContent}>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
             >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
+              <Typography className={accordionHeader}>Order Type</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={accordionContent}>
+                <Chip
+                  label="Active buy order"
+                  variant="outlined"
+                  onClick={() => handleOrderTypeClick(OrderType.BUY)}
+                  className={`${filterChip} ${selectedOrderType === OrderType.BUY && 'selected'
+                    }`}
+                />
+                <Chip
+                  label="Active sell order"
+                  variant="outlined"
+                  onClick={() => handleOrderTypeClick(OrderType.SELL)}
+                  className={`${filterChip} ${selectedOrderType === OrderType.SELL && 'selected'
+                    }`}
+                />
+                <Chip
+                  label="None"
+                  variant="outlined"
+                  onClick={() => handleOrderTypeClick(undefined)}
+                  className={`${filterChip} ${selectedOrderType === undefined && 'selected'
+                    }`}
+                />
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={accordionHeader}>Price</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={{ xs: 1, sm: 2, md: 8 }}
+                justifyContent="flex-end"
+                alignItems="center"
+              >
+                <TextField
+                  className={priceInput}
+                  placeholder="Min"
+                  variant="outlined"
+                  onChange={(event: any) =>
+                    handlePriceRangeChange2(event, false)
+                  }
+                  defaultValue={priceRange[0]}
+                />
+                <div>TO</div>
+                <TextField
+                  className={priceInput}
+                  placeholder="Max"
+                  variant="outlined"
+                  onChange={(event: any) =>
+                    handlePriceRangeChange2(event, true)
+                  }
+                  defaultValue={priceRange[1]}
+                />
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography className={accordionHeader}>Owned</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {account ? (
+                <div className={accordionContent}>
+                  <Chip
+                    label="Owned"
+                    variant="outlined"
+                    onClick={() =>
+                      handleOwnedTypeClick(OwnedFilterType.OWNED)
+                    }
+                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.OWNED && 'selected'
+                      }`}
+                  />
+                  <Chip
+                    label="Not OWned"
+                    variant="outlined"
+                    onClick={() =>
+                      handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
+                    }
+                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.NOTOWNED &&
+                      'selected'
+                      }`}
+                  />
+                  <Chip
+                    label="All"
+                    variant="outlined"
+                    onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
+                    className={`${filterChip} ${selectedOwnedType == OwnedFilterType.All && 'selected'
+                      }`}
+                  />
+                </div>
+              ) : (
+                <div className={accordionContent}>
+                  <Typography className={accordionHeader}>
+                    Please connect your wallet!
+                  </Typography>
+                </div>
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography className={accordionHeader}>
+                PondsamaType
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={accordionContent}>
+                <Chip
+                  label="Neon"
+                  variant="outlined"
+                  onClick={() => handlePondTraitClick('Neon')}
+                  className={`${filterChip} ${selectedPondTraits.includes('Neon') && 'selected'
+                    }`}
+                />
+                <Chip
+                  label="Organic"
+                  variant="outlined"
+                  onClick={() => handlePondTraitClick('Organic')}
+                  className={`${filterChip} ${selectedPondTraits.includes('Organic') && 'selected'
+                    }`}
+                />
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography className={accordionHeader}>Breed</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={accordionContent}>
+                <Chip
+                  label="Spelly"
+                  variant="outlined"
+                  onClick={() => handlePondTraitClick('Spelly')}
+                  className={`${filterChip} ${selectedPondTraits.includes('Spelly') && 'selected'
+                    }`}
+                />
+                <Chip
+                  label="Nimbus"
+                  variant="outlined"
+                  onClick={() => handlePondTraitClick('Nimbus')}
+                  className={`${filterChip} ${selectedPondTraits.includes('Nimbus') && 'selected'
+                    }`}
+                />
+                <Chip
+                  label="Bambo"
+                  variant="outlined"
+                  onClick={() => handlePondTraitClick('Bambo')}
+                  className={`${filterChip} ${selectedPondTraits.includes('Bambo') && 'selected'
+                    }`}
+                />
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            defaultExpanded
+            square
+            className={pondsamaFilterAccordion}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={accordionHeader}>Attributes</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Stack
+                className={pondsamaAttributesAccordionContent}
+                direction={{ xs: 'column'}}
+                spacing={{ xs: 1 }}
+                justifyContent="flex-start"
+                alignItems="strech"
               >
                 <Typography className={accordionHeader}>HP Range</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1, sm: 2, md: 8 }}
@@ -449,14 +446,8 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     defaultValue={hpRange[1]}
                   />
                 </Stack>
-              </AccordionDetails>
-              <AccordionSummary
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
+
                 <Typography className={accordionHeader}>PW Range</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1, sm: 2, md: 8 }}
@@ -479,14 +470,8 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     defaultValue={pwRange[1]}
                   />
                 </Stack>
-              </AccordionDetails>
-              <AccordionSummary
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
+
                 <Typography className={accordionHeader}>SP Range</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1, sm: 2, md: 8 }}
@@ -509,14 +494,8 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     defaultValue={spRange[1]}
                   />
                 </Stack>
-              </AccordionDetails>
-              <AccordionSummary
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
+
                 <Typography className={accordionHeader}>DF Range</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1, sm: 2, md: 8 }}
@@ -539,99 +518,96 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
                     defaultValue={dfRange[1]}
                   />
                 </Stack>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={accordionHeader}>Nature:</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={pondsamaAccordionContent}>
-                  {Object.keys(PONDSAMA_NATURE_TRAITS).map((trait, i) => (
-                    <Chip
-                      label={trait}
-                      key={`${trait}-${i}`}
-                      variant="outlined"
-                      onClick={() => handlePondTraitClick(trait)}
-                      className={`${filterChip} ${
-                        selectedPondTraits.includes(trait) && 'selected'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={accordionHeader}>
-                  Passive Ability:
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={pondsamaAccordionContent}>
-                  {Object.keys(PONDSAMA_PASSIVE_TRAITS).map((trait, i) => (
-                    <Chip
-                      label={trait}
-                      key={`${trait}-${i}`}
-                      variant="outlined"
-                      onClick={() => handlePondTraitClick(trait)}
-                      className={`${filterChip} ${
-                        selectedPondTraits.includes(trait) && 'selected'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded square className={filterAccordion}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={accordionHeader}>Skill:</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className={pondsamaAccordionContent}>
-                  {Object.keys(PONDSAMA_SkILL_TRAITS).map((trait, i) => (
-                    <Chip
-                      label={trait}
-                      key={`${trait}-${i}`}
-                      variant="outlined"
-                      onClick={() => handlePondTraitClick(trait)}
-                      className={`${filterChip} ${
-                        selectedPondTraits.includes(trait) && 'selected'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Button
-              className={applyFiltersButton}
-              onClick={handleApplyFilters}
-              variant="contained"
-              color="primary"
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
             >
-              Apply Filters
-            </Button>
-            <Button
-              onClick={() => setIsDrawerOpened(false)}
-              className={applyFiltersButton}
-              variant="outlined"
+              <Typography className={accordionHeader}>Nature</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={pondsamaAccordionContent}>
+                {Object.keys(PONDSAMA_NATURE_TRAITS).map((trait, i) => (
+                  <Chip
+                    label={trait}
+                    key={`${trait}-${i}`}
+                    variant="outlined"
+                    onClick={() => handlePondTraitClick(trait)}
+                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
+                      }`}
+                  />
+                ))}
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
             >
-              Cancel
-            </Button>
-          </div>
-        </div>
+              <Typography className={accordionHeader}>
+                Passive Ability
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={pondsamaAccordionContent}>
+                {Object.keys(PONDSAMA_PASSIVE_TRAITS).map((trait, i) => (
+                  <Chip
+                    label={trait}
+                    key={`${trait}-${i}`}
+                    variant="outlined"
+                    onClick={() => handlePondTraitClick(trait)}
+                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
+                      }`}
+                  />
+                ))}
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded square className={filterAccordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={accordionHeader}>Skill</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className={pondsamaAccordionContent}>
+                {Object.keys(PONDSAMA_SkILL_TRAITS).map((trait, i) => (
+                  <Chip
+                    label={trait}
+                    key={`${trait}-${i}`}
+                    variant="outlined"
+                    onClick={() => handlePondTraitClick(trait)}
+                    className={`${filterChip} ${selectedPondTraits.includes(trait) && 'selected'
+                      }`}
+                  />
+                ))}
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Button
+            className={applyFiltersButton}
+            onClick={handleApplyFilters}
+            variant="contained"
+            color="primary"
+          >
+            Apply Filters
+          </Button>
+          <Button
+            onClick={() => setIsDrawerOpened(false)}
+            className={applyFiltersButton}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+        </Stack>
       </Drawer>
     </>
   );

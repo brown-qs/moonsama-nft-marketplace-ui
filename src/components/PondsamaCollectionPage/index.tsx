@@ -147,7 +147,7 @@ const PondsamaCollectionPage = () => {
     if (filter.length >= 1) {
       let newFilter: PondsamaFilter = JSON.parse(filter);
       searchSize =
-        newFilter?.selectedOrderType == undefined
+        newFilter?.selectedOrderType === undefined
           ? DEFAULT_PAGE_SIZE
           : SEARCH_PAGE_SIZE;
       setFilters(newFilter);
@@ -189,7 +189,7 @@ const PondsamaCollectionPage = () => {
             : Math.floor(res.length / searchSize)
         );
       }
-      const isEnd = !data || data.length == 0;
+      const isEnd = !data || data.length === 0;
       let pieces: {
         meta: TokenMeta | undefined;
         staticData: StaticTokenData;
