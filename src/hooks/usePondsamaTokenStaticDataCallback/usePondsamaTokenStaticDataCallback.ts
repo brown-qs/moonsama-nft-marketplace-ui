@@ -200,12 +200,18 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       let ids: number[] = [];
       let ponsIdsMeta: number[] = [];
       for (let i = 0; i < res.length; i++) ids.push(res[i].numericId);
-      // console.log('ids1', ids);
       let totalLength =
-        res.length % 300 ? res.length / 300 + 1 : res.length / 300;
+        res.length % 300
+          ? Math.floor(res.length / 300) + 1
+          : Math.floor(res.length / 300);
+      // console.log('ids1', ids);
       if (filter && filter.dfRange && filter.dfRange.length == 2) {
-        for (let i = 0; i < totalLength; i++) {
-          let tempIds = ids.slice(i * 300, 300);
+        for (let k = 0; k < totalLength; k++) {
+          let tempIds: number[] = [];
+          if (k * 300 + 300 < res.length)
+            tempIds = ids.slice(k * 300, k * 300 + 300);
+          else if (k * 300 + 300 >= res.length)
+            tempIds = ids.slice(k * 300, res.length);
           let chosenAssets = choosePondsamaAssets(
             assetType,
             assetAddress,
@@ -227,6 +233,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             results
           );
           const metas = await fetchUri(staticData);
+          // console.log('metas', metas);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
             let selectedPondTraits = filter.pondTraits;
@@ -261,19 +268,19 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 break;
               } else if (selectedPondTraits.length) {
                 selectedPondTraits = selectedPondTraits.filter(
-                  (e) => e !== metas[i].attributes[j].value
+                  (e) => e != metas[i].attributes[j].value
                 );
               }
             }
-
+            
             if (flag == true && !selectedPondTraits.length) {
-              ponsIdsMeta.push(ids[i]);
+              ponsIdsMeta.push(ids[i + k*300]);
             }
           }
-          ids = ponsIdsMeta;
         }
+        ids = ponsIdsMeta;
       }
-      // console.log('ids', ids, ponsIdsMeta);
+      console.log('ids11', ids, ponsIdsMeta);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
