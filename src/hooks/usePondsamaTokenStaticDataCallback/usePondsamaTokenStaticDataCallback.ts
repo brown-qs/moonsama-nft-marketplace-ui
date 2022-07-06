@@ -1,9 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { tryMultiCallCore } from 'hooks/useMulticall2/useMulticall2';
-import {
-  useERC20Contract,
-  useMulticall2Contract,
-} from 'hooks/useContracts/useContracts';
 import {
   getAssetEntityId,
   OrderType,
@@ -15,26 +10,24 @@ import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React'
 import { useCallback } from 'react';
 import { Asset, Order } from 'hooks/marketplace/types';
 import { useFetchTokenUriCallback } from 'hooks/useFetchTokenUri.ts/useFetchTokenUriCallback';
-import {
-  getTokenStaticCalldata,
-  processTokenStaticCallResults,
-} from 'utils/calls';
 import { PondsamaFilter } from 'ui/PondsamaFilter/PondsamaFilter';
 import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
-  QUERY_ORDERS_FOR_TOKEN,
-  QUERY_PONDSAMA_ACTIVE_ID,
-  QUERY_PONDSAMA_TotalSupply,
-  QUERY_PONDSAMA_OWNED_ID,
-  QUERY_PONDSAMA_NOTOWNED_ID,
+  QUERY_ORDERS_FOR_TOKEN
 } from 'subgraph/orderQueries';
+import {
+  QUERY_ERC721_ACTIVE_ID,
+  QUERY_ERC721_CONTRACT_DATA,
+  QUERY_ERC721_OWNED_ID,
+  QUERY_ERC721_NOTOWNED_ID,
+  QUERY_ERC721_ID_IN,
+} from 'subgraph/erc721Queries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
-import React, { useEffect, useState } from 'react';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -56,66 +49,54 @@ export type TokenStaticFetchInput = {
   offset: BigNumber;
 };
 
+export type AssetWithUri = Asset & {tokenURI: string}
+
+export type TokenSubgraphQueryResult = {
+  uri: string,
+  numericId: string,
+  id: string
+}
+
+export type TokenSubgraphQueryResults = {
+  tokens: TokenSubgraphQueryResult[]
+}
+
 const choosePondsamaAssets = (
   assetType: StringAssetType,
   assetAddress: string,
   offset: BigNumber,
   num: number,
-  ids: number[],
-  minId: number,
-  maxId: number,
+  idsAndUris: {tokenURI: string, assetId: string}[],
   direction: SortOption
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
-  let chosenAssets: Asset[];
+  let chosenAssets: AssetWithUri[];
 
   // in this case offsetnum should be substracted one
-  if (ids?.length > 0) {
+  if (idsAndUris?.length > 0) {
     //console.log('xxxx')
-    if (offsetNum >= ids.length) {
+    if (offsetNum >= idsAndUris.length) {
       return [];
     }
-    const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
+    const to = offsetNum + num >= idsAndUris.length ? idsAndUris.length : offsetNum + num;
     let chosenIds = [];
 
-    if (direction == SortOption.TOKEN_ID_ASC)
-      chosenIds = ids.slice(offsetNum, to);
-    else chosenIds = [...ids].reverse().slice(offsetNum, to);
+    if (direction === SortOption.TOKEN_ID_ASC)
+      chosenIds = idsAndUris.slice(offsetNum, to);
+    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     // console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
       return {
-        assetId: x.toString(),
+        assetId: x.assetId,
         assetType,
         assetAddress,
-        id: getAssetEntityId(assetAddress, x),
+        id: getAssetEntityId(assetAddress, x.assetId),
+        tokenURI: x.tokenURI
       };
     });
-  } else if (!ids.length) {
-    return [];
   } else {
-    const rnum =
-      maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
-
-    // console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
-    if (rnum == 0) {
-      return [];
-    }
-
-    chosenAssets = Array.from({ length: rnum }, (_, i) => {
-      let x;
-      if (direction == SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
-      else x = (maxId - (offsetNum - minId) - i).toString();
-
-      return {
-        assetId: x,
-        assetType,
-        assetAddress,
-        id: getAssetEntityId(assetAddress, x),
-      };
-    });
-
-    // console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
+    return []
   }
 
   return chosenAssets;
@@ -134,15 +115,13 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
     subcollectionId,
   });
   const { account, chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
   const fetchUri = useFetchTokenUriCallback();
+  //const fetchTokenStaticDataFromSubgrah = useFetchTokenStaticDataFromSubgraphCallback();
 
-  let ids: number[] = [];
   let coll = useRawcollection(assetAddress ?? '');
   let subgraph = coll ? coll?.subgraph : '';
 
   const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
-  const maxId = coll?.maxId ?? 1000;
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -157,81 +136,85 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         return [];
       }
       const owned: OwnedFilterType | undefined = filter?.owned;
-      const pondsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
-      const pondsamaTotalSupply1 = await request(subgraph, pondsamaTotalyQuery);
+      const PONDSAMA_CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
+      const contractData = await request(subgraph, PONDSAMA_CONTRACT_QUERY);
       let pondsamaTotalSupply = parseInt(
-        pondsamaTotalSupply1.contract.totalSupply
+        contractData.contract.totalSupply
       );
       let res = [],
         pondsamaQuery: any,
         res1;
       if (pondsamaTotalSupply < 1000) {
         if (!owned)
-          pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
-        else if (owned == OwnedFilterType.OWNED && account)
-          pondsamaQuery = QUERY_PONDSAMA_OWNED_ID(
+          pondsamaQuery = QUERY_ERC721_ACTIVE_ID(0, pondsamaTotalSupply);
+        else if (owned === OwnedFilterType.OWNED && account)
+          pondsamaQuery = QUERY_ERC721_OWNED_ID(
             0,
             pondsamaTotalSupply,
             account
           );
-        else if (owned == OwnedFilterType.NOTOWNED && account)
-          pondsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(
+        else if (owned === OwnedFilterType.NOTOWNED && account)
+          pondsamaQuery = QUERY_ERC721_NOTOWNED_ID(
             0,
             pondsamaTotalSupply,
             account
           );
-        else pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(0, pondsamaTotalSupply);
+        else pondsamaQuery = QUERY_ERC721_ACTIVE_ID(0, pondsamaTotalSupply);
         res1 = await request(subgraph, pondsamaQuery);
         res = res1.tokens;
       } else {
         let from = 0;
         while (from < pondsamaTotalSupply) {
-          if (!owned) pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
-          else if (owned == OwnedFilterType.OWNED && account)
-            pondsamaQuery = QUERY_PONDSAMA_OWNED_ID(from, 1000, account);
-          else if (owned == OwnedFilterType.NOTOWNED && account)
-            pondsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(from, 1000, account);
-          else pondsamaQuery = QUERY_PONDSAMA_ACTIVE_ID(from, 1000);
+          if (!owned) pondsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
+          else if (owned === OwnedFilterType.OWNED && account)
+            pondsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
+          else if (owned === OwnedFilterType.NOTOWNED && account)
+            pondsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
+          else pondsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
           let res1 = await request(subgraph, pondsamaQuery);
           for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
           from += 1000;
         }
       }
-      let ids: number[] = [];
-      let ponsIdsMeta: number[] = [];
-      for (let i = 0; i < res.length; i++) ids.push(res[i].numericId);
+      let idsAndUris: {tokenURI: string, assetId: string}[] = [];
+      let ponsIdsMeta: {tokenURI: string, assetId: string}[] = [];
+
+      for (let i = 0; i < res.length; i++){
+        idsAndUris.push({tokenURI: res[i].uri, assetId: res[i].numericId})
+      }
+
       let totalLength =
         res.length % 300
           ? Math.floor(res.length / 300) + 1
           : Math.floor(res.length / 300);
       // console.log('ids1', ids);
-      if (filter && filter.dfRange && filter.dfRange.length == 2) {
+
+      if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
-          let tempIds: number[] = [];
+          let tempIds: {tokenURI: string, assetId: string}[] = [];
           if (k * 300 + 300 < res.length)
-            tempIds = ids.slice(k * 300, k * 300 + 300);
+            tempIds = idsAndUris.slice(k * 300, k * 300 + 300);
           else if (k * 300 + 300 >= res.length)
-            tempIds = ids.slice(k * 300, res.length);
+            tempIds = idsAndUris.slice(k * 300, res.length);
           let chosenAssets = choosePondsamaAssets(
             assetType,
             assetAddress,
             BigNumber.from(0),
             res.length,
             tempIds,
-            minId,
-            maxId,
             sortBy
           );
-          let calls: any[] = [];
-          chosenAssets.map((asset, i) => {
-            calls = [...calls, ...getTokenStaticCalldata(asset)];
+          const staticData: StaticTokenData[] = chosenAssets.map(ca => {
+            return {
+              asset: ca,
+              decimals: contractData.contract.decimals,
+              contractURI: contractData.contract.contractURI,
+              name: contractData.contract.name,
+              symbol: contractData.contract.symbol,
+              totalSupply: contractData.contract.totalSupply,
+              tokenURI: ca.tokenURI
+            }
           });
-          const results = await tryMultiCallCore(multi, calls);
-          if (!results) return [];
-          const staticData = processTokenStaticCallResults(
-            chosenAssets,
-            results
-          );
           const metas = await fetchUri(staticData);
           // console.log('metas', metas);
           for (let i = 0; i < metas.length; i++) {
@@ -239,28 +222,28 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             let selectedPondTraits = filter.pondTraits;
             for (let j = 0; j < metas[i].attributes.length; j++) {
               if (
-                metas[i].attributes[j].trait_type == 'HP' &&
+                metas[i].attributes[j].trait_type === 'HP' &&
                 (metas[i].attributes[j].value < filter.hpRange[0] ||
                   metas[i].attributes[j].value > filter.hpRange[1])
               ) {
                 flag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type == 'PW' &&
+                metas[i].attributes[j].trait_type === 'PW' &&
                 (metas[i].attributes[j].value < filter?.pwRange[0] ||
                   metas[i].attributes[j].value > filter?.pwRange[1])
               ) {
                 flag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type == 'SP' &&
+                metas[i].attributes[j].trait_type === 'SP' &&
                 (metas[i].attributes[j].value < filter?.spRange[0] ||
                   metas[i].attributes[j].value > filter?.spRange[1])
               ) {
                 flag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type == 'DF' &&
+                metas[i].attributes[j].trait_type === 'DF' &&
                 (metas[i].attributes[j].value < filter?.dfRange[0] ||
                   metas[i].attributes[j].value > filter?.dfRange[1])
               ) {
@@ -268,38 +251,47 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 break;
               } else if (selectedPondTraits.length) {
                 selectedPondTraits = selectedPondTraits.filter(
-                  (e) => e != metas[i].attributes[j].value
+                  (e) => e !== metas[i].attributes[j].value
                 );
               }
             }
-            
-            if (flag == true && !selectedPondTraits.length) {
-              ponsIdsMeta.push(ids[i + k*300]);
+
+            if (flag === true && !selectedPondTraits.length) {
+              ponsIdsMeta.push(idsAndUris[i + k * 300]);
             }
           }
         }
-        ids = ponsIdsMeta;
+        idsAndUris = ponsIdsMeta;
       }
-      console.log('ids11', ids, ponsIdsMeta);
+      console.log('ids11', idsAndUris, ponsIdsMeta);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
-        let calls: any[] = [];
-        assets.map((asset, i) => {
-          calls = [...calls, ...getTokenStaticCalldata(asset)];
-        });
 
-        const results = await tryMultiCallCore(multi, calls);
-
-        if (!results) {
+        if (!assets) {
           return [];
-        }
+        }        
+
+        const query  = QUERY_ERC721_ID_IN(assets.map(a => a.assetId));
+        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
+        const tokens = ress.tokens;
 
         // console.log('yolo tryMultiCallCore res', results);
-        const staticData = processTokenStaticCallResults(assets, results);
+        const staticData: StaticTokenData[] = assets.map(ca => {
+          const tok = tokens.find(t => t.numericId === ca.assetId) as TokenSubgraphQueryResult
+          return {
+            asset: ca,
+            decimals: contractData.contract.decimals,
+            contractURI: contractData.contract.contractURI,
+            name: contractData.contract.name,
+            symbol: contractData.contract.symbol,
+            totalSupply: contractData.contract.totalSupply,
+            tokenURI: tok.uri
+          }
+        });
         // console.log('staticData', { staticData });
 
         const metas = await fetchUri(staticData);
@@ -318,17 +310,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       let ordersFetch: any[] = [];
 
       if (
-        sortBy == SortOption.TOKEN_ID_ASC ||
-        sortBy == SortOption.TOKEN_ID_DESC
+        sortBy === SortOption.TOKEN_ID_ASC ||
+        sortBy === SortOption.TOKEN_ID_DESC
       ) {
         let chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
-          ids,
-          minId,
-          maxId,
+          idsAndUris,
           sortBy
         );
 
@@ -341,7 +331,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           console.log('DEFAULT SEARCH', {
             assetAddress,
             assetType,
-            ids,
+            idsAndUris,
             num,
             offset: offset?.toString(),
             chosenAssets,
@@ -353,13 +343,11 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetAddress,
             offset,
             num,
-            ids,
-            minId,
-            maxId,
+            idsAndUris,
             sortBy
           );
           const statics = await fetchStatics(chosenAssets);
-          let totalLength = num == 1 ? num : ids.length;
+          let totalLength = num === 1 ? num : idsAndUris.length;
           // console.log('totalLength', totalLength, statics);
           return { data: statics, length: totalLength };
         }
@@ -367,7 +355,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         console.log('SEARCH', {
           assetAddress,
           assetType,
-          ids,
+          idsAndUris,
           num,
           offset: offset?.toString(),
           chosenAssets,
@@ -412,8 +400,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             sgAssets,
             num,
             pager: pager.toString(),
-            ids,
-            maxId,
+            idsAndUris,
           });
 
           if (ordersFetch.length >= num) {
@@ -428,14 +415,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetAddress,
             pager,
             num,
-            ids,
-            minId,
-            maxId,
+            idsAndUris,
             sortBy
           );
 
           //chosenAssets = []
-          if (!chosenAssets || chosenAssets.length == 0) {
+          if (!chosenAssets || chosenAssets.length === 0) {
             canStop = true;
             setTake?.(pager.toNumber());
           }
@@ -443,10 +428,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       } else {
         let query = QUERY_ORDERS_FOR_TOKEN(
           assetAddress,
-          sortBy == SortOption.PRICE_ASC || sortBy == SortOption.PRICE_DESC
+          sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
             ? 'price'
             : 'id',
-          sortBy == SortOption.PRICE_ASC,
+          sortBy === SortOption.PRICE_ASC,
           offset.toNumber(),
           num
         );
@@ -469,7 +454,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       const orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
-          selectedOrderType == OrderType.BUY
+          selectedOrderType === OrderType.BUY
             ? (o?.buyAsset as Asset)
             : (o?.sellAsset as Asset);
         theAssets.push({
@@ -482,14 +467,13 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      let totalLength1 = num == 1 ? num : orders.length;
+      let totalLength1 = num === 1 ? num : orders.length;
       return { data: result, length: totalLength1 };
     },
     [
       chainId,
       assetType,
       assetAddress,
-      JSON.stringify(ids),
       JSON.stringify(priceRange),
       JSON.stringify(selectedOrderType),
       sortBy,

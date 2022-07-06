@@ -22,17 +22,17 @@ import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
-  QUERY_PONDSAMA_TotalSupply,
-  QUERY_PONDSAMA_ACTIVE_ID,
-  QUERY_PONDSAMA_OWNED_ID,
-  QUERY_PONDSAMA_NOTOWNED_ID,
 } from 'subgraph/orderQueries';
+import {
+  QUERY_ERC721_CONTRACT_DATA,
+  QUERY_ERC721_OWNED_ID,
+  QUERY_ERC721_NOTOWNED_ID,
+} from 'subgraph/erc721Queries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
-import { Account } from 'components';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -76,7 +76,7 @@ const chooseMoonsamaAssets = (
     const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
     let chosenIds = [];
 
-    if (direction == SortOption.TOKEN_ID_ASC)
+    if (direction === SortOption.TOKEN_ID_ASC)
       chosenIds = ids.slice(offsetNum, to);
     else chosenIds = [...ids].reverse().slice(offsetNum, to);
 
@@ -96,13 +96,13 @@ const chooseMoonsamaAssets = (
       maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
 
     console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
-    if (rnum == 0) {
+    if (rnum === 0) {
       return [];
     }
 
     chosenAssets = Array.from({ length: rnum }, (_, i) => {
       let x;
-      if (direction == SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
+      if (direction === SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
       else x = (maxId - (offsetNum - minId) - i).toString();
 
       return {
@@ -168,7 +168,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       }
       const owned: OwnedFilterType | undefined = filter?.owned;
       if (owned != undefined && owned != OwnedFilterType.All) {
-        const moonsamaTotalyQuery = QUERY_PONDSAMA_TotalSupply(assetAddress);
+        const moonsamaTotalyQuery = QUERY_ERC721_CONTRACT_DATA();
         const moonsamaTotalSupply1 = await request(
           subgraph,
           moonsamaTotalyQuery
@@ -181,14 +181,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           moonsamaQuery: any,
           res1;
         if (moonsamaTotalSupply <= 1000) {
-          if (owned == OwnedFilterType.OWNED && account)
-            moonsamaQuery = QUERY_PONDSAMA_OWNED_ID(
+          if (owned === OwnedFilterType.OWNED && account)
+            moonsamaQuery = QUERY_ERC721_OWNED_ID(
               0,
               moonsamaTotalSupply,
               account
             );
-          else if (owned == OwnedFilterType.NOTOWNED && account)
-            moonsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(
+          else if (owned === OwnedFilterType.NOTOWNED && account)
+            moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(
               0,
               moonsamaTotalSupply,
               account
@@ -198,10 +198,10 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         } else {
           let from = 0;
           while (from < moonsamaTotalSupply) {
-            if (owned == OwnedFilterType.OWNED && account)
-              moonsamaQuery = QUERY_PONDSAMA_OWNED_ID(from, 1000, account);
-            else if (owned == OwnedFilterType.NOTOWNED && account)
-              moonsamaQuery = QUERY_PONDSAMA_NOTOWNED_ID(from, 1000, account);
+            if (owned === OwnedFilterType.OWNED && account)
+              moonsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
+            else if (owned === OwnedFilterType.NOTOWNED && account)
+              moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
             let res1 = await request(subgraph, moonsamaQuery);
             for (let i = 0; i < res1.tokens.length; i++)
               res.push(res1.tokens[i]);
@@ -252,8 +252,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       // if we don't have a price range, it's just business as usual
       if (
-        sortBy == SortOption.TOKEN_ID_ASC ||
-        sortBy == SortOption.TOKEN_ID_DESC
+        sortBy === SortOption.TOKEN_ID_ASC ||
+        sortBy === SortOption.TOKEN_ID_DESC
       ) {
         let chosenAssets = chooseMoonsamaAssets(
           assetType,
@@ -294,7 +294,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           );
           const statics = await fetchStatics(chosenAssets);
           console.log('statistics', statics);
-          let totalLength = num == 1 ? num : ids.length;
+          let totalLength = num === 1 ? num : ids.length;
           return { data: statics, length: totalLength };
         }
 
@@ -369,7 +369,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           );
 
           //chosenAssets = []
-          if (!chosenAssets || chosenAssets.length == 0) {
+          if (!chosenAssets || chosenAssets.length === 0) {
             canStop = true;
             setTake?.(pager.toNumber());
           }
@@ -377,10 +377,10 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       } else {
         let query = QUERY_ORDERS_FOR_TOKEN(
           assetAddress,
-          sortBy == SortOption.PRICE_ASC || sortBy == SortOption.PRICE_DESC
+          sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
             ? 'price'
             : 'id',
-          sortBy == SortOption.PRICE_ASC,
+          sortBy === SortOption.PRICE_ASC,
           offset.toNumber(),
           num
         );
@@ -403,7 +403,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       const orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
-          selectedOrderType == OrderType.BUY
+          selectedOrderType === OrderType.BUY
             ? (o?.buyAsset as Asset)
             : (o?.sellAsset as Asset);
         theAssets.push({
@@ -417,7 +417,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const result = await fetchStatics(theAssets, orders);
       // console.log('final result', result);
-      let totalLength1 = num == 1 ? num : orders.length;
+      let totalLength1 = num === 1 ? num : orders.length;
       return { data: result, length: totalLength1 };
     },
     [
