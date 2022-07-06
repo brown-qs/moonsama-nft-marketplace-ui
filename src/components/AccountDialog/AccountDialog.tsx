@@ -205,8 +205,9 @@ export const AccountDialog = () => {
         ww3: !!window.web3,
         we: !!window.ethereum,
       });
-      let TisMobile = true;
-      if (TisMobile) {
+      // let TisMobile = true;
+      // if (TisMobile) {
+      if (isMobile) {
         //disable portis on mobile for now
         //if (option.connector === portis) {
         //  return null
