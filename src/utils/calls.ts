@@ -225,22 +225,3 @@ export const processTokenStaticCallResults = (
   });
   return res;
 };
-
-export const fetchWeb3Data = (onChange: any) => {
-  try {
-    (async () => {
-      const provider: any = await detectEthereumProvider({
-        mustBeMetaMask: true,
-      });
-      const id = await provider.request({ method: 'eth_chainId' });
-      const accounts = await provider.request({
-        method: 'eth_requestAccounts',
-      });
-      // provier.requi('asdf', (data) => {})
-      onChange({ id: id, account: accounts[0] });
-    })();
-  } catch (err) {
-    onChange(undefined);
-    console.log(err);
-  }
-};
