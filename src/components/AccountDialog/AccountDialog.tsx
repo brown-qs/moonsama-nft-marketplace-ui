@@ -44,7 +44,7 @@ export const AccountDialog = () => {
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT);
 
   const sortedRecentTransactions = useSortedRecentTransactions();
-  const {addNetwork} = useAddNetworkToMetamaskCb()
+  const { addNetwork } = useAddNetworkToMetamaskCb();
 
   const pendingTransactions = sortedRecentTransactions
     .filter((tx) => !tx.receipt)
@@ -193,36 +193,44 @@ export const AccountDialog = () => {
 
   function getOptions() {
     const isMetamask = window.ethereum && window.ethereum.isMetaMask;
-    console.debug('getOptions isMetamask', isMetamask)
+    console.debug('getOptions isMetamask', isMetamask);
     return Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
-      console.log('Option: ', {isMobile, key, option, isMetamask, ww3: !!window.web3, we: !!window.ethereum})
-      if (isMobile) {
+      console.log('Option: ', {
+        isMobile,
+        key,
+        option,
+        isMetamask,
+        ww3: !!window.web3,
+        we: !!window.ethereum,
+      });
+      let TisMobile = true;
+      if (TisMobile) {
         //disable portis on mobile for now
         //if (option.connector === portis) {
         //  return null
         //}
 
-        if (!window.web3 && !window.ethereum && option.mobile) {
-          return (
-            <OptionCard
-              onClick={() => {
-                option.connector !== connector &&
-                  !option.href &&
-                  tryActivation(option.connector);
-              }}
-              id={`connect-${key}`}
-              key={key}
-              active={option.connector && option.connector === connector}
-              color={option.color}
-              link={option.href}
-              header={option.name}
-              subheader={null}
-              icon={option.icon}
-            />
-          );
-        }
+        // if (!window.web3 && !window.ethereum && option.mobile) {
+        return (
+          <OptionCard
+            id={`connect-${key}`}
+            onClick={() => {
+              option.connector === connector
+                ? setWalletView(WALLET_VIEWS.ACCOUNT)
+                : !option.href && tryActivation(option.connector);
+            }}
+            key={key}
+            active={option.connector === connector}
+            color={option.color}
+            link={option.href}
+            header={option.name}
+            subheader={null} //use option.descriptio to bring back multi-line
+            icon={option.icon}
+          />
+        );
+        // }
         return null;
       }
 
@@ -321,37 +329,37 @@ export const AccountDialog = () => {
     if (error) {
       return (
         <div className={styles.dialogContainer}>
-          {(error instanceof UnsupportedChainIdError) && <>
-            <div>
-              Wrong Network
-            </div>
-            <h5>Please connect to the appropriate Ethereum network.</h5>
-            <Button
-              //className={formButton}
-              onClick={() => {
-                addNetwork(ChainId.MOONRIVER)
-              }}
-              color="primary"
-            >
-              Switch to Moonriver
-            </Button>
-            <Button
-              //className={formButton}
-              onClick={() => {
-                addNetwork(ChainId.MOONBEAM)
-              }}
-              color="primary"
-            >
-              Switch to Moonbeam
-            </Button>
-          </>}
+          {error instanceof UnsupportedChainIdError && (
+            <>
+              <div>Wrong Network</div>
+              <h5>Please connect to the appropriate Ethereum network.</h5>
+              <Button
+                //className={formButton}
+                onClick={() => {
+                  addNetwork(ChainId.MOONRIVER);
+                }}
+                color="primary"
+              >
+                Switch to Moonriver
+              </Button>
+              <Button
+                //className={formButton}
+                onClick={() => {
+                  addNetwork(ChainId.MOONBEAM);
+                }}
+                color="primary"
+              >
+                Switch to Moonbeam
+              </Button>
+            </>
+          )}
 
-          {!(error instanceof UnsupportedChainIdError) && <>
-            <div>
-              Something went wrong!
-            </div>
-            <h5>Error connecting. Try refreshing the page.</h5>
-          </>}
+          {!(error instanceof UnsupportedChainIdError) && (
+            <>
+              <div>Something went wrong!</div>
+              <h5>Error connecting. Try refreshing the page.</h5>
+            </>
+          )}
         </div>
       );
     }
@@ -363,7 +371,7 @@ export const AccountDialog = () => {
             {showConnectedAccountDetails()}
           </div>
           {account &&
-            (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
+          (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
             <div className={styles.lowerSection}>
               <div className={styles.autoRow}>
                 <Typography>Recent transactions</Typography>
