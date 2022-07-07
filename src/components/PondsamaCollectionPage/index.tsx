@@ -192,26 +192,18 @@ const PondsamaCollectionPage = () => {
         staticData: StaticTokenData;
       }[] = [];
       for (let index = 0; index < data.length; index++) {
+        console.log("data111", data[index].meta, !!data[index].meta)
         if (!!data[index].meta) pieces.push(data[index]);
       }
       setPageLoading(false);
-
-      //for scroll infinite
-      // if (isEnd) {
-      //   setPaginationEnded(true);
-      //   setCollection((state) => state.concat(pieces));
-      //   return;
-      // }
-      // setCollection((state) => state.concat(pieces));
-
-      console.log('data11', data);
-
+      
       if (isEnd) {
         setPaginationEnded(true);
         setCollection(pieces);
         return;
       }
       setCollection(pieces);
+      console.log('data11', data, pieces, collection);
     };
     if (!paginationEnded && searchCounter) {
       getCollectionById();
