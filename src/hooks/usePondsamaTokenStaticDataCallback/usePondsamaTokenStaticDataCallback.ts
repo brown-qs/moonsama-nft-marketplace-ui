@@ -121,8 +121,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   let coll = useRawcollection(assetAddress ?? '');
   let subgraph = coll ? coll?.subgraph : '';
 
-  const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
-
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
   const fetchTokenStaticData = useCallback(

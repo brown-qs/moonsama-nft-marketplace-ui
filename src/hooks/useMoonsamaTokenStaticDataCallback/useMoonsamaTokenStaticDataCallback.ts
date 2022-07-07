@@ -24,9 +24,11 @@ import {
   QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
+  QUERY_ERC721_ACTIVE_ID,
   QUERY_ERC721_CONTRACT_DATA,
   QUERY_ERC721_OWNED_ID,
   QUERY_ERC721_NOTOWNED_ID,
+  QUERY_ERC721_ID_IN,
 } from 'subgraph/erc721Queries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -54,66 +56,56 @@ export type TokenStaticFetchInput = {
   offset: BigNumber;
 };
 
+export type AssetWithUri = Asset & { tokenURI: string };
+
+export type TokenSubgraphQueryResult = {
+  uri: string;
+  numericId: string;
+  id: string;
+};
+
+export type TokenSubgraphQueryResults = {
+  tokens: TokenSubgraphQueryResult[];
+};
+
 const chooseMoonsamaAssets = (
   assetType: StringAssetType,
   assetAddress: string,
   offset: BigNumber,
   num: number,
-  ids: number[],
-  minId: number,
-  maxId: number,
+  idsAndUris: { tokenURI: string; assetId: string }[],
   direction: SortOption
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
-  let chosenAssets: Asset[];
+  let chosenAssets: AssetWithUri[];
 
   // in this case offsetnum should be substracted one
-  if (ids?.length > 0) {
+  if (idsAndUris?.length > 0) {
     //console.log('xxxx')
-    if (offsetNum >= ids.length) {
+    if (offsetNum >= idsAndUris.length) {
       return [];
     }
-    const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
+    const to =
+      offsetNum + num >= idsAndUris.length
+        ? idsAndUris.length
+        : offsetNum + num;
     let chosenIds = [];
 
     if (direction === SortOption.TOKEN_ID_ASC)
-      chosenIds = ids.slice(offsetNum, to);
-    else chosenIds = [...ids].reverse().slice(offsetNum, to);
+      chosenIds = idsAndUris.slice(offsetNum, to);
+    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
-    console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
       return {
-        assetId: x.toString(),
+        assetId: x.assetId,
         assetType,
         assetAddress,
-        id: getAssetEntityId(assetAddress, x),
+        id: getAssetEntityId(assetAddress, x.assetId),
+        tokenURI: x.tokenURI,
       };
     });
-  } else if (!ids.length) {
-    return [];
   } else {
-    const rnum =
-      maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
-
-    console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
-    if (rnum === 0) {
-      return [];
-    }
-
-    chosenAssets = Array.from({ length: rnum }, (_, i) => {
-      let x;
-      if (direction === SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
-      else x = (maxId - (offsetNum - minId) - i).toString();
-
-      return {
-        assetId: x,
-        assetType,
-        assetAddress,
-        id: getAssetEntityId(assetAddress, x),
-      };
-    });
-
-    console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
+    return [];
   }
 
   return chosenAssets;
@@ -132,25 +124,10 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
     subcollectionId,
   });
   const { chainId, account } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
 
   const fetchUri = useFetchTokenUriCallback();
   let ids = useMoonsamaAttrIds(filter?.traits);
   let coll = useRawcollection(assetAddress ?? '');
-  if (!!subcollectionId && subcollectionId !== '0') {
-    ids =
-      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
-        ?.tokens ?? [];
-  }
-  const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
-  const maxId = coll?.maxId ?? 1000;
-
-  if (!ids?.length) {
-    for (let i = minId; i <= maxId; i++) ids.push(i);
-  }
-
-  // console.log('ids1', ids);
-  // console.log('coll1', coll);
 
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -166,78 +143,90 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         console.log({ assetAddress, assetType });
         return [];
       }
+
+      let idsAndUris: { tokenURI: string; assetId: string }[] = [];
+
       const owned: OwnedFilterType | undefined = filter?.owned;
-      if (owned != undefined && owned != OwnedFilterType.All) {
-        const moonsamaTotalyQuery = QUERY_ERC721_CONTRACT_DATA();
-        const moonsamaTotalSupply1 = await request(
-          subgraph,
-          moonsamaTotalyQuery
-        );
-        let moonsamaTotalSupply = parseInt(
-          moonsamaTotalSupply1.contract.totalSupply
-        );
-        let res = [],
-          tempIds: number[] = [],
-          moonsamaQuery: any,
-          res1;
-        if (moonsamaTotalSupply <= 1000) {
-          if (owned === OwnedFilterType.OWNED && account)
-            moonsamaQuery = QUERY_ERC721_OWNED_ID(
-              0,
-              moonsamaTotalSupply,
-              account
-            );
+      const moonsamaTotalyQuery = QUERY_ERC721_CONTRACT_DATA();
+      const moonsamaTotalSupply1 = await request(subgraph, moonsamaTotalyQuery);
+      let moonsamaTotalSupply = parseInt(
+        moonsamaTotalSupply1.contract.totalSupply
+      );
+      let res = [],
+        moonsamaQuery: any,
+        res1;
+      if (moonsamaTotalSupply <= 1000) {
+        if (!owned)
+          moonsamaQuery = QUERY_ERC721_ACTIVE_ID(0, moonsamaTotalSupply);
+        else if (owned === OwnedFilterType.OWNED && account)
+          moonsamaQuery = QUERY_ERC721_OWNED_ID(
+            0,
+            moonsamaTotalSupply,
+            account
+          );
+        else if (owned === OwnedFilterType.NOTOWNED && account)
+          moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(
+            0,
+            moonsamaTotalSupply,
+            account
+          );
+        else moonsamaQuery = QUERY_ERC721_ACTIVE_ID(0, moonsamaTotalSupply);
+        res1 = await request(subgraph, moonsamaQuery);
+        res = res1.tokens;
+      } else {
+        let from = 0;
+        while (from < moonsamaTotalSupply) {
+          if (!owned) moonsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
+          else if (owned === OwnedFilterType.OWNED && account)
+            moonsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
           else if (owned === OwnedFilterType.NOTOWNED && account)
-            moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(
-              0,
-              moonsamaTotalSupply,
-              account
-            );
-          res1 = await request(subgraph, moonsamaQuery);
-          res = res1.tokens;
-        } else {
-          let from = 0;
-          while (from < moonsamaTotalSupply) {
-            if (owned === OwnedFilterType.OWNED && account)
-              moonsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
-            else if (owned === OwnedFilterType.NOTOWNED && account)
-              moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
-            let res1 = await request(subgraph, moonsamaQuery);
-            for (let i = 0; i < res1.tokens.length; i++)
-              res.push(res1.tokens[i]);
-            from += 1000;
-          }
+            moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
+          else moonsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
+          let res1 = await request(subgraph, moonsamaQuery);
+          for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
+          from += 1000;
         }
-        for (let i = 0; i < res.length; i++) {
-          if (ids.includes(parseInt(res[i].numericId))) tempIds.push(parseInt(res[i].numericId));
-        }
-        ids = tempIds;
+      }
+      for (let i = 0; i < res.length; i++) {
+        if (!ids.length || (ids.length && ids.includes(parseInt(res[i].numericId))))
+          idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
       }
 
+      const CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
+      const contractData = await request(subgraph, CONTRACT_QUERY);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         // console.log('fetch statistics');
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
-        let calls: any[] = [];
-        assets.map((asset, i) => {
-          calls = [...calls, ...getTokenStaticCalldata(asset)];
-        });
 
-        const results = await tryMultiCallCore(multi, calls);
-
-        if (!results) {
+        if (!assets) {
           return [];
         }
 
-        console.log('yolo tryMultiCallCore res', results);
-        const staticData = processTokenStaticCallResults(assets, results);
-        console.log('staticData', { staticData });
+        const query = QUERY_ERC721_ID_IN(assets.map((a) => a.assetId));
+        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
+        const tokens = ress.tokens;
+
+        // console.log('yolo tryMultiCallCore res', results);
+        const staticData: StaticTokenData[] = assets.map((ca) => {
+          const tok = tokens.find(
+            (t) => t.numericId === ca.assetId
+          ) as TokenSubgraphQueryResult;
+          return {
+            asset: ca,
+            decimals: contractData.contract.decimals,
+            contractURI: contractData.contract.contractURI,
+            name: contractData.contract.name,
+            symbol: contractData.contract.symbol,
+            totalSupply: contractData.contract.totalSupply,
+            tokenURI: tok.uri,
+          };
+        });
+        // console.log('staticData', { staticData });
 
         const metas = await fetchUri(staticData);
-
-        console.log('metas', metas);
 
         return metas.map((x, i) => {
           return {
@@ -260,9 +249,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           assetAddress,
           offset,
           num,
-          ids,
-          minId,
-          maxId,
+          idsAndUris,
           sortBy
         );
 
@@ -275,7 +262,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           console.log('DEFAULT SEARCH', {
             assetAddress,
             assetType,
-            ids,
+            idsAndUris,
             num,
             offset: offset?.toString(),
             chosenAssets,
@@ -287,9 +274,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             assetAddress,
             offset,
             num,
-            ids,
-            minId,
-            maxId,
+            idsAndUris,
             sortBy
           );
           const statics = await fetchStatics(chosenAssets);
@@ -301,7 +286,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         console.log('SEARCH', {
           assetAddress,
           assetType,
-          ids,
+          idsAndUris,
           num,
           offset: offset?.toString(),
           chosenAssets,
@@ -347,7 +332,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             num,
             pager: pager.toString(),
             ids,
-            maxId,
           });
 
           if (ordersFetch.length >= num) {
@@ -362,9 +346,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             assetAddress,
             pager,
             num,
-            ids,
-            minId,
-            maxId,
+            idsAndUris,
             sortBy
           );
 
@@ -416,7 +398,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       });
 
       const result = await fetchStatics(theAssets, orders);
-      // console.log('final result', result);
       let totalLength1 = num === 1 ? num : orders.length;
       return { data: result, length: totalLength1 };
     },
