@@ -211,12 +211,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        // console.log('fetch statistics');
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
-
         if (!assets) {
           return [];
         }
@@ -224,28 +222,24 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         const query = QUERY_ERC721_ID_IN(assets.map((a) => a.assetId));
         const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
         const tokens = ress.tokens;
-
-        // console.log('yolo tryMultiCallCore res', results);
-        const staticData: StaticTokenData[] = assets.map((ca) => {
-          const tok = tokens.find(
-            (t) => t.numericId === ca.assetId
-          ) as TokenSubgraphQueryResult;
-          return {
-            asset: ca,
-            decimals: contractData.contract.decimals,
-            contractURI: contractData.contract.contractURI,
-            name: contractData.contract.name,
-            symbol: contractData.contract.symbol,
-            totalSupply: contractData.contract.totalSupply,
-            tokenURI: tok.uri,
-          };
-        });
-        // console.log('staticData', { staticData });
-
+        let staticData: StaticTokenData[] = [];
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            const tok = tokens.find(
+              (t) => t.numericId === ca.assetId
+            ) as TokenSubgraphQueryResult;
+            return {
+              asset: ca,
+              decimals: contractData.contract.decimals,
+              contractURI: contractData.contract.contractURI,
+              name: contractData.contract.name,
+              symbol: contractData.contract.symbol,
+              totalSupply: contractData.contract.totalSupply,
+              tokenURI: tok.uri,
+            };
+          });
+        }
         const metas = await fetchUri(staticData);
-
-        console.log('metas', metas);
-
         return metas.map((x, i) => {
           return {
             meta: x,
@@ -258,24 +252,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       let ordersFetch: any[] = [];
 
       if (
-        (!priceRange ||
-          priceRange.length === 0 ||
-          priceRange.length !== 2 ||
-          !selectedOrderType) &&
-        (sortBy === SortOption.TOKEN_ID_ASC ||
-          sortBy === SortOption.TOKEN_ID_DESC)
-      ) {
-        console.log("ahaha1")
-        // const chosenAssets = choosePondsamaAssets(
-        //   assetType,
-        //   assetAddress,
-        //   idsAndUris,
-        //   sortBy
-        // );
-        // const statics = await fetchStatics(chosenAssets);
-        // let totalLength = num === 1 ? num : idsAndUris.length;
-        // return { data: statics, length: totalLength };
-      } else if (
         !(
           !priceRange ||
           priceRange.length === 0 ||
@@ -285,23 +261,20 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         (sortBy === SortOption.TOKEN_ID_ASC ||
           sortBy === SortOption.TOKEN_ID_DESC)
       ) {
-        console.log("ahaha2")
-
         let chosenAssets = choosePondsamaAssetsAll(
           assetType,
           assetAddress,
           idsAndUris,
           sortBy
         );
-        console.log('SEARCH', {
-          assetAddress,
-          assetType,
-          idsAndUris,
-          num,
-          offset: offset?.toString(),
-          chosenAssets,
-        });
-
+        // console.log('SEARCH', {
+        //   assetAddress,
+        //   assetType,
+        //   idsAndUris,
+        //   num,
+        //   offset: offset?.toString(),
+        //   chosenAssets,
+        // });
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
         );
@@ -340,7 +313,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_ASC ||
         sortBy === SortOption.PRICE_DESC
       ) {
-        console.log("ahaha3")
         let index = 0;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
@@ -387,14 +359,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       idsAndUris.map((idsAndUri, i) => {
-        if (!theAssetNumber.length || theAssetNumber.includes(idsAndUri.assetId))
-        tempIdsAndUris.push(idsAndUri);
+        if (
+          !theAssetNumber.length ||
+          theAssetNumber.includes(idsAndUri.assetId)
+        )
+          tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
-      console.log("ahaha4", ordersFetch, idsAndUris)
       let totalLength =
         idsAndUris.length % 300
           ? Math.floor(idsAndUris.length / 300) + 1
@@ -482,7 +455,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           sortBy
         );
         const statics = await fetchStatics(chosenAssets);
-        console.log("ahaha6", statics, idsAndUris)
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
       } else {
@@ -492,21 +464,19 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             ? theAssets.length
             : offsetNum + num;
         let sliceAssets = theAssets.slice(offsetNum, to);
-        console.log("ahaha7", sliceAssets, theAssets)
         const result = await fetchStatics(sliceAssets, orders);
         let totalLength1 = num === 1 ? num : theAssets.length;
         return { data: result, length: totalLength1 };
       }
 
       const result = newMetas.map((x, i) => {
-          return {
-            meta: x,
-            staticData: totalStaicDatas[i],
-            order: orders?.[i],
-          };
-        });
-      
-      console.log("ahaha5", result)
+        return {
+          meta: x,
+          staticData: totalStaicDatas[i],
+          order: orders?.[i],
+        };
+      });
+
       let totalLength1 = num === 1 ? num : newMetas.length;
       return { data: result, length: totalLength1 };
     },

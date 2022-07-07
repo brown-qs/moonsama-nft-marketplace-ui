@@ -192,7 +192,6 @@ const PondsamaCollectionPage = () => {
         staticData: StaticTokenData;
       }[] = [];
       for (let index = 0; index < data.length; index++) {
-        console.log("data111", data[index].meta, !!data[index].meta)
         if (!!data[index].meta) pieces.push(data[index]);
       }
       setPageLoading(false);
@@ -203,7 +202,7 @@ const PondsamaCollectionPage = () => {
         return;
       }
       setCollection(pieces);
-      console.log('data11', data, pieces, collection);
+      // console.log('data11', data, pieces, collection);
     };
     if (!paginationEnded && searchCounter) {
       getCollectionById();
