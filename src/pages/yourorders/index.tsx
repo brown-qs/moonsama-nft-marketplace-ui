@@ -37,6 +37,7 @@ import {
   useApprovedPaymentCurrency,
   useApprovedPaymentCurrencyCallback,
 } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
+import { useState } from 'react';
 
 const geTableHeader = () => {
   return (
@@ -85,6 +86,7 @@ export const MyOrdersPage = () => {
 
   const { setPurchaseData, setPurchaseDialogOpen } = usePurchaseDialog();
   const { setCancelData, setCancelDialogOpen } = useCancelDialog();
+  const [currentTab, setCurrentTab] = useState<number>(0);
   const decimalOverrides = useDecimalOverrides();
 
   const ordersMap = useUserOrders({
@@ -302,6 +304,10 @@ export const MyOrdersPage = () => {
       <Tabs
         containerClassName={tabsContainer}
         tabsClassName={tabs}
+        currentTab={currentTab}
+        onTabChanged={(value: number) => {
+          setCurrentTab(value);
+        }}
         tabs={[
           {
             label: 'Your Offers',
