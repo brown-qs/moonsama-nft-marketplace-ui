@@ -38,7 +38,7 @@ import { useTokenBasicData } from 'hooks/useTokenBasicData.ts/useTokenBasicData'
 import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 
-const DEFAULT_PAGE_SIZE = 12;
+const DEFAULT_PAGE_SIZE = 24;
 const SEARCH_PAGE_SIZE = 50;
 
 const CollectionDefaultPage = () => {
@@ -384,7 +384,7 @@ const CollectionDefaultPage = () => {
           <GlitchText variant="h2">{submeta?.[0].name}</GlitchText>
         )}
         <Stack
-          direction={{ xs: 'column', sm: 'row' }}
+          direction={{ xs: 'column', sm: 'column', md: 'row' }}
           spacing={{ xs: 1, sm: 2, md: 4 }}
           sx={{
             marginTop: '10px',
