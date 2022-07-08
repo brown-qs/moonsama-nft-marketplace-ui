@@ -15,22 +15,29 @@ type TabsProps = {
   tabs: { label: string; view: ReactNode }[];
   containerClassName?: string;
   tabsClassName?: string;
+  currentTab?: number ;
+  onTabChanged?: Function;
 };
 
 export const Tabs = ({
   tabs,
   containerClassName,
   tabsClassName,
+  currentTab,
+  onTabChanged
 }: TabsProps) => {
-  const [currentTab, setCurrentTab] = React.useState<number>(0);
   const { tab, tabsStyles, selected } = useClasses(styles);
 
   const handleChange = (event: unknown, newValue: number) => {
-    setCurrentTab(newValue);
+    if (typeof onTabChanged === 'function') {
+      onTabChanged(newValue);
+    }
   };
 
   const handleChangeIndex = (index: number) => {
-    setCurrentTab(index);
+    if (typeof onTabChanged === 'function') {
+      onTabChanged(index);
+    }
   };
 
   return (

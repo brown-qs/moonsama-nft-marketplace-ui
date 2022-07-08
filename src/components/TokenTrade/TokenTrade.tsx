@@ -9,7 +9,7 @@ import { useApprovedPaymentCurrency } from 'hooks/useApprovedPaymentCurrencies/u
 import { useDecimalOverrides } from 'hooks/useDecimalOverrides/useDecimalOverrides';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { useHistory } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
 import { GlitchText, PriceBox } from 'ui';
 import { getExplorerLink, truncateHexString } from 'utils';
 import { Fraction } from 'utils/Fraction';
@@ -41,7 +41,7 @@ export const TokenTrade = ({
     lastPriceContainer,
     smallText,
   } = useClasses(styles);
-  const { push } = useHistory();
+  const navigate = useNavigate ();
 
   const { chainId } = useActiveWeb3React();
   const decimalOverrides = useDecimalOverrides();
@@ -54,7 +54,7 @@ export const TokenTrade = ({
   //console.log('FRESH', {asset, action, actionColor})
 
   const handleImageClick = () => {
-    push(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
+    navigate(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
   };
 
   const decimals =

@@ -14,7 +14,7 @@ export function useFetchTokenUriCallback() {
       }
 
       const promises = uris.map(async (uri) => {
-        console.log('uri', { uri });
+        //console.log('uri', { uri });
         // FIXME fucking black NFTs
         const rawmeta = await cb<TokenMeta>(
           uri?.tokenURI ===
@@ -24,7 +24,7 @@ export function useFetchTokenUriCallback() {
           false
         );
 
-        console.log('rawMeta', { rawmeta });
+        //console.log('rawMeta', { rawmeta });
 
         let meta;
         if (typeof rawmeta === 'string' || rawmeta instanceof String) {

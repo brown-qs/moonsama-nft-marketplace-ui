@@ -1,5 +1,7 @@
 import {
-  ChainId, DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS
+  ChainId,
+  DEFAULT_CHAIN,
+  MARKETPLACE_SUBGRAPH_URLS,
 } from '../../constants';
 import { request } from 'graphql-request';
 import { inferOrderTYpe, OrderType, parseOrder } from 'utils/subgraph';
@@ -29,7 +31,10 @@ export const useLatestOrdersWithStaticCallback = () => {
     async (num: number, offset: number) => {
       console.log('order query', offset, num);
       const query = QUERY_LATEST_ORDERS(offset, num);
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -47,7 +52,10 @@ export const useLatestBuyOrdersWithStaticCallback = () => {
     async (num: number, offset: number) => {
       console.log('order query', offset, num);
       const query = QUERY_LATEST_BUY_ORDERS(`${AddressZero}-0`, offset, num);
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -65,9 +73,53 @@ export const useLatestSellOrdersWithStaticCallback = () => {
     async (num: number, offset: number) => {
       console.log('order query', offset, num);
       const query = QUERY_LATEST_SELL_ORDERS(`${AddressZero}-0`, offset, num);
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
+    },
+    [chainId]
+  );
+
+  return fetchLatestOrdersWithStatic;
+};
+
+export const useLatestSellOrdersForTokenTotalSupplyWithStaticCallback = () => {
+  const { chainId } = useActiveWeb3React();
+  const fetchLatestOrdersWithStatic = useCallback(
+    async (tokenAddress: string, sortBy: string, sortDirection: string) => {
+      let totalCount = 0,
+        skip = 0,
+        isLoop = true;
+      while (isLoop) {
+        const query = QUERY_LATEST_SELL_ORDERS_FOR_TOKEN(
+          `${AddressZero}-0`,
+          tokenAddress,
+          skip,
+          1000,
+          sortBy,
+          sortDirection
+        );
+        const response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        if (!response) {
+          skip += 1000;
+          continue;
+        }
+        const latestOrders: Order[] = (response.latestOrders ?? []).filter(
+          (item: Order | undefined) => !!item
+        );
+        if (!response.latestOrders.length) isLoop = false;
+        else {
+          totalCount += latestOrders.length;
+          skip += 1000;
+        }
+      }
+      return totalCount;
     },
     [chainId]
   );
@@ -80,7 +132,13 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
   const staticCallback = useTokenStaticDataCallbackArray();
 
   const fetchLatestOrdersWithStatic = useCallback(
-    async (tokenAddress: string, num: number, offset: number, sortBy: string, sortDirection: string) => {
+    async (
+      tokenAddress: string,
+      num: number,
+      offset: number,
+      sortBy: string,
+      sortDirection: string
+    ) => {
       console.log('order query', offset, num);
       const query = QUERY_LATEST_SELL_ORDERS_FOR_TOKEN(
         `${AddressZero}-0`,
@@ -88,11 +146,55 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
         offset,
         num,
         sortBy,
-        sortDirection,
+        sortDirection
       );
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
+    },
+    [chainId]
+  );
+
+  return fetchLatestOrdersWithStatic;
+};
+
+export const useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback = () => {
+  const { chainId } = useActiveWeb3React();
+  const fetchLatestOrdersWithStatic = useCallback(
+    async (tokenAddress: string, sortBy: string, sortDirection: string) => {
+      let totalCount = 0,
+        skip = 0,
+        isLoop = true;
+      while (isLoop) {
+        const query = QUERY_LATEST_BUY_ORDERS_FOR_TOKEN(
+          `${AddressZero}-0`,
+          tokenAddress,
+          skip,
+          1000,
+          sortBy,
+          sortDirection
+        );
+        const response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        if (!response) {
+          skip += 1000;
+          continue;
+        }
+        const latestOrders: Order[] = (response.latestOrders ?? []).filter(
+          (item: Order | undefined) => !!item
+        );
+        if (!response.latestOrders.length) isLoop = false;
+        else {
+          totalCount += latestOrders.length;
+          skip += 1000;
+        }
+      }
+      return totalCount;
     },
     [chainId]
   );
@@ -105,7 +207,13 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
   const staticCallback = useTokenStaticDataCallbackArray();
 
   const fetchLatestOrdersWithStatic = useCallback(
-    async (tokenAddress: string, num: number, offset: number, sortBy: string, sortDirection: string) => {
+    async (
+      tokenAddress: string,
+      num: number,
+      offset: number,
+      sortBy: string,
+      sortDirection: string
+    ) => {
       console.log('order query', offset, num);
       const query = QUERY_LATEST_BUY_ORDERS_FOR_TOKEN(
         `${AddressZero}-0`,
@@ -113,9 +221,12 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
         offset,
         num,
         sortBy,
-        sortDirection,
+        sortDirection
       );
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -140,7 +251,10 @@ export const useLatestSellOrdersWithoutTokenWithStaticCallback = (
         offset,
         num
       );
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -165,7 +279,10 @@ export const useLatestBuyOrdersWithoutTokenWithStaticCallback = (
         offset,
         num
       );
-      const response = await request(MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN], query);
+      const response = await request(
+        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+        query
+      );
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },

@@ -9,23 +9,31 @@ import { useClasses } from 'hooks';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Drawer } from 'ui';
-import { OrderType } from 'utils/subgraph';
-import { styles } from './Filters.style';
+import { MOONSAMA_TRAITS } from 'utils/constants';
+import { OrderType, OwnedFilterType } from 'utils/subgraph';
+import { styles } from './MoonsamaFilter.style';
+import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 
-export interface Filters {
+export interface MoonsamaFilter {
   priceRange: number[];
+  traits: string[];
   selectedOrderType: OrderType | undefined;
+  owned: OwnedFilterType | undefined;
 }
 
 interface Props {
-  onFiltersUpdate: (x: Filters) => void;
+  onFiltersUpdate: (x: MoonsamaFilter) => void;
 }
 
-export const Filters = ({ onFiltersUpdate }: Props) => {
+export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
   const [priceRange, setPriceRange] = useState<number[]>([1, 2500]);
+  const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [selectedOrderType, setSelectedOrderType] = useState<
     OrderType | undefined
+  >(undefined);
+  const [selectedOwnedType, setSelectedOwnedType] = useState<
+    OwnedFilterType | undefined
   >(undefined);
   const {
     filtersDrawerContent,
@@ -34,51 +42,43 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     accordionHeader,
     accordionContent,
     filterChip,
-    priceRangeWrapper,
     priceInput,
     filtersTitle,
   } = useClasses(styles);
 
+  const { account } = useActiveWeb3React();
   const [searchParams] = useSearchParams();
   const filter = searchParams.get('filter') ?? '';
   useEffect(() => {
     if (filter.length >= 1) {
-      let newFilter: Filters = JSON.parse(filter);
+      let newFilter: MoonsamaFilter = JSON.parse(filter);
       setSelectedOrderType(newFilter?.selectedOrderType);
       setPriceRange(newFilter?.priceRange);
+      setSelectedTraits(newFilter?.traits);
+      setSelectedOwnedType(newFilter?.owned);
     }
   }, []);
 
   const handleApplyFilters = () => {
     onFiltersUpdate({
       selectedOrderType,
+      traits: selectedTraits,
       priceRange,
+      owned: selectedOwnedType,
     });
     setIsDrawerOpened(false);
   };
-
-  // const handlePriceRangeChange = (
-  //   event: Event,
-  //   newValue: number | number[]
-  // ) => {
-  //   console.log('click', newValue);
-  //   setPriceRange(newValue as number[]);
-  // };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
 
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
-
-    console.log('click', newRange);
 
     if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
       setPriceRange(newRange);
@@ -87,6 +87,20 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
 
   const handleOrderTypeClick = (orderType: OrderType | undefined) => {
     setSelectedOrderType(orderType);
+  };
+
+  const handleTraitClick = (trait: string) => {
+    if (selectedTraits.includes(trait)) {
+      setSelectedTraits(
+        selectedTraits.filter((selectedTrait) => selectedTrait !== trait)
+      );
+      return;
+    }
+    setSelectedTraits([...selectedTraits, trait]);
+  };
+
+  const handleOwnedTypeClick = (owned: OwnedFilterType | undefined) => {
+    setSelectedOwnedType(owned);
   };
 
   return (
@@ -184,31 +198,80 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                     defaultValue={priceRange[1]}
                   />
                 </Stack>
-                {/*
-                <Slider
-                  getAriaLabel={() => 'Price range'}
-                  value={priceRange}
-                  onChange={handlePriceRangeChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={5000}
-                  sx={{
-                    "& .MuiSlider-thumb":{
-                      color: "#710021",
-                    },
-                    "& .MuiSlider-track": {
-                      color: '#710021'
-                    },
-                    "& .MuiSlider-rail": {
-                      color: '#c5c5c5'
-                    }
-                  }}
-                />
-                <div className={priceRangeWrapper}>
-                  <div>{`${priceRange[0]} MOVR`}</div>
-                  <div>{`${priceRange[1]} MOVR`}</div>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion defaultExpanded square className={filterAccordion}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography className={accordionHeader}>Owned</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {account ? (
+                  <div className={accordionContent}>
+                    <Chip
+                      label="Owned"
+                      variant="outlined"
+                      onClick={() =>
+                        handleOwnedTypeClick(OwnedFilterType.OWNED)
+                      }
+                      className={`${filterChip} ${
+                        selectedOwnedType === OwnedFilterType.OWNED && 'selected'
+                      }`}
+                    />
+                    <Chip
+                      label="Not OWned"
+                      variant="outlined"
+                      onClick={() =>
+                        handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
+                      }
+                      className={`${filterChip} ${
+                        selectedOwnedType === OwnedFilterType.NOTOWNED &&
+                        'selected'
+                      }`}
+                    />
+                    <Chip
+                      label="All"
+                      variant="outlined"
+                      onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
+                      className={`${filterChip} ${
+                        selectedOwnedType === OwnedFilterType.All && 'selected'
+                      }`}
+                    />
+                  </div>
+                ) : (
+                  <div className={accordionContent}>
+                    <Typography className={accordionHeader}>
+                      Please connect your wallet!
+                    </Typography>
+                  </div>
+                )}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion defaultExpanded square className={filterAccordion}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel2a-content"
+                id="panel2a-header"
+              >
+                <Typography className={accordionHeader}>Traits</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div className={accordionContent}>
+                  {Object.keys(MOONSAMA_TRAITS).map((trait, i) => (
+                    <Chip
+                      label={trait}
+                      key={`${trait}-${i}`}
+                      variant="outlined"
+                      onClick={() => handleTraitClick(trait)}
+                      className={`${filterChip} ${
+                        selectedTraits.includes(trait) && 'selected'
+                      }`}
+                    />
+                  ))}
                 </div>
-                */}
               </AccordionDetails>
             </Accordion>
             <Button

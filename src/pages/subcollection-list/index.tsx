@@ -29,7 +29,7 @@ import { collectionListStyles } from './subcollection-list.styles';
 export const SubcollectionListPage = () => {
   let { address } = useParams<{ address: string }>();
 
-  const collection = useRawcollection(address);
+  const collection = useRawcollection(address ?? '');
   const subcollections = collection?.subcollections ?? [];
   const metas = useFetchSubcollectionMeta(subcollections);
 
@@ -110,9 +110,9 @@ const SubcollectionListItem = (
           to={
             isErc20
               ? `/token/${collection?.type}/${collection?.address}/0`
-              : `/collection/${collection?.type}/${collection?.address}/${
-                  subcollection?.id ?? '0'
-                }`
+              : `/collection/${collection?.type}/${
+                  collection?.address
+                }/${subcollection?.id ?? '0'}?page=1&sort=3`
           }
         >
           <div className={mediaContainer}>

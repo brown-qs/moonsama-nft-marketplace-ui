@@ -6,7 +6,7 @@ import { useActiveWeb3React, useClasses } from 'hooks';
 import { Asset } from 'hooks/marketplace/types';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { useHistory } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
 import { GlitchText } from 'ui';
 import { formatAmountFractionString, truncateHexString } from 'utils';
 import { StringAssetType } from 'utils/subgraph';
@@ -49,7 +49,7 @@ export const TokenOwned = ({
 
   const { expand, expandOpen } = useClasses(appStyles);
 
-  const { push } = useHistory();
+  const navigate = useNavigate ();
 
   const { chainId } = useActiveWeb3React();
   const decimalOverrides = useDecimalOverrides();
@@ -63,7 +63,7 @@ export const TokenOwned = ({
   //console.log('FRESH', {asset, action, actionColor})
 
   const handleImageClick = () => {
-    push(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
+    navigate(`/token/${asset.assetType}/${asset.assetAddress}/${asset.assetId}`);
   };
 
   const decimals =

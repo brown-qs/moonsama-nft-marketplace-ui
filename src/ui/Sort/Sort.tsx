@@ -7,6 +7,7 @@ import { styles } from './Sort.style';
 
 interface Props {
   onSortUpdate: (option: SortOption) => void;
+  sortBy:  number;
 }
 
 export enum SortOption {
@@ -17,9 +18,8 @@ export enum SortOption {
   TOKEN_ID_DESC = 4,
 }
 
-export const Sort = ({ onSortUpdate }: Props) => {
+export const Sort = ({ onSortUpdate, sortBy }: Props) => {
   const { sortElement} = useClasses(styles);
-
   const handleApplySort = (event:any) => {
     onSortUpdate(event.target.value as SortOption);
   };
@@ -30,7 +30,7 @@ export const Sort = ({ onSortUpdate }: Props) => {
       variant="outlined"
       color="primary"
       IconComponent={SortSharp}
-      defaultValue={SortOption.TOKEN_ID_ASC}
+      defaultValue={sortBy}
       inputProps={{
         name: 'sort',
         id: 'uncontrolled-native',

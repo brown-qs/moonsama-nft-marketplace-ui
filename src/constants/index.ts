@@ -44,7 +44,9 @@ export const NETWORK_NAME: { [chainId: number]: string } = {
 };
 
 export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
-  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev5', // latest multicall 2 deployments
+
+  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev6',
+  // [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev5', // latest multicall 2 deployments
   [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4'
 };
 

@@ -7,7 +7,7 @@ export const styles = () => ({
     height: '100%',
     maxWidth: '100%',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   applyFiltersButton: {
     width: '100%',
@@ -28,20 +28,6 @@ export const styles = () => ({
   },
   accordionContent: {
     maxHeight: '250px',
-    overflowY: 'auto',
-  },
-  pondsamaFilterAccordion: {
-    fontFamily: 'Space Mono, monospace !important',
-    backgroundColor: '#111 !important',
-    color: '#fff !important',
-    maxHeight: '20%',
-
-    '& svg': {
-      color: '#fff',
-    },
-  },
-  pondsamaAccordionContent: {
-    maxHeight: '150px',
     overflowY: 'auto',
   },
   filterChip: {

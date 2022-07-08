@@ -1,15 +1,19 @@
 import { Chip, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
 import { Order } from '../../hooks/marketplace/types';
 import { TokenMeta } from '../../hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import {
   useLatestBuyOrdersForTokenWithStaticCallback,
   useLatestSellOrdersForTokenWithStaticCallback,
+  useLatestSellOrdersForTokenTotalSupplyWithStaticCallback,
+  useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback,
 } from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
 import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useWhitelistedAddresses } from '../../hooks/useWhitelistedAddresses/useWhitelistedAddresses';
-import { useCallback, useEffect, useState } from 'react';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import {
   Drawer,
@@ -31,9 +35,15 @@ import { styles } from './styles';
 type SortDirection = 'asc' | 'desc';
 
 const PAGE_SIZE = 10;
-const ExtendedTableHeader = ({ handleSort, sortDirection, sortBy }:
-  { handleSort: ((sortBy: string) => void), sortDirection: SortDirection, sortBy: string }) => {
-
+const ExtendedTableHeader = ({
+  handleSort,
+  sortDirection,
+  sortBy,
+}: {
+  handleSort: (sortBy: string) => void;
+  sortDirection: SortDirection;
+  sortBy: string;
+}) => {
   return (
     <TableHeader>
       <TableRow>
@@ -41,7 +51,7 @@ const ExtendedTableHeader = ({ handleSort, sortDirection, sortBy }:
         <TableCell sortDirection={sortBy === 'price' ? sortDirection : false}>
           <TableSortLabel
             active={sortBy === 'price'}
-            direction={sortBy === 'price' ? sortDirection : 'asc'} 
+            direction={sortBy === 'price' ? sortDirection : 'asc'}
             onClick={() => {
               handleSort('price');
             }}
@@ -49,15 +59,17 @@ const ExtendedTableHeader = ({ handleSort, sortDirection, sortBy }:
             Unit Price
           </TableSortLabel>
         </TableCell>
-        <TableCell sortDirection={sortBy === 'quantity' ? sortDirection : false}>
+        <TableCell
+          sortDirection={sortBy === 'quantity' ? sortDirection : false}
+        >
           <TableSortLabel
             active={sortBy === 'quantity'}
-            direction={sortBy === 'quantity' ? sortDirection : 'asc'} 
+            direction={sortBy === 'quantity' ? sortDirection : 'asc'}
             onClick={() => {
               handleSort('quantity');
             }}
           >
-          Quantity
+            Quantity
           </TableSortLabel>
         </TableCell>
         <TableCell>From</TableCell>
@@ -65,12 +77,12 @@ const ExtendedTableHeader = ({ handleSort, sortDirection, sortBy }:
         <TableCell sortDirection={sortBy === 'time' ? sortDirection : false}>
           <TableSortLabel
             active={sortBy === 'time'}
-            direction={sortBy === 'time' ? sortDirection : 'asc'} 
+            direction={sortBy === 'time' ? sortDirection : 'asc'}
             onClick={() => {
               handleSort('time');
             }}
           >
-          Created
+            Created
           </TableSortLabel>
         </TableCell>
         <TableCell>Expiration</TableCell>
@@ -100,26 +112,36 @@ const FreshOrdersPage = () => {
   >([]);
 
   const collections = useRawCollectionsFromList();
-
-  const [selectedIndex, setSelectedIndex] = useState<number>(
-    collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
-  );
-  const [take, setTake] = useState<number>(0);
+  let navigate = useNavigate();
+  const sampleLocation = useLocation();
+  const [searchParams] = useSearchParams();
+  const sortByParam = searchParams.get('sortBy') ?? 'time';
+  const tabParamRes = searchParams.get('tab');
+  const tabParam = tabParamRes ? parseInt(tabParamRes) : 0;
+  const sortDirectionParam = searchParams.get('sortDirection') ?? 'desc';
+  const selectedIndexParamRes = searchParams.get('collIndex');
+  const tempIndx =
+    collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0;
+  const selectedIndexParam = selectedIndexParamRes
+    ? parseInt(selectedIndexParamRes)
+    : tempIndx;
+  const pageParamRes = searchParams.get('page');
+  const pageParam = pageParamRes ? parseInt(pageParamRes) : 1;
+  const [selectedIndex, setSelectedIndex] =
+    useState<number>(selectedIndexParam);
+  const [take, setTake] = useState<number>((pageParam - 1) * PAGE_SIZE);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (chainId) {
-      setBuyOrders([]);
-      setSellOrders([]);
-      setSelectedIndex(collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0)
-      setTake(0)
-      setPaginationEnded(false)
-      setPageLoading(false)
-      setIsDrawerOpened(false)
-    }
-  }, [chainId, JSON.stringify(collections)])
+  const [sortBy, setSortBy] = useState(sortByParam);
+  const [sortDirection, setSortDirection] = useState(
+    sortDirectionParam as SortDirection
+  );
+  const [page, setPage] = useState<number>(pageParam);
+  const [currentTab, setCurrentTab] = useState<number>(tabParam);
+  const [orderTotalCount, setOrderTotalCount] = useState<number>(1);
+  const [buyTotalCount, setBuyTotalCount] = useState<number>(1);
+  const [totalCount, setTotalCount] = useState<number>(1);
 
   const {
     placeholderContainer,
@@ -138,60 +160,327 @@ const FreshOrdersPage = () => {
   const getPaginatedSellOrders =
     useLatestSellOrdersForTokenWithStaticCallback();
   const getPaginatedBuyOrders = useLatestBuyOrdersForTokenWithStaticCallback();
+  const getOrderTotal =
+    useLatestSellOrdersForTokenTotalSupplyWithStaticCallback();
+  const getBuyTotal = useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback();
 
   const selectedTokenAddress =
     collections[selectedIndex]?.address?.toLowerCase();
+
+  useEffect(() => {
+    if (chainId) {
+      setBuyOrders([]);
+      setSellOrders([]);
+      // setSelectedIndex(
+      //   collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
+      // );
+      // setTake(0);
+      setPaginationEnded(false);
+      setPageLoading(false);
+      setIsDrawerOpened(false);
+      let newPath =
+        sampleLocation.pathname +
+        '?collIndex=' +
+        selectedIndex +
+        '&page=' +
+        page +
+        '&tab=' +
+        currentTab +
+        '&sortBy=' +
+        sortBy +
+        '&sortDirection=' +
+        sortDirection;
+      navigate(newPath);
+    }
+  }, [chainId, JSON.stringify(collections)]);
 
   const handleSortUpdate = (_sortBy: string) => {
     setBuyOrders([]);
     setSellOrders([]);
     setTake(0);
     setPaginationEnded(false);
+    setPage(1);
     if (_sortBy != sortBy) {
-      setSortBy(_sortBy)
+      // newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   selectedIndex +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   _sortBy +
+      //   '&sortDirection=asc';
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let tempPath = '';
+      let ind = path.search('&sortBy=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
+      } else tempPath = path + '&sortBy=' + _sortBy;
+
+      path = tempPath;
+      ind = path.search('&sortDirection=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortDirection=asc' + path.slice(ind, path.length);
+      } else tempPath = path + '&sortDirection=asc';
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
+      navigate(newPath);
+      setSortBy(_sortBy);
       setSortDirection('asc');
     } else {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    }
-  }
+      let tempSortDirection: SortDirection =
+        sortDirection === 'asc' ? 'desc' : 'asc';
+      setSortDirection(tempSortDirection);
+      // newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   selectedIndex +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   _sortBy +
+      //   '&sortDirection=' +
+      //   tempSortDirection;
+      //   navigate(newPath);
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let tempPath = '';
+      let ind = path.search('&sortBy=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
+      } else tempPath = path + '&sortBy=' + _sortBy;
 
+      path = tempPath;
+      ind = path.search('&sortDirection=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath =
+          tempPath +
+          '&sortDirection=' +
+          tempSortDirection +
+          path.slice(ind, path.length);
+      } else tempPath = path + '&sortDirection=' + tempSortDirection;
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
+    }
+  };
+
+  const handleTabChange = (newValue: number) => {
+    if (newValue == 0) setTotalCount(orderTotalCount);
+    else setTotalCount(buyTotalCount);
+    setCurrentTab(newValue);
+    setPage(1);
+    setTake(0);
+    // let newPath =
+    //   sampleLocation.pathname +
+    //   '?collIndex=' +
+    //   selectedIndex +
+    //   '&page=' +
+    //   page +
+    //   '&tab=' +
+    //   newValue +
+    //   '&sortBy=' +
+    //   sortByParam +
+    //   '&sortDirection=' +
+    //   sortDirection;
+    // navigate(newPath);
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let tempPath = '';
+    let newPath = sampleLocation.pathname;
+    let ind = path.search('&tab=');
+    if (ind != -1) {
+      tempPath = path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      tempPath = tempPath + '&tab=' + newValue + path.slice(ind, path.length);
+    } else tempPath = path + '&tab=' + newValue;
+
+    path = tempPath;
+    ind = path.search('&page=');
+    if (ind != -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      newPath = newPath + '&page=1' + path.slice(ind, path.length);
+    } else newPath = newPath + path + '&page=1';
+    navigate(newPath);
+  };
   const handleSelection = (i: number) => {
     if (i !== selectedIndex) {
       setBuyOrders([]);
       setSellOrders([]);
       setSelectedIndex(i);
       setTake(0);
+      setPage(1);
       setPaginationEnded(false);
+      // let newPath =
+      //   sampleLocation.pathname +
+      //   '?collIndex=' +
+      //   i +
+      //   '&page=' +
+      //   page +
+      //   '&tab=' +
+      //   currentTab +
+      //   '&sortBy=' +
+      //   sortByParam +
+      //   '&sortDirection=' +
+      //   sortDirection;
+      // navigate(newPath);
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let tempPath = '';
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('collIndex=');
+      if (ind != -1) {
+        tempPath = path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        tempPath = tempPath + 'collIndex=' + i + path.slice(ind, path.length);
+      } else tempPath = path + 'collIndex=' + i;
+
+      path = tempPath;
+      ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=1' + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=1';
+      navigate(newPath);
     }
   };
 
-  const handleScrollToBottom = useCallback(() => {
-    if (pageLoading) return;
-    setTake((state) => (state += PAGE_SIZE));
-  }, []);
+  // const handleScrollToBottom = useCallback(() => {
+  //   if (pageLoading) return;
+  //   setTake((state) => (state += PAGE_SIZE));
+  // }, []);
 
-  useBottomScrollListener(handleScrollToBottom, { offset: 400, debounce: 1000 });
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
 
-  const [sortBy, setSortBy] = useState("time");
-  const [sortDirection, setSortDirection] = useState('desc' as SortDirection);
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      if (pageLoading) return;
+      setPage(value);
+      setTake((state) => (state = PAGE_SIZE * (value - 1)));
+      let href = window.location.href;
+      let temp = href.split('?');
+      let path = '?' + temp[1];
+      let newPath = sampleLocation.pathname;
+      let ind = path.search('&page=');
+      if (ind != -1) {
+        newPath = newPath + path.slice(0, ind);
+        ind += 3;
+        for (; ind < path.length; ind++) {
+          if (path[ind] == '&') break;
+        }
+        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
+      } else newPath = newPath + path + '&page=' + value;
+      navigate(newPath);
+    },
+    []
+  );
 
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-
+      let orderCount = await getOrderTotal(
+        selectedTokenAddress,
+        sortBy,
+        sortDirection
+      );
+      orderCount =
+        orderCount % 10
+          ? Math.floor(orderCount / 10) + 1
+          : Math.floor(orderCount / 10);
+      setOrderTotalCount(orderCount);
+      let buyCount = await getBuyTotal(
+        selectedTokenAddress,
+        sortBy,
+        sortDirection
+      );
+      setBuyTotalCount(buyCount);
+      buyCount =
+        buyCount % 10
+          ? Math.floor(buyCount / 10) + 1
+          : Math.floor(buyCount / 10);
+      if (currentTab == 0) setTotalCount(orderCount);
+      else setTotalCount(buyCount);
       let buyData = await getPaginatedBuyOrders(
         selectedTokenAddress,
         PAGE_SIZE,
         take,
         sortBy,
-        sortDirection,
+        sortDirection
       );
       let sellData = await getPaginatedSellOrders(
         selectedTokenAddress,
         PAGE_SIZE,
         take,
         sortBy,
-        sortDirection,
+        sortDirection
       );
 
       buyData = buyData.filter((x) =>
@@ -212,14 +501,16 @@ const FreshOrdersPage = () => {
 
         setPaginationEnded(true);
 
-        setSellOrders((state) => state.concat(sellPieces));
-        setBuyOrders((state) => state.concat(buyPieces));
-
+        // setSellOrders((state) => state.concat(sellPieces));
+        // setBuyOrders((state) => state.concat(buyPieces));
+        setSellOrders(sellPieces);
+        setBuyOrders(buyPieces);
         return;
       }
-
-      setSellOrders((state) => state.concat(sellData));
-      setBuyOrders((state) => state.concat(buyData));
+      // setSellOrders((state) => state.concat(sellData));
+      // setBuyOrders((state) => state.concat(buyData));
+      setSellOrders(sellData);
+      setBuyOrders(buyData);
     };
     if (!paginationEnded) {
       getCollectionById();
@@ -299,13 +590,26 @@ const FreshOrdersPage = () => {
         <Tabs
           containerClassName={tabsContainer}
           tabsClassName={tabs}
+          currentTab={currentTab}
+          onTabChanged={(value: number) => {
+            setCurrentTab(value);
+            handleTabChange(value);
+          }}
           tabs={[
             {
               label: 'Sell Offers',
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
-                  <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(sellOrders?.filter(order => orderFilter(order.order, account)))}
+                  <ExtendedTableHeader
+                    handleSort={handleSortUpdate}
+                    sortDirection={sortDirection}
+                    sortBy={sortBy}
+                  />
+                  {getTableBody(
+                    sellOrders?.filter((order) =>
+                      orderFilter(order.order, account)
+                    )
+                  )}
                 </Table>
               ),
             },
@@ -313,21 +617,41 @@ const FreshOrdersPage = () => {
               label: 'Buy Offers',
               view: (
                 <Table isExpandable style={{ whiteSpace: 'nowrap' }}>
-                  <ExtendedTableHeader handleSort={handleSortUpdate} sortDirection={sortDirection} sortBy={sortBy}/>
-                  {getTableBody(buyOrders?.filter(order => orderFilter(order.order, account)))}
+                  <ExtendedTableHeader
+                    handleSort={handleSortUpdate}
+                    sortDirection={sortDirection}
+                    sortBy={sortBy}
+                  />
+                  {getTableBody(
+                    buyOrders?.filter((order) =>
+                      orderFilter(order.order, account)
+                    )
+                  )}
                 </Table>
               ),
             },
           ]}
         />
-        <div style={{ marginTop: 40, width: '100%' }} />
+        {/* <div style={{ marginTop: 40, width: '100%' }} /> */}
       </Grid>
-
       {pageLoading && (
         <div className={placeholderContainer}>
           <Loader />
         </div>
       )}
+      <div className={placeholderContainer}>
+        <Pagination
+          count={totalCount}
+          siblingCount={0}
+          boundaryCount={2}
+          color="primary"
+          size="large"
+          page={page}
+          onChange={handlePageChange}
+          showFirstButton
+          showLastButton
+        />
+      </div>
     </>
   );
 };

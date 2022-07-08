@@ -1,4 +1,4 @@
-import { Switch, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import CollectionPage from './collection';
 import HomePage from './home';
 import TokenPage from './token';
@@ -15,47 +15,52 @@ import { SubcollectionListPage } from './subcollection-list';
 import AuctionListPage from './auctions';
 
 export const Routing = () => (
-  <Switch>
-    <Route exact path="/">
-      <HomePage />
-    </Route>
-    <Route path="/collections">
-      <CollectionListPage />
-    </Route>
-    <Route path="/collection/:type/:address/:subcollectionId">
-      <PurchaseDialog />
-      <CollectionPage />
-    </Route>
-    <Route path="/token/:type/:address/:id">
-      <CancelDialog />
-      <PurchaseDialog />
-      <BidDialog />
-      <TransferDialog />
-      <TokenPage />
-    </Route>
-    <Route path="/workbench">
-      <MintPage />
-    </Route>
-    <Route path="/freshoffers">
-      <PurchaseDialog />
-      <FreshOrdersPage />
-    </Route>
-    <Route path="/freshtrades">
-      <FreshTradesPage />
-    </Route>
-    <Route path="/myoffers">
-      <CancelDialog />
-      <PurchaseDialog />
-      <MyOrdersPage />
-    </Route>
-    <Route path="/mynfts">
-      <MyNFTsPage />
-    </Route>
-    <Route path="/subcollections/:address">
-      <SubcollectionListPage />
-    </Route>
-    <Route path="/auctions">
-      <AuctionListPage />
-    </Route>
-  </Switch>
+  <Routes>
+    <Route path="/" element={<HomePage />} />
+    <Route path="/collections" element={<CollectionListPage />} />
+    <Route
+      path="/collection/:type/:address/:subcollectionId"
+      element={
+        <>
+          <PurchaseDialog />
+          <CollectionPage />
+        </>
+      }
+    />
+    <Route
+      path="/token/:type/:address/:id"
+      element={
+        <>
+          <CancelDialog />
+          <PurchaseDialog />
+          <BidDialog />
+          <TransferDialog /> <TokenPage />
+        </>
+      }
+    />
+    <Route path="/workbench" element={<MintPage />} />
+    <Route
+      path="/freshoffers"
+      element={
+        <>
+          <PurchaseDialog /> <FreshOrdersPage />
+        </>
+      }
+    />
+    <Route path="/freshtrades" element={<FreshTradesPage />} />
+    <Route
+      path="/myoffers"
+      element={
+        <>
+          <CancelDialog /> <PurchaseDialog /> <MyOrdersPage />
+        </>
+      }
+    />
+    <Route path="/mynfts" element={<MyNFTsPage />} />
+    <Route
+      path="/subcollections/:address"
+      element={<SubcollectionListPage />}
+    />
+    <Route path="/auctions" element={<AuctionListPage />} />
+  </Routes>
 );
