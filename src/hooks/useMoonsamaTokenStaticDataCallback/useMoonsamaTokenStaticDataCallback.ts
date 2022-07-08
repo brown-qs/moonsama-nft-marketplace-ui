@@ -1,6 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { tryMultiCallCore } from 'hooks/useMulticall2/useMulticall2';
-import { useMulticall2Contract } from 'hooks/useContracts/useContracts';
 import {
   getAssetEntityId,
   OrderType,
@@ -12,10 +10,6 @@ import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React'
 import { useCallback } from 'react';
 import { Asset, Order } from 'hooks/marketplace/types';
 import { useFetchTokenUriCallback } from 'hooks/useFetchTokenUri.ts/useFetchTokenUriCallback';
-import {
-  getTokenStaticCalldata,
-  processTokenStaticCallResults,
-} from 'utils/calls';
 import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';

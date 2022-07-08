@@ -103,17 +103,6 @@ const PondsamaCollectionPage = () => {
       sortBy
     ); //useTokenStaticDataCallback(asset)//
 
-  // const handleScrollToBottom = useCallback(() => {
-  //   if (pageLoading) return;
-  //   // console.log('SCROLLBOTTOM');
-  //   setTake((state) => (state += searchSize));
-  //   setSearchCounter((state) => (state += 1));
-  // }, [searchSize]);
-
-  // useBottomScrollListener(handleScrollToBottom, {
-  //   offset: 400,
-  //   debounce: 1000,
-  // });
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
@@ -159,15 +148,12 @@ const PondsamaCollectionPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      let data;
-      // console.log('FETCH ', { searchSize, address, take, paginationEnded });
       if (search === '') {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
           setCollection
         );
-        // data = res.data;
         setTotalLength(
           res % searchSize
             ? Math.floor(res / searchSize) + 1
@@ -179,30 +165,13 @@ const PondsamaCollectionPage = () => {
           BigNumber.from(parseInt(search) - 1),
           setCollection
         );
-        // data = res.data;
         setTotalLength(
           res % searchSize
             ? Math.floor(res / searchSize) + 1
             : Math.floor(res / searchSize)
         );
       }
-      // const isEnd = !data || data.length === 0;
-      // let pieces: {
-      //   meta: TokenMeta | undefined;
-      //   staticData: StaticTokenData;
-      // }[] = [];
-      // for (let index = 0; index < data.length; index++) {
-      //   if (!!data[index].meta) pieces.push(data[index]);
-      // }
       setPageLoading(false);
-      
-      // if (isEnd) {
-      //   setPaginationEnded(true);
-      //   setCollection(pieces);
-      //   return;
-      // }
-      // setCollection(pieces);
-      // console.log('data11', data, pieces, collection);
     };
     if (!paginationEnded && searchCounter) {
       getCollectionById();
@@ -245,12 +214,7 @@ const PondsamaCollectionPage = () => {
             ? Math.floor(res / searchSize) + 1
             : Math.floor(res / searchSize)
         );
-        // const responseData: {
-        //   meta: TokenMeta | undefined;
-        //   staticData: StaticTokenData;
-        // }[] = res.data;
         setPageLoading(false);
-        // setCollection(responseData);
       } else {
         setPaginationEnded(false);
         setPageLoading(true);
@@ -264,12 +228,7 @@ const PondsamaCollectionPage = () => {
             ? Math.floor(res / searchSize) + 1
             : Math.floor(res / searchSize)
         );
-        // const responseData: {
-        //   meta: TokenMeta | undefined;
-        //   staticData: StaticTokenData;
-        // }[] = res.data;
         setPageLoading(false);
-        // setCollection(responseData);
       }
     },
     [searchSize, sortBy]

@@ -57,13 +57,13 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
     setIsDrawerOpened(false);
   };
 
-  const handlePriceRangeChange = (
-    event: Event,
-    newValue: number | number[]
-  ) => {
-    console.log('click', newValue);
-    setPriceRange(newValue as number[]);
-  };
+  // const handlePriceRangeChange = (
+  //   event: Event,
+  //   newValue: number | number[]
+  // ) => {
+  //   console.log('click', newValue);
+  //   setPriceRange(newValue as number[]);
+  // };
 
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
     if (!event.target.value && event.target.value !== 0) {
@@ -127,7 +127,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.BUY)}
                     className={`${filterChip} ${
-                      selectedOrderType == OrderType.BUY && 'selected'
+                      selectedOrderType === OrderType.BUY && 'selected'
                     }`}
                   />
                   <Chip
@@ -135,7 +135,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.SELL)}
                     className={`${filterChip} ${
-                      selectedOrderType == OrderType.SELL && 'selected'
+                      selectedOrderType === OrderType.SELL && 'selected'
                     }`}
                   />
                   <Chip
@@ -143,7 +143,7 @@ export const Filters = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(undefined)}
                     className={`${filterChip} ${
-                      selectedOrderType == undefined && 'selected'
+                      selectedOrderType === undefined && 'selected'
                     }`}
                   />
                 </div>

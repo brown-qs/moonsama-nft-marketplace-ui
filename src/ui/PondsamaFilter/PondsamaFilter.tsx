@@ -94,17 +94,11 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
-
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
-
-    console.log('click', newRange);
-
     if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
       setPriceRange(newRange);
     }
@@ -114,15 +108,11 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
-
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [hpRange[0], val] : [val, hpRange[1]];
-
     if (JSON.stringify(newRange) !== JSON.stringify(hpRange)) {
       setHpRange(newRange);
     }
@@ -146,15 +136,11 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
-
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [spRange[0], val] : [val, spRange[1]];
-
     if (JSON.stringify(newRange) !== JSON.stringify(spRange)) {
       setSpRange(newRange);
     }
@@ -164,15 +150,11 @@ export const PondsamaFilter = ({ onFiltersUpdate }: Props) => {
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
-
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [dfRange[0], val] : [val, dfRange[1]];
-
     if (JSON.stringify(newRange) !== JSON.stringify(dfRange)) {
       setDfRange(newRange);
     }
