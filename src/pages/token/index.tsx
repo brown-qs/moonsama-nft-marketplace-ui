@@ -158,9 +158,9 @@ const TokenPage = () => {
   const { setBidDialogOpen, setBidData } = useBidDialog();
   const { setPurchaseData, setPurchaseDialogOpen } = usePurchaseDialog();
   const { setCancelData, setCancelDialogOpen } = useCancelDialog();
-
   const { setTransferData, setTransferDialogOpen } = useTransferDialog();
   const [metaVersion, setMetaVersion] = useState<boolean>(false);
+  const [currentTab, setCurrentTab] = useState<number>(0);
 
   const assets = useMemo(() => {
     return [asset];
@@ -806,6 +806,10 @@ const TokenPage = () => {
       <Tabs
         containerClassName={tabsContainer}
         tabsClassName={tabs}
+        currentTab={currentTab}
+        onTabChanged={(value: number) => {
+          setCurrentTab(value);
+        }}
         tabs={[
           {
             label: 'Buy Offers',
