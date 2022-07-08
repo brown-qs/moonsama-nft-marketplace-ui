@@ -14,6 +14,8 @@ import {
 import { DEFAULT_CHAIN, PERMISSIONED_CHAINS, POLLING_INTERVAL, RPC_URLS } from '../constants';
 
 import MetamaskIcon from '../assets/images/metamask.png';
+import InjectedIcon from '../assets/images/arrow-right.svg'
+import NovaIcon from '../assets/images/nova.png'
 // if (typeof RPC_URL === 'undefined') {
 //   throw new Error(`REACT_APP_RPC_URL must be a defined environment variable`);
 // }
@@ -81,7 +83,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     color: '#010101',
     primary: true,
     //mobile: true,
-    icon: ''
+    icon: InjectedIcon
   },
   METAMASK: {
     connector: injected,
@@ -92,6 +94,17 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     color: '#E8831D',
     mobile: true,
     icon: MetamaskIcon
+  },
+  NOVA: {
+    connector: injected,
+    name: 'Nova',
+    iconName: 'nova.png',
+    description: 'Nova mobile wallet.',
+    href: null,
+    color: '#E8831D',
+    mobile: true,
+    mobileOnly: true,
+    icon: NovaIcon
   },
   // WALLET_CONNECT: {
   //   connector: walletconnect,
