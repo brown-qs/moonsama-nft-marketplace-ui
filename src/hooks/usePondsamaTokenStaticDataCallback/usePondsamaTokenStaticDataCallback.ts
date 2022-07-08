@@ -14,7 +14,7 @@ import { PondsamaFilter } from 'ui/PondsamaFilter/PondsamaFilter';
 import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
-  QUERY_ORDERS_FOR_TOKEN
+  QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
   QUERY_ERC721_ACTIVE_ID,
@@ -49,24 +49,24 @@ export type TokenStaticFetchInput = {
   offset: BigNumber;
 };
 
-export type AssetWithUri = Asset & {tokenURI: string}
+export type AssetWithUri = Asset & { tokenURI: string };
 
 export type TokenSubgraphQueryResult = {
-  uri: string,
-  numericId: string,
-  id: string
-}
+  uri: string;
+  numericId: string;
+  id: string;
+};
 
 export type TokenSubgraphQueryResults = {
-  tokens: TokenSubgraphQueryResult[]
-}
+  tokens: TokenSubgraphQueryResult[];
+};
 
 const choosePondsamaAssets = (
   assetType: StringAssetType,
   assetAddress: string,
   offset: BigNumber,
   num: number,
-  idsAndUris: {tokenURI: string, assetId: string}[],
+  idsAndUris: { tokenURI: string; assetId: string }[],
   direction: SortOption
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
@@ -78,7 +78,10 @@ const choosePondsamaAssets = (
     if (offsetNum >= idsAndUris.length) {
       return [];
     }
-    const to = offsetNum + num >= idsAndUris.length ? idsAndUris.length : offsetNum + num;
+    const to =
+      offsetNum + num >= idsAndUris.length
+        ? idsAndUris.length
+        : offsetNum + num;
     let chosenIds = [];
 
     if (direction === SortOption.TOKEN_ID_ASC)
@@ -92,11 +95,41 @@ const choosePondsamaAssets = (
         assetType,
         assetAddress,
         id: getAssetEntityId(assetAddress, x.assetId),
-        tokenURI: x.tokenURI
+        tokenURI: x.tokenURI,
       };
     });
   } else {
-    return []
+    return [];
+  }
+
+  return chosenAssets;
+};
+
+const choosePondsamaAssetsAll = (
+  assetType: StringAssetType,
+  assetAddress: string,
+  idsAndUris: { tokenURI: string; assetId: string }[],
+  direction: SortOption
+) => {
+  let chosenAssets: AssetWithUri[];
+
+  if (idsAndUris?.length > 0) {
+    let chosenIds = [];
+
+    if (direction === SortOption.TOKEN_ID_ASC) chosenIds = idsAndUris;
+    else chosenIds = [...idsAndUris].reverse();
+
+    chosenAssets = chosenIds.map((x) => {
+      return {
+        assetId: x.assetId,
+        assetType,
+        assetAddress,
+        id: getAssetEntityId(assetAddress, x.assetId),
+        tokenURI: x.tokenURI,
+      };
+    });
+  } else {
+    return [];
   }
 
   return chosenAssets;
@@ -130,15 +163,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       setTake?: (take: number) => void
     ) => {
       if (!assetAddress || !assetType) {
-        // console.log({ assetAddress, assetType });
         return [];
       }
       const owned: OwnedFilterType | undefined = filter?.owned;
       const PONDSAMA_CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
       const contractData = await request(subgraph, PONDSAMA_CONTRACT_QUERY);
-      let pondsamaTotalSupply = parseInt(
-        contractData.contract.totalSupply
-      );
+      let pondsamaTotalSupply = parseInt(contractData.contract.totalSupply);
       let res = [],
         pondsamaQuery: any,
         res1;
@@ -174,35 +204,30 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           from += 1000;
         }
       }
-      let idsAndUris: {tokenURI: string, assetId: string}[] = [];
-      let ponsIdsMeta: {tokenURI: string, assetId: string}[] = [];
+      let idsAndUris: { tokenURI: string; assetId: string }[] = [];
 
-      for (let i = 0; i < res.length; i++){
-        idsAndUris.push({tokenURI: res[i].uri, assetId: res[i].numericId})
+      for (let i = 0; i < res.length; i++) {
+        idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
       }
 
-      let totalLength =
-        res.length % 300
-          ? Math.floor(res.length / 300) + 1
-          : Math.floor(res.length / 300);
-      // console.log('ids1', ids);
+      const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
+        console.log('assets', assets);
+        if (orders && orders.length !== assets.length) {
+          throw new Error('Orders/assets length mismatch');
+        }
+        if (!assets) {
+          return [];
+        }
 
-      if (filter && filter.dfRange && filter.dfRange.length === 2) {
-        for (let k = 0; k < totalLength; k++) {
-          let tempIds: {tokenURI: string, assetId: string}[] = [];
-          if (k * 300 + 300 < res.length)
-            tempIds = idsAndUris.slice(k * 300, k * 300 + 300);
-          else if (k * 300 + 300 >= res.length)
-            tempIds = idsAndUris.slice(k * 300, res.length);
-          let chosenAssets = choosePondsamaAssets(
-            assetType,
-            assetAddress,
-            BigNumber.from(0),
-            res.length,
-            tempIds,
-            sortBy
-          );
-          const staticData: StaticTokenData[] = chosenAssets.map(ca => {
+        const query = QUERY_ERC721_ID_IN(assets.map((a) => a.assetId));
+        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
+        const tokens = ress.tokens;
+        let staticData: StaticTokenData[] = [];
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            const tok = tokens.find(
+              (t) => t.numericId === ca.assetId
+            ) as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.contract.decimals,
@@ -210,8 +235,168 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.contract.name,
               symbol: contractData.contract.symbol,
               totalSupply: contractData.contract.totalSupply,
-              tokenURI: ca.tokenURI
-            }
+              tokenURI: tok.uri,
+            };
+          });
+        }
+        const metas = await fetchUri(staticData);
+        return metas.map((x, i) => {
+          return {
+            meta: x,
+            staticData: staticData[i],
+            order: orders?.[i],
+          };
+        });
+      };
+
+      let ordersFetch: any[] = [];
+
+      if (
+        !(
+          !priceRange ||
+          priceRange.length === 0 ||
+          priceRange.length !== 2 ||
+          !selectedOrderType
+        ) &&
+        (sortBy === SortOption.TOKEN_ID_ASC ||
+          sortBy === SortOption.TOKEN_ID_DESC)
+      ) {
+        let chosenAssets = choosePondsamaAssetsAll(
+          assetType,
+          assetAddress,
+          idsAndUris,
+          sortBy
+        );
+        // console.log('SEARCH', {
+        //   assetAddress,
+        //   assetType,
+        //   idsAndUris,
+        //   num,
+        //   offset: offset?.toString(),
+        //   chosenAssets,
+        // });
+        const rangeInWei = priceRange.map((x) =>
+          parseEther(x.toString()).mul(TEN_POW_18)
+        );
+
+        let indexer = 0;
+        while (1) {
+          let tempChosenAssets = chosenAssets.slice(indexer, indexer + 1000);
+          if (!tempChosenAssets || tempChosenAssets.length === 0) {
+            break;
+          }
+          indexer += 1000;
+
+          const sgAssets = tempChosenAssets.map((x) => {
+            return x.id;
+          });
+
+          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
+            selectedOrderType,
+            JSON.stringify(sgAssets),
+            rangeInWei[0].toString(),
+            rangeInWei[1].toString()
+          );
+
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+          console.log('YOLO getOrders', result);
+          const orders = result?.orders;
+
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
+        }
+      } else if (
+        sortBy === SortOption.PRICE_ASC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        let index = 0;
+        while (1) {
+          let query = QUERY_ORDERS_FOR_TOKEN(
+            assetAddress,
+            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
+              ? 'price'
+              : 'id',
+            sortBy === SortOption.PRICE_ASC,
+            index,
+            1000
+          );
+
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+
+          if (!result || !result?.orders.length) {
+            break;
+          }
+          index += 1000;
+          let orders: any[] = result?.orders;
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
+        }
+      }
+
+      const theAssets: Asset[] = [];
+      const theAssetNumber: string[] = [];
+      const orders = ordersFetch.map((x) => {
+        const o = parseOrder(x) as Order;
+        const a =
+          selectedOrderType === OrderType.BUY
+            ? (o?.buyAsset as Asset)
+            : (o?.sellAsset as Asset);
+        theAssets.push({
+          assetId: a?.assetId,
+          assetType: assetType,
+          assetAddress: assetAddress,
+          id: getAssetEntityId(assetAddress, a?.assetId),
+        });
+        theAssetNumber.push(a?.assetId);
+        return o;
+      });
+
+      let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
+      idsAndUris.map((idsAndUri, i) => {
+        if (
+          !theAssetNumber.length ||
+          theAssetNumber.includes(idsAndUri.assetId)
+        )
+          tempIdsAndUris.push(idsAndUri);
+      });
+      idsAndUris = tempIdsAndUris;
+      let totalLength =
+        idsAndUris.length % 300
+          ? Math.floor(idsAndUris.length / 300) + 1
+          : Math.floor(idsAndUris.length / 300);
+      let newMetas: any[] = [],
+        totalStaicDatas: StaticTokenData[] = [];
+      if (filter && filter.dfRange && filter.dfRange.length === 2) {
+        for (let k = 0; k < totalLength; k++) {
+          let tempIds: { tokenURI: string; assetId: string }[] = [];
+          if (k * 300 + 300 < res.length)
+            tempIds = idsAndUris.slice(k * 300, k * 300 + 300);
+          else if (k * 300 + 300 >= res.length)
+            tempIds = idsAndUris.slice(k * 300, res.length);
+          let chosenAssets = choosePondsamaAssetsAll(
+            assetType,
+            assetAddress,
+            tempIds,
+            sortBy
+          );
+          const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
+            return {
+              asset: ca,
+              decimals: contractData.contract.decimals,
+              contractURI: contractData.contract.contractURI,
+              name: contractData.contract.name,
+              symbol: contractData.contract.symbol,
+              totalSupply: contractData.contract.totalSupply,
+              tokenURI: ca.tokenURI,
+            };
           });
           const metas = await fetchUri(staticData);
           // console.log('metas', metas);
@@ -255,63 +440,13 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
 
             if (flag === true && !selectedPondTraits.length) {
-              ponsIdsMeta.push(idsAndUris[i + k * 300]);
+              newMetas.push(metas[i]);
+              totalStaicDatas.push(staticData[i]);
             }
           }
         }
-        idsAndUris = ponsIdsMeta;
-      }
-      console.log('ids11', idsAndUris, ponsIdsMeta);
-      const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        // console.log('fetch statistics');
-        console.log('assets', assets);
-        if (orders && orders.length !== assets.length) {
-          throw new Error('Orders/assets length mismatch');
-        }
-
-        if (!assets) {
-          return [];
-        }        
-
-        const query  = QUERY_ERC721_ID_IN(assets.map(a => a.assetId));
-        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
-        const tokens = ress.tokens;
-
-        // console.log('yolo tryMultiCallCore res', results);
-        const staticData: StaticTokenData[] = assets.map(ca => {
-          const tok = tokens.find(t => t.numericId === ca.assetId) as TokenSubgraphQueryResult
-          return {
-            asset: ca,
-            decimals: contractData.contract.decimals,
-            contractURI: contractData.contract.contractURI,
-            name: contractData.contract.name,
-            symbol: contractData.contract.symbol,
-            totalSupply: contractData.contract.totalSupply,
-            tokenURI: tok.uri
-          }
-        });
-        // console.log('staticData', { staticData });
-
-        const metas = await fetchUri(staticData);
-
-        console.log('metas', metas);
-
-        return metas.map((x, i) => {
-          return {
-            meta: x,
-            staticData: staticData[i],
-            order: orders?.[i],
-          };
-        });
-      };
-
-      let ordersFetch: any[] = [];
-
-      if (
-        sortBy === SortOption.TOKEN_ID_ASC ||
-        sortBy === SortOption.TOKEN_ID_DESC
-      ) {
-        let chosenAssets = choosePondsamaAssets(
+      } else if (!ordersFetch.length) {
+        const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
@@ -319,153 +454,30 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           idsAndUris,
           sortBy
         );
-
-        if (
-          !priceRange ||
-          priceRange.length === 0 ||
-          priceRange.length !== 2 ||
-          !selectedOrderType
-        ) {
-          console.log('DEFAULT SEARCH', {
-            assetAddress,
-            assetType,
-            idsAndUris,
-            num,
-            offset: offset?.toString(),
-            chosenAssets,
-          });
-
-          // console.log('no price range');
-          chosenAssets = choosePondsamaAssets(
-            assetType,
-            assetAddress,
-            offset,
-            num,
-            idsAndUris,
-            sortBy
-          );
-          const statics = await fetchStatics(chosenAssets);
-          let totalLength = num === 1 ? num : idsAndUris.length;
-          // console.log('totalLength', totalLength, statics);
-          return { data: statics, length: totalLength };
-        }
-
-        console.log('SEARCH', {
-          assetAddress,
-          assetType,
-          idsAndUris,
-          num,
-          offset: offset?.toString(),
-          chosenAssets,
-        });
-
-        const rangeInWei = priceRange.map((x) =>
-          parseEther(x.toString()).mul(TEN_POW_18)
-        );
-
-        let canStop = false;
-        let pager = offset;
-        do {
-          const sgAssets = chosenAssets.map((x) => {
-            return x.id;
-          });
-
-          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
-            selectedOrderType,
-            JSON.stringify(sgAssets),
-            rangeInWei[0].toString(),
-            rangeInWei[1].toString()
-          );
-
-          const result = await request(
-            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-            query
-          );
-          console.log('YOLO getOrders', result);
-          const orders = result?.orders;
-
-          //console.debug('YOLO getOrders', { orders });
-
-          if (orders && orders.length > 0) {
-            ordersFetch = ordersFetch.concat(orders);
-          }
-
-          console.log('INDICES 3', {
-            orders,
-            ordersLength: orders.length,
-            ordersFetch,
-            ordersFetchLength: ordersFetch.length,
-            sgAssets,
-            num,
-            pager: pager.toString(),
-            idsAndUris,
-          });
-
-          if (ordersFetch.length >= num) {
-            canStop = true;
-            setTake?.(pager.toNumber());
-            continue;
-          }
-          pager = pager.add(BigNumber.from(num));
-
-          chosenAssets = choosePondsamaAssets(
-            assetType,
-            assetAddress,
-            pager,
-            num,
-            idsAndUris,
-            sortBy
-          );
-
-          //chosenAssets = []
-          if (!chosenAssets || chosenAssets.length === 0) {
-            canStop = true;
-            setTake?.(pager.toNumber());
-          }
-        } while (!canStop);
+        const statics = await fetchStatics(chosenAssets);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
       } else {
-        let query = QUERY_ORDERS_FOR_TOKEN(
-          assetAddress,
-          sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-            ? 'price'
-            : 'id',
-          sortBy === SortOption.PRICE_ASC,
-          offset.toNumber(),
-          num
-        );
-
-        const result = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        console.log('YOLO getOrders', result);
-        const orders = result?.orders;
-
-        //console.debug('YOLO getOrders', { orders });
-
-        if (orders && orders.length > 0) {
-          ordersFetch = ordersFetch.concat(orders);
-        }
+        let offsetNum = BigNumber.from(offset).toNumber();
+        const to =
+          offsetNum + num >= theAssets.length
+            ? theAssets.length
+            : offsetNum + num;
+        let sliceAssets = theAssets.slice(offsetNum, to);
+        const result = await fetchStatics(sliceAssets, orders);
+        let totalLength1 = num === 1 ? num : theAssets.length;
+        return { data: result, length: totalLength1 };
       }
 
-      const theAssets: Asset[] = [];
-      const orders = ordersFetch.map((x) => {
-        const o = parseOrder(x) as Order;
-        const a =
-          selectedOrderType === OrderType.BUY
-            ? (o?.buyAsset as Asset)
-            : (o?.sellAsset as Asset);
-        theAssets.push({
-          assetId: a?.assetId,
-          assetType: assetType,
-          assetAddress: assetAddress,
-          id: getAssetEntityId(assetAddress, a?.assetId),
-        });
-        return o;
+      const result = newMetas.map((x, i) => {
+        return {
+          meta: x,
+          staticData: totalStaicDatas[i],
+          order: orders?.[i],
+        };
       });
 
-      const result = await fetchStatics(theAssets, orders);
-      let totalLength1 = num === 1 ? num : orders.length;
+      let totalLength1 = num === 1 ? num : newMetas.length;
       return { data: result, length: totalLength1 };
     },
     [
