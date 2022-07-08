@@ -3,7 +3,6 @@ import { Asset } from 'hooks/marketplace/types';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { parseTokenUri } from 'utils';
 import { StringAssetType } from './subgraph';
-import detectEthereumProvider from '@metamask/detect-provider';
 
 export const getTokenStaticCalldata = (asset: Asset) => {
   if (!asset || !asset.assetAddress || !asset.assetId || !asset.assetType) {
