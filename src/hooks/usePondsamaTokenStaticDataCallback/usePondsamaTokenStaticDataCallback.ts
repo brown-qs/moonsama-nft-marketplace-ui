@@ -28,6 +28,7 @@ import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
+import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -149,7 +150,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   });
   const { account, chainId } = useActiveWeb3React();
   const fetchUri = useFetchTokenUriCallback();
-  //const fetchTokenStaticDataFromSubgrah = useFetchTokenStaticDataFromSubgraphCallback();
 
   let coll = useRawcollection(assetAddress ?? '');
   let subgraph = coll ? coll?.subgraph : '';
@@ -160,7 +160,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
     async (
       num: number,
       offset: BigNumber,
-      setTake?: (take: number) => void
+      setCollection
     ) => {
       if (!assetAddress || !assetType) {
         return [];
@@ -374,6 +374,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           : Math.floor(idsAndUris.length / 300);
       let newMetas: any[] = [],
         totalStaicDatas: StaticTokenData[] = [];
+      let pieces: {
+        meta: TokenMeta | undefined;
+        staticData: StaticTokenData;
+      }[] = [];
+      const offsetNum = BigNumber.from(offset).toNumber();
+      // const to = offsetNum + num >= newMetas.length ? newMetas.length : offsetNum + num;
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
@@ -442,6 +448,17 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             if (flag === true && !selectedPondTraits.length) {
               newMetas.push(metas[i]);
               totalStaicDatas.push(staticData[i]);
+              if (
+                newMetas.length >= offsetNum &&
+                newMetas.length < offsetNum + num
+              ) {
+                let piece = {
+                  meta: metas[i],
+                  staticData: staticData[i],
+                };
+                pieces.push(piece);
+                setCollection(pieces)
+              }
             }
           }
         }
@@ -455,8 +472,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           sortBy
         );
         const statics = await fetchStatics(chosenAssets);
+        setCollection(statics)
+
         let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
+        return totalLength ;
       } else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
@@ -465,20 +484,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             : offsetNum + num;
         let sliceAssets = theAssets.slice(offsetNum, to);
         const result = await fetchStatics(sliceAssets, orders);
-        let totalLength1 = num === 1 ? num : theAssets.length;
-        return { data: result, length: totalLength1 };
+        setCollection(result)
+        let totalLength = num === 1 ? num : theAssets.length;
+        return totalLength ;
       }
-
-      const result = newMetas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: totalStaicDatas[i],
-          order: orders?.[i],
-        };
-      });
-
-      let totalLength1 = num === 1 ? num : newMetas.length;
-      return { data: result, length: totalLength1 };
+      const totalLength1 = num === 1 ? num : newMetas.length;
+      return  totalLength1 ;
     },
     [
       chainId,
