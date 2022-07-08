@@ -42,7 +42,6 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
     accordionHeader,
     accordionContent,
     filterChip,
-    priceRangeWrapper,
     priceInput,
     filtersTitle,
   } = useClasses(styles);
@@ -70,29 +69,16 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
     setIsDrawerOpened(false);
   };
 
-  const handlePriceRangeChange = (
-    event: Event,
-    newValue: number | number[]
-  ) => {
-    console.log('click', newValue);
-    setPriceRange(newValue as number[]);
-  };
-
   const handlePriceRangeChange2 = (event: any, to: boolean) => {
-    // console.log(event.target.value);
     if (!event.target.value && event.target.value !== 0) {
       return;
     }
-
     const val = Number.parseFloat(event.target.value);
 
     if (!val && val !== 0) {
       return;
     }
-
     const newRange = to ? [priceRange[0], val] : [val, priceRange[1]];
-
-    console.log('click', newRange);
 
     if (JSON.stringify(newRange) !== JSON.stringify(priceRange)) {
       setPriceRange(newRange);
@@ -155,7 +141,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.BUY)}
                     className={`${filterChip} ${
-                      selectedOrderType == OrderType.BUY && 'selected'
+                      selectedOrderType === OrderType.BUY && 'selected'
                     }`}
                   />
                   <Chip
@@ -163,7 +149,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(OrderType.SELL)}
                     className={`${filterChip} ${
-                      selectedOrderType == OrderType.SELL && 'selected'
+                      selectedOrderType === OrderType.SELL && 'selected'
                     }`}
                   />
                   <Chip
@@ -171,7 +157,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                     variant="outlined"
                     onClick={() => handleOrderTypeClick(undefined)}
                     className={`${filterChip} ${
-                      selectedOrderType == undefined && 'selected'
+                      selectedOrderType === undefined && 'selected'
                     }`}
                   />
                 </div>
@@ -212,31 +198,6 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                     defaultValue={priceRange[1]}
                   />
                 </Stack>
-                {/*
-                <Slider
-                  getAriaLabel={() => 'Price range'}
-                  value={priceRange}
-                  onChange={handlePriceRangeChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={5000}
-                  sx={{
-                    "& .MuiSlider-thumb":{
-                      color: "#710021",
-                    },
-                    "& .MuiSlider-track": {
-                      color: '#710021'
-                    },
-                    "& .MuiSlider-rail": {
-                      color: '#c5c5c5'
-                    }
-                  }}
-                />
-                <div className={priceRangeWrapper}>
-                  <div>{`${priceRange[0]} MOVR`}</div>
-                  <div>{`${priceRange[1]} MOVR`}</div>
-                </div>
-                */}
               </AccordionDetails>
             </Accordion>
             <Accordion defaultExpanded square className={filterAccordion}>
@@ -257,7 +218,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                         handleOwnedTypeClick(OwnedFilterType.OWNED)
                       }
                       className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.OWNED && 'selected'
+                        selectedOwnedType === OwnedFilterType.OWNED && 'selected'
                       }`}
                     />
                     <Chip
@@ -267,7 +228,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                         handleOwnedTypeClick(OwnedFilterType.NOTOWNED)
                       }
                       className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.NOTOWNED &&
+                        selectedOwnedType === OwnedFilterType.NOTOWNED &&
                         'selected'
                       }`}
                     />
@@ -276,7 +237,7 @@ export const MoonsamaFilter = ({ onFiltersUpdate }: Props) => {
                       variant="outlined"
                       onClick={() => handleOwnedTypeClick(OwnedFilterType.All)}
                       className={`${filterChip} ${
-                        selectedOwnedType == OwnedFilterType.All && 'selected'
+                        selectedOwnedType === OwnedFilterType.All && 'selected'
                       }`}
                     />
                   </div>

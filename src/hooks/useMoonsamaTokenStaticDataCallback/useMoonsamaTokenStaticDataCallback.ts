@@ -1,6 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { tryMultiCallCore } from 'hooks/useMulticall2/useMulticall2';
-import { useMulticall2Contract } from 'hooks/useContracts/useContracts';
 import {
   getAssetEntityId,
   OrderType,
@@ -12,10 +10,6 @@ import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React'
 import { useCallback } from 'react';
 import { Asset, Order } from 'hooks/marketplace/types';
 import { useFetchTokenUriCallback } from 'hooks/useFetchTokenUri.ts/useFetchTokenUriCallback';
-import {
-  getTokenStaticCalldata,
-  processTokenStaticCallResults,
-} from 'utils/calls';
 import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
@@ -111,6 +105,35 @@ const chooseMoonsamaAssets = (
   return chosenAssets;
 };
 
+const chooseMoonsamaAssetsAll = (
+  assetType: StringAssetType,
+  assetAddress: string,
+  idsAndUris: { tokenURI: string; assetId: string }[],
+  direction: SortOption
+) => {
+  let chosenAssets: AssetWithUri[];
+  if (idsAndUris?.length > 0) {
+    let chosenIds = [];
+
+    if (direction === SortOption.TOKEN_ID_ASC) chosenIds = idsAndUris;
+    else chosenIds = [...idsAndUris].reverse();
+
+    chosenAssets = chosenIds.map((x) => {
+      return {
+        assetId: x.assetId,
+        assetType,
+        assetAddress,
+        id: getAssetEntityId(assetAddress, x.assetId),
+        tokenURI: x.tokenURI,
+      };
+    });
+  } else {
+    return [];
+  }
+
+  return chosenAssets;
+};
+
 export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
@@ -188,14 +211,16 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         }
       }
       for (let i = 0; i < res.length; i++) {
-        if (!ids.length || (ids.length && ids.includes(parseInt(res[i].numericId))))
+        if (
+          !ids.length ||
+          (ids.length && ids.includes(parseInt(res[i].numericId)))
+        )
           idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
       }
 
       const CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
       const contractData = await request(subgraph, CONTRACT_QUERY);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        // console.log('fetch statistics');
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
@@ -209,23 +234,23 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
         const tokens = ress.tokens;
 
-        // console.log('yolo tryMultiCallCore res', results);
-        const staticData: StaticTokenData[] = assets.map((ca) => {
-          const tok = tokens.find(
-            (t) => t.numericId === ca.assetId
-          ) as TokenSubgraphQueryResult;
-          return {
-            asset: ca,
-            decimals: contractData.contract.decimals,
-            contractURI: contractData.contract.contractURI,
-            name: contractData.contract.name,
-            symbol: contractData.contract.symbol,
-            totalSupply: contractData.contract.totalSupply,
-            tokenURI: tok.uri,
-          };
-        });
-        // console.log('staticData', { staticData });
-
+        let staticData: StaticTokenData[] = [];
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            const tok = tokens.find(
+              (t) => t.numericId === ca.assetId
+            ) as TokenSubgraphQueryResult;
+            return {
+              asset: ca,
+              decimals: contractData.contract.decimals,
+              contractURI: contractData.contract.contractURI,
+              name: contractData.contract.name,
+              symbol: contractData.contract.symbol,
+              totalSupply: contractData.contract.totalSupply,
+              tokenURI: tok.uri,
+            };
+          });
+        }
         const metas = await fetchUri(staticData);
 
         return metas.map((x, i) => {
@@ -236,70 +261,45 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           };
         });
       };
-
       let ordersFetch: any[] = [];
 
-      // if we don't have a price range, it's just business as usual
       if (
-        sortBy === SortOption.TOKEN_ID_ASC ||
-        sortBy === SortOption.TOKEN_ID_DESC
-      ) {
-        let chosenAssets = chooseMoonsamaAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          idsAndUris,
-          sortBy
-        );
-
-        if (
+        !(
           !priceRange ||
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        ) {
-          console.log('DEFAULT SEARCH', {
-            assetAddress,
-            assetType,
-            idsAndUris,
-            num,
-            offset: offset?.toString(),
-            chosenAssets,
-          });
-
-          // console.log('no price range');
-          chosenAssets = chooseMoonsamaAssets(
-            assetType,
-            assetAddress,
-            offset,
-            num,
-            idsAndUris,
-            sortBy
-          );
-          const statics = await fetchStatics(chosenAssets);
-          console.log('statistics', statics);
-          let totalLength = num === 1 ? num : ids.length;
-          return { data: statics, length: totalLength };
-        }
-
-        console.log('SEARCH', {
-          assetAddress,
+        ) &&
+        (sortBy === SortOption.TOKEN_ID_ASC ||
+          sortBy === SortOption.TOKEN_ID_DESC)
+      ) {
+        let chosenAssets = chooseMoonsamaAssetsAll(
           assetType,
+          assetAddress,
           idsAndUris,
-          num,
-          offset: offset?.toString(),
-          chosenAssets,
-        });
-
+          sortBy
+        );
+        // console.log('SEARCH', {
+        //   assetAddress,
+        //   assetType,
+        //   idsAndUris,
+        //   num,
+        //   offset: offset?.toString(),
+        //   chosenAssets,
+        // });
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
         );
 
-        let canStop = false;
-        let pager = offset;
-        do {
-          const sgAssets = chosenAssets.map((x) => {
+        let indexer = 0;
+        while (1) {
+          let tempChosenAssets = chosenAssets.slice(indexer, indexer + 1000);
+          if (!tempChosenAssets || tempChosenAssets.length === 0) {
+            break;
+          }
+          indexer += 1000;
+
+          const sgAssets = tempChosenAssets.map((x) => {
             return x.id;
           });
 
@@ -317,71 +317,44 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           console.log('YOLO getOrders', result);
           const orders = result?.orders;
 
-          //console.debug('YOLO getOrders', { orders });
-
           if (orders && orders.length > 0) {
             ordersFetch = ordersFetch.concat(orders);
           }
-
-          console.log('INDICES 3', {
-            orders,
-            ordersLength: orders.length,
-            ordersFetch,
-            ordersFetchLength: ordersFetch.length,
-            sgAssets,
-            num,
-            pager: pager.toString(),
-            ids,
-          });
-
-          if (ordersFetch.length >= num) {
-            canStop = true;
-            setTake?.(pager.toNumber());
-            continue;
-          }
-          pager = pager.add(BigNumber.from(num));
-
-          chosenAssets = chooseMoonsamaAssets(
-            assetType,
+        }
+      } else if (
+        sortBy === SortOption.PRICE_ASC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        let index = 0;
+        console.log('ordersFetch0', ordersFetch);
+        while (1) {
+          let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            pager,
-            num,
-            idsAndUris,
-            sortBy
+            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
+              ? 'price'
+              : 'id',
+            sortBy === SortOption.PRICE_ASC,
+            index,
+            1000
           );
 
-          //chosenAssets = []
-          if (!chosenAssets || chosenAssets.length === 0) {
-            canStop = true;
-            setTake?.(pager.toNumber());
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+
+          if (!result || !result?.orders.length) {
+            break;
           }
-        } while (!canStop);
-      } else {
-        let query = QUERY_ORDERS_FOR_TOKEN(
-          assetAddress,
-          sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-            ? 'price'
-            : 'id',
-          sortBy === SortOption.PRICE_ASC,
-          offset.toNumber(),
-          num
-        );
-
-        const result = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        console.log('YOLO getOrders', result);
-        const orders = result?.orders;
-
-        //console.debug('YOLO getOrders', { orders });
-
-        if (orders && orders.length > 0) {
-          ordersFetch = ordersFetch.concat(orders);
+          index += 1000;
+          let orders: any[] = result?.orders;
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
         }
       }
-
       const theAssets: Asset[] = [];
+      const theAssetNumber: string[] = [];
       const orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
@@ -394,12 +367,42 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           assetAddress: assetAddress,
           id: getAssetEntityId(assetAddress, a?.assetId),
         });
+        theAssetNumber.push(a?.assetId);
         return o;
       });
 
-      const result = await fetchStatics(theAssets, orders);
-      let totalLength1 = num === 1 ? num : orders.length;
-      return { data: result, length: totalLength1 };
+      let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
+      idsAndUris.map((idsAndUri, i) => {
+        if (
+          !theAssetNumber.length ||
+          theAssetNumber.includes(idsAndUri.assetId)
+        )
+          tempIdsAndUris.push(idsAndUri);
+      });
+      idsAndUris = tempIdsAndUris;
+      if (!ordersFetch.length) {
+        const chosenAssets = chooseMoonsamaAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          sortBy
+        );
+        const statics = await fetchStatics(chosenAssets);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      } else {
+        let offsetNum = BigNumber.from(offset).toNumber();
+        const to =
+          offsetNum + num >= theAssets.length
+            ? theAssets.length
+            : offsetNum + num;
+        let sliceAssets = theAssets.slice(offsetNum, to);
+        const result = await fetchStatics(sliceAssets);
+        let totalLength1 = num === 1 ? num : theAssets.length;
+        return { data: result, length: totalLength1 };
+      }
     },
     [
       chainId,
