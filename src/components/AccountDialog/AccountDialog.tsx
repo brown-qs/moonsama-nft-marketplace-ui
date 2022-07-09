@@ -211,7 +211,7 @@ export const AccountDialog = () => {
         //  return null
         //}
 
-        if(key == 'METAMASK' && isMetamask)
+        if(key == 'METAMASK' && isMetamask && !isNovaWallet)
         {
           return (
             <OptionCard
