@@ -1,10 +1,10 @@
 import { useDispatch } from 'react-redux';
 import { Button } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { injected, walletconnect } from 'connectors';
+import { injected, talisman, walletconnect } from 'connectors';
 import { SUPPORTED_WALLETS } from '../../connectors';
 import { useAccountDialog, useClasses } from 'hooks';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog } from 'ui';
 import { styles as AccountStyles } from './AccountDialog.styles';
 import { isMobile } from 'react-device-detect';
@@ -25,6 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import useAddNetworkToMetamaskCb from 'hooks/useAddNetworkToMetamask/useAddNetworkToMetamask';
 import { ChainId } from '../../constants';
+import { useSettingsConnectorKey } from 'state/settings/hooks';
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
@@ -55,11 +56,20 @@ export const AccountDialog = () => {
 
   const { isAccountDialogOpen, setAccountDialogOpen } = useAccountDialog();
   // error reporting not working (e.g. on unsupported chain id)
-  const { chainId, account, connector, active, error, activate, deactivate } =
-    useWeb3React();
+  const {
+    chainId,
+    account,
+    connector,
+    active,
+    error,
+    activate,
+    deactivate,
+    library,
+  } = useWeb3React();
   const previousAccount = usePrevious(account);
 
-
+  // used to persist which connector that should be used for auto-connect
+  const { setConnectorKey } = useSettingsConnectorKey();
 
   // close on connection, when logged out before
   useEffect(() => {
@@ -97,21 +107,27 @@ export const AccountDialog = () => {
     connectorPrevious,
   ]);
 
-  function formatConnectorName() {
-    const { ethereum } = window;
-    const isMetaMask = !!(ethereum && ethereum.isMetaMask);
+  const connectorName = useMemo(() => {
+    const provider = library?.provider;
+    if (!provider) return 'unknown wallet';
+
+    const isTalisman = !!provider.isTalisman;
+    const isMetaMask = !!provider.isMetaMask;
     const name = Object.keys(SUPPORTED_WALLETS)
-      .filter(
-        (k) =>
+      .filter((k) => {
+        if (isTalisman) return k === 'TALISMAN';
+        return (
           SUPPORTED_WALLETS[k].connector === connector &&
           (connector !== injected || isMetaMask === (k === 'METAMASK'))
-      )
+        );
+      })
       .map((k) => SUPPORTED_WALLETS[k].name)[0];
-    return <div className={styles.walletName}>Connected with {name}</div>;
-  }
 
-  function getStatusIcon() {
-    if (connector === injected) {
+    return name;
+  }, [connector, library?.provider]);
+
+  const getStatusIcon = useCallback(() => {
+    if (connector === injected || connector === talisman) {
       return (
         <div className={styles.iconWrapper}>
           <Identicon />
@@ -125,7 +141,7 @@ export const AccountDialog = () => {
       );
     }
     return null;
-  }
+  }, [connector, styles.iconWrapper]);
 
   function renderTransactions(transactions: string[]) {
     return (
@@ -140,7 +156,7 @@ export const AccountDialog = () => {
   const showConnectedAccountDetails = useCallback(
     () => (
       <>
-        {formatConnectorName()}
+        <div className={styles.walletName}>Connected with {connectorName}</div>
         <div className={styles.row}>
           {getStatusIcon()}
           <p> {account && shortenAddress(account)}</p>
@@ -155,7 +171,7 @@ export const AccountDialog = () => {
         </Button>
       </>
     ),
-    [account, activate, deactivate, styles]
+    [account, connectorName, getStatusIcon, styles]
   );
 
   const clearAllTransactionsCallback = useCallback(() => {
@@ -192,9 +208,10 @@ export const AccountDialog = () => {
   };
 
   function getOptions() {
-    const isMetamask = window.ethereum && window.ethereum.isMetaMask;
-    console.debug('getOptions isMetamask', isMetamask);
-    return Object.keys(SUPPORTED_WALLETS).map((key) => {
+    const isMetamask = window.ethereum && !!window.ethereum.isMetaMask;
+    const isTalisman = window.ethereum && !!window.ethereum.isTalisman;
+
+    const options = Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
       console.log('Option: ', {
@@ -219,6 +236,7 @@ export const AccountDialog = () => {
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)
                 : !option.href && tryActivation(option.connector);
+              setConnectorKey(key);
             }}
             key={key}
             active={option.connector === connector}
@@ -258,9 +276,24 @@ export const AccountDialog = () => {
           return null;
         }
         // likewise for generic
-        else if (option.name === 'Injected' && isMetamask) {
+        else if (option.name === 'Injected' && (isMetamask || isTalisman)) {
           return null;
         }
+      }
+
+      // if Talisman isn't installed
+      if (option.connector === talisman && !window.talismanEth) {
+        return (
+          <OptionCard
+            id={`connect-${key}`}
+            key={key}
+            color={option.color}
+            header={'Install Talisman'}
+            subheader={null}
+            link={'https://talisman.xyz'}
+            icon={option.icon}
+          />
+        );
       }
 
       // return rest of options
@@ -273,6 +306,7 @@ export const AccountDialog = () => {
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)
                 : !option.href && tryActivation(option.connector);
+              setConnectorKey(key);
             }}
             key={key}
             active={option.connector === connector}
@@ -285,6 +319,8 @@ export const AccountDialog = () => {
         )
       );
     });
+
+    return <div className={styles.walletOptions}>{options}</div>;
   }
 
   /*

@@ -3,13 +3,15 @@ import { save, load } from 'redux-localstorage-simple';
 import application from './application/reducer';
 import { updateVersion } from './global/actions';
 import transactions from './transactions/reducer';
+import settings from './settings/reducer';
 
-const PERSISTED_KEYS: string[] = ['transactions'];
+const PERSISTED_KEYS: string[] = ['transactions', 'settings'];
 
 const store = configureStore({
   reducer: {
     application,
     transactions,
+    settings,
   },
   middleware: [
     ...getDefaultMiddleware({ thunk: false }),

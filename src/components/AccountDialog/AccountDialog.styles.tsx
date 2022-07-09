@@ -77,6 +77,11 @@ export const styles = (theme: Theme) => ({
     justifyContent: 'space-between',
     marginBottom: '1rem',
   },
+  walletOptions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
   walletOption: {
     background: '#fff',
   },

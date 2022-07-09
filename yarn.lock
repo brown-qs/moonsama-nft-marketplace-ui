@@ -2306,6 +2306,14 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
+"@talismn/web3react-v6-connector@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@talismn/web3react-v6-connector/-/web3react-v6-connector-6.0.1.tgz#a01bea66cd653f47dd6c400a508d84b3aa388a6b"
+  integrity sha512-vcrpdjhNPYyC6XDGvZh5cXgYm34DbeA5VH7Kj14puxRAqxVzTGKUXBdAgG/2j3aBYKHmMm98qhmP5fgcrJO/ng==
+  dependencies:
+    "@web3-react/abstract-connector" "^6.0.7"
+    "@web3-react/types" "^6.0.7"
+
 "@testing-library/dom@^7.28.1", "@testing-library/dom@^7.31.2":
   version "7.31.2"
   resolved "https://registry.npmjs.org/@testing-library/dom/-/dom-7.31.2.tgz"

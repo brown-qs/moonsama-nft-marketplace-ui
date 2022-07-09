@@ -13,11 +13,13 @@ interface RequestArguments {
 interface Window {
   ethereum?: {
     isMetaMask?: true;
+    isTalisman?: true;
     on?: (...args: any[]) => void;
     removeListener?: (...args: any[]) => void;
     autoRefreshOnNetworkChange?: boolean;
-    request: (args: RequestArguments) => Promise<unknown>
+    request: (args: RequestArguments) => Promise<unknown>;
   };
+  talismanEth?: {};
   web3?: {};
 }
 
