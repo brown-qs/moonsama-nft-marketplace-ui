@@ -292,7 +292,7 @@ export const AccountDialog = () => {
           }
         }
         // don't return metamask if injected provider isn't metamask
-        else if (option.name === 'MetaMask' && !isMetamask) {
+        else if (option.name === 'MetaMask' && (!isMetamask || isTalisman)) {
           return null;
         }
         // likewise for generic
