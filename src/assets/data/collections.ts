@@ -287,6 +287,7 @@ export const collections = {
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
     },
+    /*
     {
       chainId: 1285,
       address: '0xfEd9e29b276C333b2F11cb1427142701d0D9f7bf',
@@ -301,6 +302,7 @@ export const collections = {
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-blvckmarket-v3',
     },
+    */
     /*
     {
       chainId: 1285,
