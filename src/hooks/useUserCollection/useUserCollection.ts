@@ -69,13 +69,16 @@ export const useUserCollection = () => {
 
           const assets = ot.ownedTokens.map((x) => {
             const aid = BigNumber.from(x.id).toString();
+            if (!x?.contract?.id) {
+              return undefined as unknown as Asset
+            }
             return {
               assetId: aid,
-              id: getAssetEntityId(x.contract.id, aid),
+              id: getAssetEntityId(x.contract?.id, aid),
               assetType: StringAssetType.ERC721,
               assetAddress: x.contract.id,
             };
-          });
+          }).filter(x => !!x)
 
           assetsAndBalances = {
             assets,

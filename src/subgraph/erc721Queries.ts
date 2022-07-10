@@ -4,7 +4,7 @@ import { META } from './common';
 export const QUERY_USER_ERC721 = (account: string) => gql`
   query getUserTokens {
     ${META}
-    owners(where: {id: "${account.toLowerCase()}"}) {
+    owners(where: {id: "1"}) {
       id,
       ownedTokens {
         id,
