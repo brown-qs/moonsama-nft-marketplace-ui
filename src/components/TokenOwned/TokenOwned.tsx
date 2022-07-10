@@ -128,8 +128,8 @@ export const TokenOwned = ({
           {rawCollection?.showAttributes && (
             <div style={{ paddingTop: theme.spacing(1) }}>
               <Typography color="textSecondary" style={{ fontSize: '12px' }}>
-                {getAttributesList(meta?.attributes)?.map((label) => (
-                  <Chip label={label} className={traitChip} />
+                {getAttributesList(meta?.attributes)?.map((label, i) => (
+                  <Chip key={`${label}-${i}`} label={label} className={traitChip} />
                 ))}
               </Typography>
             </div>

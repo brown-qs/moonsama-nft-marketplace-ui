@@ -84,7 +84,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmRffvf3cGzarRaJEH99JRrXqyZyyie6gPr1yp7JFMB7Z2',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-moonsama-v2',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-moonsama-v3',
     },
     {
       chainId: 1285,
@@ -100,7 +100,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmdCKgexLpBjST3FdWLbPZLH2FWRtu2NXE9dk5ZirdDRGb',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama-v2',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama-v3',
     },
     {
       chainId: 1285,
@@ -259,7 +259,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmR8K7eLZnhFqC5qUStMyFAgawSJcpRfSvMDMffQVQFn38',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-721-mmplots1',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-mmplotss1-v3',
     },
     {
       chainId: 1285,
@@ -299,7 +299,7 @@ export const collections = {
       type: 'ERC721',
       contractURI: 'ipfs://QmVQPRFZq7XZNk79C75ynqPRPdpPaX8bmH4Cb9KhrN1PfH',
       subgraph:
-        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-blvck',
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-blvckmarket-v3',
     },
     /*
     {

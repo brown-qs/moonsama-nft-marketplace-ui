@@ -45,14 +45,14 @@ const MyNFTsPage = () => {
           justifyContent: 'center',
         }}
       ></div>
-      {Object.keys(collection ?? {}).map((key) => {
+      {Object.keys(collection ?? {}).map((key,outerIndex) => {
         const iterables = (collection ?? {})[key] ?? [];
 
         if (!iterables || iterables.length == 0) {
           return;
         }
         return (
-          <>
+          <div key={`${key}-${outerIndex}`}>
             <div className={container}>
               <GlitchText variant="h1">{key}</GlitchText>
             </div>
@@ -75,7 +75,7 @@ const MyNFTsPage = () => {
                 )
                 .filter((x) => !!x)}
             </Grid>
-          </>
+          </div>
         );
       })}
       {pageLoading && (
