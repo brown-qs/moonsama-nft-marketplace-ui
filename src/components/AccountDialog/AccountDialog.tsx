@@ -210,6 +210,7 @@ export const AccountDialog = () => {
   function getOptions() {
     const isMetamask = window.ethereum && !!window.ethereum.isMetaMask;
     const isTalisman = window.ethereum && !!window.ethereum.isTalisman;
+    const isNovaWallet = !!(window.ethereum as any)?.isNovaWallet;
 
     const options = Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
@@ -228,26 +229,45 @@ export const AccountDialog = () => {
         //  return null
         //}
 
-        // if (!window.web3 && !window.ethereum && option.mobile) {
-        return (
-          <OptionCard
-            id={`connect-${key}`}
-            onClick={() => {
-              option.connector === connector
-                ? setWalletView(WALLET_VIEWS.ACCOUNT)
-                : !option.href && tryActivation(option.connector);
-              setConnectorKey(key);
-            }}
-            key={key}
-            active={option.connector === connector}
-            color={option.color}
-            link={option.href}
-            header={option.name}
-            subheader={null} //use option.descriptio to bring back multi-line
-            icon={option.icon}
-          />
-        );
-        // }
+        if (key == 'METAMASK' && isMetamask && !isNovaWallet && !isTalisman) {
+          return (
+            <OptionCard
+              id={`connect-${key}`}
+              onClick={() => {
+                option.connector === connector
+                  ? setWalletView(WALLET_VIEWS.ACCOUNT)
+                  : !option.href && tryActivation(option.connector);
+              }}
+              key={key}
+              active={option.connector === connector}
+              color={option.color}
+              link={option.href}
+              header={option.name}
+              subheader={null} //use option.descriptio to bring back multi-line
+              icon={option.icon}
+            />
+          );
+        }
+        if (key == 'NOVA' && isNovaWallet) {
+          return (
+            <OptionCard
+              id={`connect-${key}`}
+              onClick={() => {
+                option.connector === connector
+                  ? setWalletView(WALLET_VIEWS.ACCOUNT)
+                  : !option.href && tryActivation(option.connector);
+              }}
+              key={key}
+              active={option.connector === connector}
+              color={option.color}
+              link={option.href}
+              header={option.name}
+              subheader={null} //use option.descriptio to bring back multi-line
+              icon={option.icon}
+            />
+          );
+        }
+
         return null;
       }
 

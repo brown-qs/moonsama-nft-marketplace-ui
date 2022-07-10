@@ -12,11 +12,10 @@ import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
 import { getAssetEntityId, StringAssetType } from 'utils/subgraph';
 import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
-import { useBalances } from 'hooks/useBalances/useBalances';
 
 export interface OwnedTokens {
   id: string;
-  ownedTokens: { id: string; contract: { id: string } }[];
+  ownedTokens: { id: string; contract: { address: string } }[];
 }
 
 export interface TokenOwner {
@@ -52,8 +51,9 @@ export const useUserCollection = () => {
 
         if (collection.type === 'ERC721') {
           const query = QUERY_USER_ERC721(account);
+          //console.log(query, collection)
           const response = await request(collection.subgraph, query);
-          console.debug('YOLO fetchUserCollection', response);
+          //console.debug('YOLO fetchUserCollection', response);
 
           if (!response) {
             result[collection.display_name] = [];
@@ -69,13 +69,16 @@ export const useUserCollection = () => {
 
           const assets = ot.ownedTokens.map((x) => {
             const aid = BigNumber.from(x.id).toString();
+            if (!x?.contract?.address) {
+              return undefined as unknown as Asset
+            }
             return {
               assetId: aid,
-              id: getAssetEntityId(x.contract.id, aid),
+              id: getAssetEntityId(x.contract?.address, aid),
               assetType: StringAssetType.ERC721,
-              assetAddress: x.contract.id,
+              assetAddress: x.contract?.address,
             };
-          });
+          }).filter(x => !!x)
 
           assetsAndBalances = {
             assets,
@@ -84,7 +87,7 @@ export const useUserCollection = () => {
         } else {
           const query = QUERY_USER_ERC1155(account);
           const response = await request(collection.subgraph, query);
-          console.debug('YOLO fetchUserCollection', response);
+          //console.debug('YOLO fetchUserCollection', response);
 
           if (!response) {
             result[collection.display_name] = [];

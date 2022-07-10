@@ -483,7 +483,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             ? theAssets.length
             : offsetNum + num;
         let sliceAssets = theAssets.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets, orders);
+        const result = await fetchStatics(sliceAssets);
         setCollection(result)
         let totalLength = num === 1 ? num : theAssets.length;
         return totalLength ;

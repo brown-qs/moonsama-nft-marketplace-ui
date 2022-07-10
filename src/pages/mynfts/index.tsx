@@ -18,19 +18,19 @@ const MyNFTsPage = () => {
   const { placeholderContainer, container, subContainer } = useClasses(styles);
 
   const { account, chainId } = useActiveWeb3React();
-
   const getPaginatedItems = useUserCollection();
 
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
       const data = await getPaginatedItems(account ?? AddressZero);
-      console.log("data", data);
+      console.log('data', data);
       setPageLoading(false);
       setCollection(data);
     };
-
-    getCollectionById();
+    if (account) {
+      getCollectionById();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, account]);
 
@@ -45,14 +45,14 @@ const MyNFTsPage = () => {
           justifyContent: 'center',
         }}
       ></div>
-      {Object.keys(collection ?? {}).map((key) => {
+      {Object.keys(collection ?? {}).map((key,outerIndex) => {
         const iterables = (collection ?? {})[key] ?? [];
 
         if (!iterables || iterables.length == 0) {
           return;
         }
         return (
-          <>
+          <div key={`${key}-${outerIndex}`}>
             <div className={container}>
               <GlitchText variant="h1">{key}</GlitchText>
             </div>
@@ -75,7 +75,7 @@ const MyNFTsPage = () => {
                 )
                 .filter((x) => !!x)}
             </Grid>
-          </>
+          </div>
         );
       })}
       {pageLoading && (

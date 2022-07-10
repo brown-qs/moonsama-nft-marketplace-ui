@@ -111,15 +111,17 @@ const PondsamaCollectionPage = () => {
       let temp = href.split('?');
       let path = '?' + temp[1];
       let newPath = sampleLocation.pathname;
-      let ind = path.search('&page=');
+      let ind = path.search('page=');
+      console.log("newPath1",newPath, ind, path)
       if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
           if (path[ind] === '&') break;
         }
-        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
-      } else newPath = newPath + path + '&page=' + value;
+        newPath = newPath + 'page=' + value + path.slice(ind, path.length);
+      } else newPath = newPath + path + 'page=' + value;
+      console.log("newPath1",newPath)
       navigate(newPath);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));

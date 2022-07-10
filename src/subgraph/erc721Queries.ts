@@ -9,7 +9,7 @@ export const QUERY_USER_ERC721 = (account: string) => gql`
       ownedTokens {
         id,
         contract {
-          id
+          address
         }
       }
     }
