@@ -1,10 +1,10 @@
 import { useDispatch } from 'react-redux';
-import { Button } from '@mui/material';
+import { Button, Stack, useMediaQuery, useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { injected, walletconnect } from 'connectors';
+import { injected, talisman, walletconnect } from 'connectors';
 import { SUPPORTED_WALLETS } from '../../connectors';
 import { useAccountDialog, useClasses } from 'hooks';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog } from 'ui';
 import { styles as AccountStyles } from './AccountDialog.styles';
 import { isMobile } from 'react-device-detect';
@@ -15,7 +15,7 @@ import { Transaction } from './Transaction';
 import { clearAllTransactions } from 'state/transactions/actions';
 import { AppDispatch } from 'state';
 import { useSortedRecentTransactions } from 'state/transactions/hooks';
-import { shortenAddress } from 'utils';
+import { shortenAddress, truncateAddress, truncateHexString } from 'utils';
 import { AbstractConnector } from '@web3-react/abstract-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
@@ -24,7 +24,10 @@ import usePrevious from 'hooks/usePrevious/usePrevious';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import useAddNetworkToMetamaskCb from 'hooks/useAddNetworkToMetamask/useAddNetworkToMetamask';
-import { ChainId } from '../../constants';
+import { ChainId, DEFAULT_CHAIN, NATIVE_TOKEN_SYMBOL, NETWORK_ICONS } from '../../constants';
+import { useSettingsConnectorKey } from 'state/settings/hooks';
+import { useNativeBalance } from 'hooks/useBalances/useBalances';
+import { Fraction } from 'utils/Fraction';
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
@@ -34,6 +37,7 @@ const WALLET_VIEWS = {
 };
 
 export const AccountDialog = () => {
+  const theme = useTheme()
   const styles = useClasses(AccountStyles);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -46,6 +50,12 @@ export const AccountDialog = () => {
   const sortedRecentTransactions = useSortedRecentTransactions();
   const { addNetwork } = useAddNetworkToMetamaskCb();
 
+  const isSm = useMediaQuery(
+    //`(max-width: 400px)`
+    theme.breakpoints.down('sm')
+  )
+  console.log({isSm})
+
   const pendingTransactions = sortedRecentTransactions
     .filter((tx) => !tx.receipt)
     .map((tx) => tx.hash);
@@ -55,11 +65,20 @@ export const AccountDialog = () => {
 
   const { isAccountDialogOpen, setAccountDialogOpen } = useAccountDialog();
   // error reporting not working (e.g. on unsupported chain id)
-  const { chainId, account, connector, active, error, activate, deactivate } =
-    useWeb3React();
+  const {
+    chainId,
+    account,
+    connector,
+    active,
+    error,
+    activate,
+    deactivate,
+    library,
+  } = useWeb3React();
   const previousAccount = usePrevious(account);
 
-
+  // used to persist which connector that should be used for auto-connect
+  const { setConnectorKey } = useSettingsConnectorKey();
 
   // close on connection, when logged out before
   useEffect(() => {
@@ -97,21 +116,30 @@ export const AccountDialog = () => {
     connectorPrevious,
   ]);
 
-  function formatConnectorName() {
-    const { ethereum } = window;
-    const isMetaMask = !!(ethereum && ethereum.isMetaMask);
+  const connectorName = useMemo(() => {
+    const provider = library?.provider;
+    if (!provider) return 'unknown wallet';
+
+    const isTalisman = !!provider.isTalisman;
+    const isMetaMask = !!provider.isMetaMask;
     const name = Object.keys(SUPPORTED_WALLETS)
-      .filter(
-        (k) =>
+      .filter((k) => {
+        if (isTalisman) return k === 'TALISMAN';
+        return (
           SUPPORTED_WALLETS[k].connector === connector &&
           (connector !== injected || isMetaMask === (k === 'METAMASK'))
-      )
+        );
+      })
       .map((k) => SUPPORTED_WALLETS[k].name)[0];
-    return <div className={styles.walletName}>Connected with {name}</div>;
-  }
 
-  function getStatusIcon() {
-    if (connector === injected) {
+    return name;
+  }, [connector, library?.provider]);
+
+  const bal = useNativeBalance();
+  let formattedBalance = (Fraction.from(bal ?? '0', 18) as Fraction).toFixed(2)
+
+  const getStatusIcon = useCallback(() => {
+    if (connector === injected || connector === talisman) {
       return (
         <div className={styles.iconWrapper}>
           <Identicon />
@@ -125,7 +153,7 @@ export const AccountDialog = () => {
       );
     }
     return null;
-  }
+  }, [connector, styles.iconWrapper]);
 
   function renderTransactions(transactions: string[]) {
     return (
@@ -139,23 +167,28 @@ export const AccountDialog = () => {
 
   const showConnectedAccountDetails = useCallback(
     () => (
-      <>
-        {formatConnectorName()}
-        <div className={styles.row}>
+      <Stack direction="column" spacing={theme.spacing(1)}>
+        <div className={styles.walletName}>Connected with {connectorName}</div>
+        <Stack direction="row" justifyContent={'center'} alignItems={'center'} alignContent='center' textAlign={'center'} className={styles.fontSize12}>
           {getStatusIcon()}
-          <p> {account && shortenAddress(account)}</p>
-        </div>
+          <div> {isSm ? truncateHexString(account, 10) : account}</div>
+        </Stack>
+        <Stack sx={{paddingTop: theme.spacing(0)}} direction="row" justifyContent={'center'} className={styles.fontSize12}>
+          <div>Balance</div>
+          <div style={{paddingLeft: theme.spacing(2)}}>{`${formattedBalance} ${NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}`}</div>
+        </Stack>
         <Button
           variant="outlined"
           color="primary"
           className={styles.row}
           onClick={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          style={{marginTop: theme.spacing(5)}}
         >
           Change
         </Button>
-      </>
+      </Stack>
     ),
-    [account, activate, deactivate, styles]
+    [account, connectorName, getStatusIcon, styles, isSm, formattedBalance]
   );
 
   const clearAllTransactionsCallback = useCallback(() => {
@@ -192,9 +225,11 @@ export const AccountDialog = () => {
   };
 
   function getOptions() {
-    const isMetamask = window.ethereum && window.ethereum.isMetaMask;
+    const isMetamask = window.ethereum && !!window.ethereum.isMetaMask;
+    const isTalisman = window.ethereum && !!window.ethereum.isTalisman;
     const isNovaWallet = !!(window.ethereum as any)?.isNovaWallet;
-    return Object.keys(SUPPORTED_WALLETS).map((key) => {
+
+    const options = Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
       console.log('Option: ', {
@@ -211,8 +246,7 @@ export const AccountDialog = () => {
         //  return null
         //}
 
-        if(key == 'METAMASK' && isMetamask && !isNovaWallet)
-        {
+        if (key == 'METAMASK' && isMetamask && !isNovaWallet && !isTalisman) {
           return (
             <OptionCard
               id={`connect-${key}`}
@@ -231,8 +265,7 @@ export const AccountDialog = () => {
             />
           );
         }
-        if(key == 'NOVA' && isNovaWallet)
-        {
+        if (key == 'NOVA' && isNovaWallet) {
           return (
             <OptionCard
               id={`connect-${key}`}
@@ -276,13 +309,28 @@ export const AccountDialog = () => {
           }
         }
         // don't return metamask if injected provider isn't metamask
-        else if (option.name === 'MetaMask' && !isMetamask) {
+        else if (option.name === 'MetaMask' && (!isMetamask || isTalisman)) {
           return null;
         }
         // likewise for generic
-        else if (option.name === 'Injected' && isMetamask) {
+        else if (option.name === 'Injected' && (isMetamask || isTalisman)) {
           return null;
         }
+      }
+
+      // if Talisman isn't installed
+      if (option.connector === talisman && !window.talismanEth) {
+        return (
+          <OptionCard
+            id={`connect-${key}`}
+            key={key}
+            color={option.color}
+            header={'Install Talisman'}
+            subheader={null}
+            link={'https://talisman.xyz'}
+            icon={option.icon}
+          />
+        );
       }
 
       // return rest of options
@@ -295,6 +343,7 @@ export const AccountDialog = () => {
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)
                 : !option.href && tryActivation(option.connector);
+              setConnectorKey(key);
             }}
             key={key}
             active={option.connector === connector}
@@ -307,6 +356,8 @@ export const AccountDialog = () => {
         )
       );
     });
+
+    return <div className={styles.walletOptions}>{options}</div>;
   }
 
   /*
@@ -359,6 +410,7 @@ export const AccountDialog = () => {
                 onClick={() => {
                   addNetwork(ChainId.MOONRIVER);
                 }}
+                startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.MOONRIVER]} alt='' />}
                 color="primary"
               >
                 Switch to Moonriver
@@ -368,6 +420,7 @@ export const AccountDialog = () => {
                 onClick={() => {
                   addNetwork(ChainId.MOONBEAM);
                 }}
+                startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.MOONBEAM]} alt='' />}
                 color="primary"
               >
                 Switch to Moonbeam
@@ -392,7 +445,7 @@ export const AccountDialog = () => {
             {showConnectedAccountDetails()}
           </div>
           {account &&
-          (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
+            (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
             <div className={styles.lowerSection}>
               <div className={styles.autoRow}>
                 <Typography>Recent transactions</Typography>

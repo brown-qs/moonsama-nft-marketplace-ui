@@ -1,7 +1,6 @@
 import Button from '@mui/material/Button/Button';
-import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import { useClasses } from 'hooks';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { styles as style } from './OptionCard.styles';
 
 export default function OptionCard({
@@ -25,43 +24,36 @@ export default function OptionCard({
   active?: boolean;
   id: string;
 }) {
-  console.log({ icon });
   const styles = useClasses(style);
-  const content = (
-    <div className={styles.optionElementContainer}>
-      <div className={styles.optionCardLeft}>
-        <div className={styles.headertext}>
-          {active ? (
-            <div className={styles.circleWrapper}>
-              <div className={styles.greenCircle}>
-                <div />
-              </div>
-            </div>
-          ) : (
-            ''
-          )}
-          {header}
-        </div>
-        {subheader && <div className={styles.subheader}>{subheader}</div>}
-      </div>
 
-      <div className={styles.iconWrapper}>
-        <img className={styles.icon} src={icon} alt={'Icon'} />
-      </div>
-    </div>
-  );
-  if (link) {
-    return <ExternalLink href={link}>{content}</ExternalLink>;
-  }
+  const handleClick = useCallback(() => {
+    if (link) window.open(link, '_blank');
+    else onClick?.();
+  }, [link, onClick]);
 
   return (
-    <Button
-      variant="outlined"
-      style={{ color }}
-      id={id}
-      onClick={() => onClick?.()}
-    >
-      {content}
+    <Button variant="outlined" style={{ color }} id={id} onClick={handleClick}>
+      <div className={styles.optionElementContainer}>
+        <div className={styles.optionCardLeft}>
+          <div className={styles.headertext}>
+            {!link && active ? (
+              <div className={styles.circleWrapper}>
+                <div className={styles.greenCircle}>
+                  <div />
+                </div>
+              </div>
+            ) : (
+              ''
+            )}
+            {header}
+          </div>
+          {subheader && <div className={styles.subheader}>{subheader}</div>}
+        </div>
+
+        <div className={styles.iconWrapper}>
+          <img className={styles.icon} src={icon} alt={'Icon'} />
+        </div>
+      </div>
     </Button>
   );
 }

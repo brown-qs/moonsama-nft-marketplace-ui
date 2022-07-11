@@ -19,6 +19,9 @@ export const styles = (theme: Theme) => ({
     flexDirection: 'row',
     fontSize: '12px',
   },
+  fontSize12: {
+    fontSize: '12px'
+  },
   lowerSection: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -37,13 +40,15 @@ export const styles = (theme: Theme) => ({
     fontSize: '0.825rem',
     fontWeight: 500,
     color: theme.palette.text.secondary,
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
   },
   iconWrapper: {
     display: 'flex',
     flexFlow: 'column nowrap',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 8px 8px 0',
+    margin: '0 8px 0px 0',
     '& > img': {},
     span: {
       height: '16px',
@@ -76,6 +81,11 @@ export const styles = (theme: Theme) => ({
     flexFlow: 'row nowrap',
     justifyContent: 'space-between',
     marginBottom: '1rem',
+  },
+  walletOptions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
   },
   walletOption: {
     background: '#fff',
