@@ -288,7 +288,7 @@ export const TokenLootbox = () => {
     maxCraftCountTemp = 999999999999999999999;
   items.map((item, i) => {
     let costValue = parseInt(item?.target ?? '0');
-    let myValue = parseInt(formattedUserBalances?.[i] ?? '0')
+    let myValue = parseInt(formattedUserBalances?.[i] ?? '0');
     let temp3 = Math.floor(myValue / costValue);
     if (maxCraftCountTemp > temp3) maxCraftCountTemp = temp3;
   });
@@ -530,57 +530,57 @@ export const TokenLootbox = () => {
       </Box>
 
       <div>
-        {/* {notAvailableToCraft ? ( */}
-        <NavLink href={notAvailableLink}>
+        {notAvailableToCraft ? (
+          <NavLink href={notAvailableLink}>
+            <Box
+              className={buttonsContainer}
+              style={{ justifyContent: 'space-around' }}
+            >
+              <Button
+                startIcon={<DoDisturb />}
+                variant="outlined"
+                color="primary"
+                className={newSellButton}
+              >
+                {`${notAvailableText}↗`}
+              </Button>
+            </Box>
+          </NavLink>
+        ) : approvalNeeded ? (
+          <Box
+            className={`${buttonsContainer}`}
+            style={{ justifyContent: 'space-around' }}
+          >
+            <Button
+              onClick={() => {
+                setApproveDialogOpen(true);
+              }}
+              variant="contained"
+              color="primary"
+              className={transferButton}
+            >
+              Approve
+            </Button>
+          </Box>
+        ) : (
           <Box
             className={buttonsContainer}
             style={{ justifyContent: 'space-around' }}
           >
             <Button
-              startIcon={<DoDisturb />}
-              variant="outlined"
+              style={{ background: 'green' }}
+              variant="contained"
               color="primary"
-              className={newSellButton}
+              onClick={() => setAmountPickerDialogOpen(true)}
+              disabled={
+                craftCallback.state === CraftCallbackState.INVALID ||
+                availableToMint === '0'
+              }
             >
-              {`${notAvailableText}↗`}
+              {lootboxData.craftText}
             </Button>
           </Box>
-        </NavLink>
-        {/* ) : approvalNeeded ? ( */}
-        <Box
-          className={`${buttonsContainer}`}
-          style={{ justifyContent: 'space-around' }}
-        >
-          <Button
-            onClick={() => {
-              setApproveDialogOpen(true);
-            }}
-            variant="contained"
-            color="primary"
-            className={transferButton}
-          >
-            Approve
-          </Button>
-        </Box>
-        {/* ) : ( */}
-        <Box
-          className={buttonsContainer}
-          style={{ justifyContent: 'space-around' }}
-        >
-          <Button
-            style={{ background: 'green' }}
-            variant="contained"
-            color="primary"
-            onClick={() => setAmountPickerDialogOpen(true)}
-            disabled={
-              craftCallback.state === CraftCallbackState.INVALID ||
-              availableToMint === '0'
-            }
-          >
-            {lootboxData.craftText}
-          </Button>
-        </Box>
-        {/* )} */}
+        )}
       </div>
 
       <DialogUI
