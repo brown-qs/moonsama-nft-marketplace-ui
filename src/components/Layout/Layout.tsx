@@ -1,10 +1,11 @@
 import MenuIcon from '@mui/icons-material/Menu';
-import { Stack } from '@mui/material';
+import { Stack, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import WhiteLogo from 'assets/images/moonsama-white.svg';
+import WhiteLogoNormal from 'assets/images/moonsama-normal-white.svg';
+import WhiteLogoAlt from 'assets/images/moonsama-alt-white.svg';
 import { useMediaQuery } from 'beautiful-react-hooks';
 import { Account } from 'components';
 import { ConnectedNetwork } from 'components/ConnectedNetwork/ConnectedNetwork';
@@ -16,11 +17,17 @@ import { styles } from './Layout.styles';
 import { LayoutProps } from './Layout.types';
 
 export const Layout = ({ children }: LayoutProps) => {
-  const { logo, nav, navItem, buttonContainer, navItemDrawer } =
+  const { logo, logoAlt, nav, navItem, buttonContainer, navItemDrawer } =
     useClasses(styles);
+
   const showRegularMenu = useMediaQuery(
     `(max-width: ${MAX_WIDTH_TO_SHOW_NAVIGATION}px)`
   );
+  const isXs = useMediaQuery(
+    `(max-width: 400px)`
+  );
+  console.log('xs', isXs)
+
   const [isDrawerOpened, setIsDrawerOpened] = useState<boolean>(false);
 
   return (
@@ -35,9 +42,12 @@ export const Layout = ({ children }: LayoutProps) => {
                 </IconButton>
               )}
               <NavLink href="/" className={navItem}>
-                <div className={logo}>
-                  <img src={WhiteLogo} alt="" />
-                </div>
+                {!isXs && <div className={logo}>
+                  <img src={WhiteLogoNormal} alt="" />
+                </div>}
+                {isXs && <div className={logoAlt}>
+                  <img src={WhiteLogoAlt} alt="" />
+                </div>}
               </NavLink>
             </Grid>
             <Stack direction='row' justifyContent='flex-end' className={buttonContainer}>

@@ -2,7 +2,7 @@ import { Button } from 'ui';
 import { HeaderBalance } from 'components/HeaderBalance/HeaderBalance';
 import { UnsupportedChainIdError } from '@web3-react/core';
 import { useAccountDialog, useActiveWeb3React, useClasses } from 'hooks';
-import { truncateAddress } from 'utils';
+import { shortenAddress } from 'utils';
 import Identicon from 'components/Identicon/Identicon';
 import { Activity } from 'react-feather';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -14,7 +14,10 @@ export const Account = () => {
   const { account, error } = useActiveWeb3React();
   const { setAccountDialogOpen } = useAccountDialog();
   const theme = useTheme()
-  const hideAddress = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSm = useMediaQuery(theme.breakpoints.down('sm'));
+  const hideAddress = useMediaQuery(
+    `(max-width: 492px)`
+  )
 
   const showError = error ? true : false;
   const errMessage =
@@ -28,13 +31,13 @@ export const Account = () => {
         size="medium"
         onClick={() => setAccountDialogOpen(true)}
       > 
-        {account && <HeaderBalance />}
+        {account && !isSm && <HeaderBalance />}
 
         {showError ? (
           <Activity />
         ) : account ? (
           !hideAddress && (
-            <div style={{ fontSize: 0, margin: '0 8px' }}>
+            <div style={{ fontSize: 0, margin: '0 8px' /*, maxWidth:'16px', maxHeight:'16px'*/ }}>
               <Identicon />
             </div>
           )
@@ -43,16 +46,21 @@ export const Account = () => {
             <AccountBalanceWalletIcon />
           </div>
         )}
+
         {showError ? (
           errMessage
         ) : account ? (
           hideAddress ? (
-            <Identicon />
+            <div style={{ fontSize: 0, margin: '0 8px' /*maxWidth:'16px',  maxHeight:'16px' */}}>
+              <Identicon />
+            </div>
           ) : (
-            truncateAddress(account)
+            shortenAddress(account, 3)
           )
         ) : (
-          'Connect'
+          !isSm ? (
+            'Connect'
+          ): ('')
         )}
       </Button>
   );

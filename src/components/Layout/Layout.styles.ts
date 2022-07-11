@@ -9,7 +9,18 @@ export const styles = (theme: Theme) => ({
       marginBottom: '-5px',
     },
     [theme.breakpoints.down('sm')]: {
-      marginLeft: '20px',
+      //marginLeft: '20px',
+    },
+  },
+  logoAlt: {
+    height: '35px',
+    width: 'auto',
+    '& > img': {
+      height: '100%',
+      //marginBottom: '-5px',
+    },
+    [theme.breakpoints.down('sm')]: {
+     // marginLeft: '20px',
     },
   },
   nav: {

@@ -1,3 +1,6 @@
+import MoonriverIcon from '../assets/images/moonriver_icon.svg'
+import MoonbeamIcon from '../assets/images/moonbeam_icon.svg'
+
 export const CHAIN_ID = parseInt(process.env.REACT_APP_CHAIN_ID ?? '1285', 10);
 
 export const NetworkContextName = 'NETWORK';
@@ -41,6 +44,11 @@ export const NATIVE_TOKEN_SYMBOL: { [chainId: number]: string } = {
 export const NETWORK_NAME: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: 'Moonriver',
   [ChainId.MOONBEAM]: 'Moonbeam'
+};
+
+export const NETWORK_ICONS: { [chainId: number]: string } = {
+  [ChainId.MOONRIVER]: MoonriverIcon,
+  [ChainId.MOONBEAM]: MoonbeamIcon
 };
 
 export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {

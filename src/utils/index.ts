@@ -12,7 +12,7 @@ export * as subgraph from './subgraph';
 export const truncateAddress = (address: string) =>
   `${address.slice(0, 2)}...${address.slice(address.length - 4)}`;
 
-export const truncateHexString = (str?: string, chars = 4) => {
+export const truncateHexString = (str: string | null | undefined, chars = 4) => {
   if (!str) {
     return '';
   }

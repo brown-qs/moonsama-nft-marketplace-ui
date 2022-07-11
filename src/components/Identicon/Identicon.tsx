@@ -14,7 +14,7 @@ export default function Identicon() {
     if (account && ref.current) {
       ref.current.innerHTML = '';
       ref.current.appendChild(
-        Jazzicon(hideAddress ? 32 : 16, parseInt(account.slice(2, 10), 16))
+        Jazzicon(hideAddress ? 16 : 16, parseInt(account.slice(2, 10), 16))
       );
     }
   }, [account]);

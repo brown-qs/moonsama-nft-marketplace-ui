@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { Button } from '@mui/material';
+import { Button, Stack, useMediaQuery, useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { injected, talisman, walletconnect } from 'connectors';
 import { SUPPORTED_WALLETS } from '../../connectors';
@@ -15,7 +15,7 @@ import { Transaction } from './Transaction';
 import { clearAllTransactions } from 'state/transactions/actions';
 import { AppDispatch } from 'state';
 import { useSortedRecentTransactions } from 'state/transactions/hooks';
-import { shortenAddress } from 'utils';
+import { shortenAddress, truncateAddress, truncateHexString } from 'utils';
 import { AbstractConnector } from '@web3-react/abstract-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
@@ -24,8 +24,10 @@ import usePrevious from 'hooks/usePrevious/usePrevious';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ExternalLink } from 'components/ExternalLink/ExternalLink';
 import useAddNetworkToMetamaskCb from 'hooks/useAddNetworkToMetamask/useAddNetworkToMetamask';
-import { ChainId } from '../../constants';
+import { ChainId, DEFAULT_CHAIN, NATIVE_TOKEN_SYMBOL, NETWORK_ICONS } from '../../constants';
 import { useSettingsConnectorKey } from 'state/settings/hooks';
+import { useNativeBalance } from 'hooks/useBalances/useBalances';
+import { Fraction } from 'utils/Fraction';
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
@@ -35,6 +37,7 @@ const WALLET_VIEWS = {
 };
 
 export const AccountDialog = () => {
+  const theme = useTheme()
   const styles = useClasses(AccountStyles);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -46,6 +49,12 @@ export const AccountDialog = () => {
 
   const sortedRecentTransactions = useSortedRecentTransactions();
   const { addNetwork } = useAddNetworkToMetamaskCb();
+
+  const isSm = useMediaQuery(
+    //`(max-width: 400px)`
+    theme.breakpoints.down('sm')
+  )
+  console.log({isSm})
 
   const pendingTransactions = sortedRecentTransactions
     .filter((tx) => !tx.receipt)
@@ -126,6 +135,9 @@ export const AccountDialog = () => {
     return name;
   }, [connector, library?.provider]);
 
+  const bal = useNativeBalance();
+  let formattedBalance = (Fraction.from(bal ?? '0', 18) as Fraction).toFixed(2)
+
   const getStatusIcon = useCallback(() => {
     if (connector === injected || connector === talisman) {
       return (
@@ -155,23 +167,28 @@ export const AccountDialog = () => {
 
   const showConnectedAccountDetails = useCallback(
     () => (
-      <>
+      <Stack direction="column" spacing={theme.spacing(1)}>
         <div className={styles.walletName}>Connected with {connectorName}</div>
-        <div className={styles.row}>
+        <Stack direction="row" justifyContent={'center'} alignItems={'center'} alignContent='center' textAlign={'center'} className={styles.fontSize12}>
           {getStatusIcon()}
-          <p> {account && shortenAddress(account)}</p>
-        </div>
+          <div> {isSm ? truncateHexString(account, 10) : account}</div>
+        </Stack>
+        <Stack sx={{paddingTop: theme.spacing(0)}} direction="row" justifyContent={'center'} className={styles.fontSize12}>
+          <div>Balance</div>
+          <div style={{paddingLeft: theme.spacing(2)}}>{`${formattedBalance} ${NATIVE_TOKEN_SYMBOL[chainId ?? DEFAULT_CHAIN]}`}</div>
+        </Stack>
         <Button
           variant="outlined"
           color="primary"
           className={styles.row}
           onClick={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          style={{marginTop: theme.spacing(5)}}
         >
           Change
         </Button>
-      </>
+      </Stack>
     ),
-    [account, connectorName, getStatusIcon, styles]
+    [account, connectorName, getStatusIcon, styles, isSm, formattedBalance]
   );
 
   const clearAllTransactionsCallback = useCallback(() => {
@@ -393,6 +410,7 @@ export const AccountDialog = () => {
                 onClick={() => {
                   addNetwork(ChainId.MOONRIVER);
                 }}
+                startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.MOONRIVER]} alt='' />}
                 color="primary"
               >
                 Switch to Moonriver
@@ -402,6 +420,7 @@ export const AccountDialog = () => {
                 onClick={() => {
                   addNetwork(ChainId.MOONBEAM);
                 }}
+                startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.MOONBEAM]} alt='' />}
                 color="primary"
               >
                 Switch to Moonbeam
@@ -426,7 +445,7 @@ export const AccountDialog = () => {
             {showConnectedAccountDetails()}
           </div>
           {account &&
-          (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
+            (!!pendingTransactions.length || !!confirmedTransactions.length) ? (
             <div className={styles.lowerSection}>
               <div className={styles.autoRow}>
                 <Typography>Recent transactions</Typography>
