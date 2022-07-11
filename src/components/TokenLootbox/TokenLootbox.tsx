@@ -660,7 +660,7 @@ export const TokenLootbox = () => {
               disabled={
                 craftCallback.state === CraftCallbackState.INVALID ||
                 availableToMint === '0' ||
-                chosenAmount > maxCraftCount
+                parseInt(chosenAmount) > parseInt(maxCraftCount)
               }
             >
               {lootboxData.craftText}
