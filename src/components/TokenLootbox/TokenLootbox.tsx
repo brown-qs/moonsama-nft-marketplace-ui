@@ -264,16 +264,6 @@ export const TokenLootbox = () => {
 
   console.log('DEBUG', { formattedUserBalances });
 
-  let maxCraftCount = '0';
-
-  items.map((item, i) => {
-    let temp1 = parseInt(item?.target ?? '0');
-    let temp2 = parseInt(formattedUserBalances?.[i] ?? '0');
-    let temp3 = Math.floor(temp2 / temp1);
-    if (maxCraftCount == '0') maxCraftCount = temp3.toString();
-    else if (maxCraftCount > temp3.toString()) maxCraftCount = temp3.toString();
-  });
-
   let approvalNeeded = false;
   allowances?.map((allowance, i) => {
     if (BigNumber.from(inputAssets?.[i]?.amount ?? '0').gt(allowance ?? '0')) {
@@ -293,6 +283,17 @@ export const TokenLootbox = () => {
       return;
     }
   });
+
+  let maxCraftCount = '0',
+    maxCraftCountTemp = 999999999999999999999;
+  items.map((item, i) => {
+    let costValue = parseInt(item?.target ?? '0');
+    let myValue = parseInt(formattedUserBalances?.[i] ?? '0');
+    let temp3 = Math.floor(myValue / costValue);
+    if (maxCraftCountTemp > temp3) maxCraftCountTemp = temp3;
+  });
+
+  maxCraftCount = maxCraftCountTemp.toString();
 
   const noMoreLeftToMint = availableToMint === '0';
   const notAvailableToCraft = noMoreLeftToMint || !userHasEnough;
@@ -660,7 +661,7 @@ export const TokenLootbox = () => {
               disabled={
                 craftCallback.state === CraftCallbackState.INVALID ||
                 availableToMint === '0' ||
-                chosenAmount > maxCraftCount
+                parseInt(chosenAmount) > parseInt(maxCraftCount)
               }
             >
               {lootboxData.craftText}
