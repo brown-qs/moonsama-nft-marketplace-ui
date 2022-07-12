@@ -30,6 +30,12 @@ import {
 import { orderFilter } from '../../utils/marketplace';
 import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
 import { useActiveWeb3React, useClasses } from '../../hooks';
+import {
+  QUERY_MARKETPLACE_STATE,
+  QUERY_COLLECTION_STATE,
+} from 'subgraph/common';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import { request } from 'graphql-request';
 import { styles } from './styles';
 
 type SortDirection = 'asc' | 'desc';
@@ -139,7 +145,7 @@ const FreshOrdersPage = () => {
   );
   const [page, setPage] = useState<number>(pageParam);
   const [currentTab, setCurrentTab] = useState<number>(tabParam);
-  const [orderTotalCount, setOrderTotalCount] = useState<number>(1);
+  const [sellTotalCount, setSellTotalCount] = useState<number>(1);
   const [buyTotalCount, setBuyTotalCount] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(1);
 
@@ -171,10 +177,6 @@ const FreshOrdersPage = () => {
     if (chainId) {
       setBuyOrders([]);
       setSellOrders([]);
-      // setSelectedIndex(
-      //   collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0
-      // );
-      // setTake(0);
       setPaginationEnded(false);
       setPageLoading(false);
       setIsDrawerOpened(false);
@@ -201,17 +203,6 @@ const FreshOrdersPage = () => {
     setPaginationEnded(false);
     setPage(1);
     if (_sortBy != sortBy) {
-      // newPath =
-      //   sampleLocation.pathname +
-      //   '?collIndex=' +
-      //   selectedIndex +
-      //   '&page=' +
-      //   page +
-      //   '&tab=' +
-      //   currentTab +
-      //   '&sortBy=' +
-      //   _sortBy +
-      //   '&sortDirection=asc';
       let href = window.location.href;
       let temp = href.split('?');
       let path = '?' + temp[1];
@@ -257,19 +248,6 @@ const FreshOrdersPage = () => {
       let tempSortDirection: SortDirection =
         sortDirection === 'asc' ? 'desc' : 'asc';
       setSortDirection(tempSortDirection);
-      // newPath =
-      //   sampleLocation.pathname +
-      //   '?collIndex=' +
-      //   selectedIndex +
-      //   '&page=' +
-      //   page +
-      //   '&tab=' +
-      //   currentTab +
-      //   '&sortBy=' +
-      //   _sortBy +
-      //   '&sortDirection=' +
-      //   tempSortDirection;
-      //   navigate(newPath);
       let href = window.location.href;
       let temp = href.split('?');
       let path = '?' + temp[1];
@@ -315,24 +293,11 @@ const FreshOrdersPage = () => {
   };
 
   const handleTabChange = (newValue: number) => {
-    if (newValue == 0) setTotalCount(orderTotalCount);
+    if (newValue == 0) setTotalCount(sellTotalCount);
     else setTotalCount(buyTotalCount);
     setCurrentTab(newValue);
     setPage(1);
     setTake(0);
-    // let newPath =
-    //   sampleLocation.pathname +
-    //   '?collIndex=' +
-    //   selectedIndex +
-    //   '&page=' +
-    //   page +
-    //   '&tab=' +
-    //   newValue +
-    //   '&sortBy=' +
-    //   sortByParam +
-    //   '&sortDirection=' +
-    //   sortDirection;
-    // navigate(newPath);
     let href = window.location.href;
     let temp = href.split('?');
     let path = '?' + temp[1];
@@ -360,6 +325,7 @@ const FreshOrdersPage = () => {
     } else newPath = newPath + path + '&page=1';
     navigate(newPath);
   };
+
   const handleSelection = (i: number) => {
     if (i !== selectedIndex) {
       setBuyOrders([]);
@@ -368,19 +334,6 @@ const FreshOrdersPage = () => {
       setTake(0);
       setPage(1);
       setPaginationEnded(false);
-      // let newPath =
-      //   sampleLocation.pathname +
-      //   '?collIndex=' +
-      //   i +
-      //   '&page=' +
-      //   page +
-      //   '&tab=' +
-      //   currentTab +
-      //   '&sortBy=' +
-      //   sortByParam +
-      //   '&sortDirection=' +
-      //   sortDirection;
-      // navigate(newPath);
       let href = window.location.href;
       let temp = href.split('?');
       let path = '?' + temp[1];
@@ -410,16 +363,6 @@ const FreshOrdersPage = () => {
     }
   };
 
-  // const handleScrollToBottom = useCallback(() => {
-  //   if (pageLoading) return;
-  //   setTake((state) => (state += PAGE_SIZE));
-  // }, []);
-
-  // useBottomScrollListener(handleScrollToBottom, {
-  //   offset: 400,
-  //   debounce: 1000,
-  // });
-
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
       if (pageLoading) return;
@@ -446,27 +389,74 @@ const FreshOrdersPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      let orderCount = await getOrderTotal(
-        selectedTokenAddress,
-        sortBy,
-        sortDirection
-      );
-      orderCount =
-        orderCount % 10
-          ? Math.floor(orderCount / 10) + 1
-          : Math.floor(orderCount / 10);
-      setOrderTotalCount(orderCount);
-      let buyCount = await getBuyTotal(
-        selectedTokenAddress,
-        sortBy,
-        sortDirection
-      );
-      setBuyTotalCount(buyCount);
+      let sellCount, buyCount;
+      if (
+        selectedTokenAddress.toLowerCase() !==
+        '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75'
+      ) {
+        let query = QUERY_COLLECTION_STATE(
+          selectedTokenAddress.toLowerCase() +
+            '-0x0000000000000000000000000000000000000000'
+        );
+        let response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        sellCount = parseInt(response.collectionStat.activeSellOrderNum);
+        buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
+      } else {
+        let query = QUERY_COLLECTION_STATE(
+          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x088fe6e0e1caca1ee45e8de96abe79e4e139f4ab'
+        );
+        let response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        sellCount = parseInt(response.collectionStat.activeSellOrderNum);
+        buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
+
+        query = QUERY_COLLECTION_STATE(
+          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x77709c42d43f2e53c24b8fa623a207abdc89857c'
+        );
+        response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
+        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+
+        query = QUERY_COLLECTION_STATE(
+          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x8ce2bdc6e0319cea87337d027382f09b715c9601'
+        );
+        response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
+        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+
+        query = QUERY_COLLECTION_STATE(
+          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x9e403aa2dfef9ba2a2b82286d13864a64d90bf36'
+        );
+        response = await request(
+          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
+        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+      }
+
+      sellCount =
+        sellCount % 10
+          ? Math.floor(sellCount / 10) + 1
+          : Math.floor(sellCount / 10);
       buyCount =
         buyCount % 10
           ? Math.floor(buyCount / 10) + 1
           : Math.floor(buyCount / 10);
-      if (currentTab == 0) setTotalCount(orderCount);
+      setBuyTotalCount(buyCount);
+      setSellTotalCount(sellCount);
+      if (currentTab == 0) setTotalCount(sellCount);
       else setTotalCount(buyCount);
       let buyData = await getPaginatedBuyOrders(
         selectedTokenAddress,
@@ -500,15 +490,10 @@ const FreshOrdersPage = () => {
         const sellPieces = sellData.filter(({ meta }) => !!meta);
 
         setPaginationEnded(true);
-
-        // setSellOrders((state) => state.concat(sellPieces));
-        // setBuyOrders((state) => state.concat(buyPieces));
         setSellOrders(sellPieces);
         setBuyOrders(buyPieces);
         return;
       }
-      // setSellOrders((state) => state.concat(sellData));
-      // setBuyOrders((state) => state.concat(buyData));
       setSellOrders(sellData);
       setBuyOrders(buyData);
     };

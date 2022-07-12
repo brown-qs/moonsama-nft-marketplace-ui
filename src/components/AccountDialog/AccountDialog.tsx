@@ -232,14 +232,14 @@ export const AccountDialog = () => {
     const options = Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
       // check for mobile options
-      console.log('Option: ', {
-        isMobile,
-        key,
-        option,
-        isMetamask,
-        ww3: !!window.web3,
-        we: !!window.ethereum,
-      });
+      // console.log('Option: ', {
+      //   isMobile,
+      //   key,
+      //   option,
+      //   isMetamask,
+      //   ww3: !!window.web3,
+      //   we: !!window.ethereum,
+      // });
       if (isMobile) {
         //disable portis on mobile for now
         //if (option.connector === portis) {

@@ -214,7 +214,6 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
       sortBy: string,
       sortDirection: string
     ) => {
-      console.log('order query', offset, num);
       const query = QUERY_LATEST_BUY_ORDERS_FOR_TOKEN(
         `${AddressZero}-0`,
         tokenAddress,

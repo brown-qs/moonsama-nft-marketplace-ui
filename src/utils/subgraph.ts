@@ -153,7 +153,7 @@ export const parseFillWithOrder = (data?: any): FillWithOrder | undefined => {
       partialAllowed: data.order.partialAllowed,
       quantity: BigNumber.from(data.order.quantity),
       quantityLeft: BigNumber.from(data.order.quantityLeft),
-      pricePerUnit: BigNumber.from(data.order.pricePerUnit),
+      pricePerUnit: BigNumber.from(data.order.pricePerUnit ?? '0'),
       orderType: stringToStringAssetType(data.order.orderType),
     },
   };
@@ -190,7 +190,7 @@ export const parseOrder = (data?: any): Order | undefined => {
     partialAllowed: data.partialAllowed,
     quantity: BigNumber.from(data.quantity),
     quantityLeft: BigNumber.from(data.quantityLeft),
-    pricePerUnit: BigNumber.from(data.pricePerUnit),
+    pricePerUnit: BigNumber.from(data.pricePerUnit?? '0'),
     orderType: stringToStringOrderType(data.orderType),
   };
 };
