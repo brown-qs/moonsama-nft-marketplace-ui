@@ -2,20 +2,20 @@ import { useCallback, useState } from 'react';
 import { ChainId } from '../../constants';
 import { SUPPORTED_METAMASK_NETWORKS } from '../../constants/networks';
 import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
+import { ExternalProvider, Web3Provider } from '@ethersproject/providers';
 
 export default function useAddNetworkToMetamaskCb(): {
   addNetwork: (chainId: ChainId) => void;
   success: boolean | undefined;
 } {
-  const { library } = useWeb3React<Web3Provider>();
+  const { connector } = useWeb3React<Web3Provider>();
 
   const [success, setSuccess] = useState<boolean | undefined>();
 
   const addNetwork = useCallback(
     async (chainId: ChainId) => {
-      const provider = library?.provider;
-      console.log('NETWORK called', { chainId, provider });
+      const provider = (await connector?.getProvider()) as ExternalProvider;
+      console.log('NETWORK called', { chainId, provider, connector });
 
       if (provider && provider.request) {
         if (!chainId) {
@@ -56,7 +56,7 @@ export default function useAddNetworkToMetamaskCb(): {
         setSuccess(false);
       }
     },
-    [library?.provider]
+    [connector]
   );
 
   return { addNetwork, success };
