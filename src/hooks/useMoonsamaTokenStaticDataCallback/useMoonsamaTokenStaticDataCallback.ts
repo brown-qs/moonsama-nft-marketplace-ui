@@ -262,7 +262,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         });
       };
       let ordersFetch: any[] = [];
-
+      let flag = 0;
       if (
         !(
           !priceRange ||
@@ -273,6 +273,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         (sortBy === SortOption.TOKEN_ID_ASC ||
           sortBy === SortOption.TOKEN_ID_DESC)
       ) {
+        flag = 1;
         let chosenAssets = chooseMoonsamaAssetsAll(
           assetType,
           assetAddress,
@@ -326,6 +327,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
+        flag = 1;
         console.log('ordersFetch0', ordersFetch);
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
@@ -380,7 +382,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
-      if (!ordersFetch.length) {
+      if (!ordersFetch.length && !flag) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,

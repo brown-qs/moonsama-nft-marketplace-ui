@@ -14,6 +14,7 @@ import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollecti
 import {
   StaticTokenData,
   useTokenStaticDataCallbackArrayWithFilter,
+  useERC721TokenStaticDataCallbackArrayWithFilter,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -106,12 +107,23 @@ const CollectionDefaultPage = () => {
     sortBy
   ); //useTokenStaticDataCallback(asset)//
 
+  const getERC721ItemsWithFilterAndSort = useERC721TokenStaticDataCallbackArrayWithFilter(
+    asset,
+    subcollectionId,
+    filters,
+    sortBy
+  );
+
   // const handleScrollToBottom = useCallback(() => {
   //   if (pageLoading) return;
   //   // console.log('SCROLLBOTTOM');
   //   setTake((state) => (state += searchSize));
   //   setSearchCounter((state) => (state += 1));
   // }, [searchSize]);
+  // useBottomScrollListener(handleScrollToBottom, {
+  //   offset: 400,
+  //   debounce: 1000,
+  // });
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
@@ -137,11 +149,6 @@ const CollectionDefaultPage = () => {
     []
   );
 
-  // useBottomScrollListener(handleScrollToBottom, {
-  //   offset: 400,
-  //   debounce: 1000,
-  // });
-
   useEffect(() => {
     const filter = searchParams.get('filter') ?? '';
     if (filter.length >= 1) {
@@ -164,11 +171,20 @@ const CollectionDefaultPage = () => {
       setPageLoading(true);
       let data;
       if (search === '') {
-        const res: any = await getItemsWithFilterAndSort(
-          searchSize,
-          BigNumber.from(take),
-          setTake
-        );
+        let res: any;
+        if (type === 'ERC721') {
+          res = await getERC721ItemsWithFilterAndSort(
+            searchSize,
+            BigNumber.from(take),
+            setTake
+          );
+        } else {
+          res = await getItemsWithFilterAndSort(
+            searchSize,
+            BigNumber.from(take),
+            setTake
+          );
+        }
         data = res.data;
         setTotalLength(
           res.length % searchSize
@@ -176,11 +192,20 @@ const CollectionDefaultPage = () => {
             : Math.floor(res.length / searchSize)
         );
       } else {
-        const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(parseInt(search) - 1),
-          setTake
-        );
+        let res: any;
+        if (type === 'ERC721') {
+          res = await getERC721ItemsWithFilterAndSort(
+            1,
+            BigNumber.from(take),
+            setTake
+          );
+        } else {
+          res = await getItemsWithFilterAndSort(
+            1,
+            BigNumber.from(take),
+            setTake
+          );
+        }
         data = res.data;
         setTotalLength(
           res.length % searchSize
@@ -275,14 +300,20 @@ const CollectionDefaultPage = () => {
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
-
-        const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(tokenID - 1),
-          setTake
-        );
-        console.log('setTotalLength', res);
-
+        let res: any;
+        if (type === 'ERC721') {
+          res = await getERC721ItemsWithFilterAndSort(
+            1,
+            BigNumber.from(take),
+            setTake
+          );
+        } else {
+          res = await getItemsWithFilterAndSort(
+            1,
+            BigNumber.from(take),
+            setTake
+          );
+        }
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1
@@ -297,13 +328,20 @@ const CollectionDefaultPage = () => {
       } else {
         setPaginationEnded(false);
         setPageLoading(true);
-        const res: any = await getItemsWithFilterAndSort(
-          searchSize,
-          BigNumber.from(take),
-          setTake
-        );
-        console.log('setTotalLength', res);
-
+        let res: any;
+        if (type === 'ERC721') {
+          res = await getERC721ItemsWithFilterAndSort(
+            searchSize,
+            BigNumber.from(take),
+            setTake
+          );
+        } else {
+          res = await getItemsWithFilterAndSort(
+            searchSize,
+            BigNumber.from(take),
+            setTake
+          );
+        }
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1

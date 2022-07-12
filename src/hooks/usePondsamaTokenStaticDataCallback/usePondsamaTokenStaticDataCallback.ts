@@ -250,7 +250,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       };
 
       let ordersFetch: any[] = [];
-
+      let flag = 0;
       if (
         !(
           !priceRange ||
@@ -261,6 +261,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         (sortBy === SortOption.TOKEN_ID_ASC ||
           sortBy === SortOption.TOKEN_ID_DESC)
       ) {
+        flag = 1;
         let chosenAssets = choosePondsamaAssetsAll(
           assetType,
           assetAddress,
@@ -314,6 +315,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
+        flag = 1;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -462,7 +464,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!ordersFetch.length) {
+      } else if (!ordersFetch.length && !flag) {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
