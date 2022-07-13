@@ -18,6 +18,7 @@ import {
   QUERY_COLLECTION_STATE,
 } from 'subgraph/common';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import { Msama_MC_Plots_S1_Token_Address } from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { styles } from './styles';
 import { styles as sortStyles } from 'ui/Sort/Sort.style';
@@ -77,7 +78,7 @@ const FreshTradesPage = () => {
           ? undefined
           : collections[selectedIndex]?.address?.toLowerCase();
       setPageLoading(true);
-      let count;
+      let count = 0;
       if (selectedTokenAddress === undefined) {
         let query = QUERY_MARKETPLACE_STATE();
         const response = await request(
@@ -101,41 +102,25 @@ const FreshTradesPage = () => {
         );
         count = parseInt(response.collectionStat.tradeCount);
       } else {
-        let query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x088fe6e0e1caca1ee45e8de96abe79e4e139f4ab'
-        );
-        let response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        count = parseInt(response.collectionStat.tradeCount);
-        
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x77709c42d43f2e53c24b8fa623a207abdc89857c'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        count += parseInt(response.collectionStat.tradeCount);
-
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x8ce2bdc6e0319cea87337d027382f09b715c9601'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        count += parseInt(response.collectionStat.tradeCount);
-
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x9e403aa2dfef9ba2a2b82286d13864a64d90bf36'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        count += parseInt(response.collectionStat.tradeCount);
+        let promises: Array<Promise<any>> = [];
+        count = 0;
+        Msama_MC_Plots_S1_Token_Address.map((token) => {
+          promises.push(
+            new Promise(async (resolve, reject) => {
+              let query = QUERY_COLLECTION_STATE(
+                '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-' +
+                  token.address.toLowerCase()
+              );
+              let response = await request(
+                MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+                query
+              );
+              count += parseInt(response.collectionStat.tradeCount);
+              resolve(0);
+            })
+          );
+        });
+        await Promise.all(promises);
       }
       count = count % 10 ? Math.floor(count / 10) + 1 : Math.floor(count / 10);
       setTotalCount(count);

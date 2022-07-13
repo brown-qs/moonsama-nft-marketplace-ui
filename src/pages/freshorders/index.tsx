@@ -35,6 +35,7 @@ import {
   QUERY_COLLECTION_STATE,
 } from 'subgraph/common';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import { Msama_MC_Plots_S1_Token_Address } from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { styles } from './styles';
 
@@ -389,7 +390,7 @@ const FreshOrdersPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      let sellCount, buyCount;
+      let sellCount = 0, buyCount = 0;
       if (
         selectedTokenAddress.toLowerCase() !==
         '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75'
@@ -405,47 +406,27 @@ const FreshOrdersPage = () => {
         sellCount = parseInt(response.collectionStat.activeSellOrderNum);
         buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
       } else {
-        let query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x088fe6e0e1caca1ee45e8de96abe79e4e139f4ab'
-        );
-        let response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        sellCount = parseInt(response.collectionStat.activeSellOrderNum);
-        buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
-
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x77709c42d43f2e53c24b8fa623a207abdc89857c'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
-        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
-
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x8ce2bdc6e0319cea87337d027382f09b715c9601'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
-        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
-
-        query = QUERY_COLLECTION_STATE(
-          '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-0x9e403aa2dfef9ba2a2b82286d13864a64d90bf36'
-        );
-        response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        sellCount += parseInt(response.collectionStat.activeSellOrderNum);
-        buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+        let promises: Array<Promise<any>> = [];
+        sellCount = buyCount = 0;
+        Msama_MC_Plots_S1_Token_Address.map((token) => {
+          promises.push(
+            new Promise(async (resolve, reject) => {
+              let query = QUERY_COLLECTION_STATE(
+                '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-' +
+                  token.address.toLowerCase()
+              );
+              let response = await request(
+                MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+                query
+              );
+              sellCount += parseInt(response.collectionStat.activeSellOrderNum);
+              buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+              resolve(0);
+            })
+          );
+        });
+        await Promise.all(promises);
       }
-
       sellCount =
         sellCount % 10
           ? Math.floor(sellCount / 10) + 1
