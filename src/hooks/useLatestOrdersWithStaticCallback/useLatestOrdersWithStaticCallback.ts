@@ -3,6 +3,7 @@ import {
   DEFAULT_CHAIN,
   MARKETPLACE_SUBGRAPH_URLS,
 } from '../../constants';
+import { PAMENT_CollectionAddress } from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { inferOrderTYpe, OrderType, parseOrder } from 'utils/subgraph';
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
@@ -16,6 +17,8 @@ import {
   QUERY_LATEST_SELL_ORDERS,
   QUERY_LATEST_SELL_ORDERS_FOR_TOKEN,
   QUERY_LATEST_SELL_ORDERS_WITHOUT_TOKEN,
+  QUERY_LATEST_PAYMENTTOKEN_SELL_ORDERS_FOR_TOKEN,
+  QUERY_LATEST_PAYMENTTOKEN_BUY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
   StaticTokenData,
@@ -140,14 +143,28 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
       sortDirection: string
     ) => {
       console.log('order query', offset, num);
-      const query = QUERY_LATEST_SELL_ORDERS_FOR_TOKEN(
-        `${AddressZero}-0`,
-        tokenAddress,
-        offset,
-        num,
-        sortBy,
-        sortDirection
-      );
+      let query: any;
+      let foundIndex = tokenAddress
+        ? PAMENT_CollectionAddress.findIndex((e) => e.address === tokenAddress)
+        : -1;
+      if (foundIndex === -1) {
+        query = QUERY_LATEST_SELL_ORDERS_FOR_TOKEN(
+          `${AddressZero}-0`,
+          tokenAddress.toLowerCase(),
+          offset,
+          num,
+          sortBy,
+          sortDirection
+        );
+      } else {
+        query = QUERY_LATEST_PAYMENTTOKEN_SELL_ORDERS_FOR_TOKEN(
+          tokenAddress.toLowerCase(),
+          offset,
+          num,
+          sortBy,
+          sortDirection
+        );
+      }
       const response = await request(
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query
@@ -214,14 +231,28 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
       sortBy: string,
       sortDirection: string
     ) => {
-      const query = QUERY_LATEST_BUY_ORDERS_FOR_TOKEN(
-        `${AddressZero}-0`,
-        tokenAddress,
-        offset,
-        num,
-        sortBy,
-        sortDirection
-      );
+      let query: any;
+      let foundIndex = tokenAddress
+        ? PAMENT_CollectionAddress.findIndex((e) => e.address === tokenAddress)
+        : -1;
+      if (foundIndex === -1) {
+        query = QUERY_LATEST_BUY_ORDERS_FOR_TOKEN(
+          `${AddressZero}-0`,
+          tokenAddress.toLowerCase(),
+          offset,
+          num,
+          sortBy,
+          sortDirection
+        );
+      } else {
+        query = QUERY_LATEST_PAYMENTTOKEN_BUY_ORDERS_FOR_TOKEN(
+          tokenAddress.toLowerCase(),
+          offset,
+          num,
+          sortBy,
+          sortDirection
+        );
+      }
       const response = await request(
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query

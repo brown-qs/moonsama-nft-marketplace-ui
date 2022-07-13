@@ -18,10 +18,12 @@ import {
   QUERY_COLLECTION_STATE,
 } from 'subgraph/common';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
-import { Msama_MC_Plots_S1_Token_Address } from '../../constants/paymenToken';
+import {
+  PAYMENT_Token_Address,
+  PAMENT_CollectionAddress,
+} from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { styles } from './styles';
-import { styles as sortStyles } from 'ui/Sort/Sort.style';
 
 const PAGE_SIZE = 10;
 
@@ -76,9 +78,10 @@ const FreshTradesPage = () => {
       const selectedTokenAddress =
         selectedIndex === -1
           ? undefined
-          : collections[selectedIndex]?.address?.toLowerCase();
+          : collections[selectedIndex]?.address;
       setPageLoading(true);
       let count = 0;
+      let foundIndex = selectedTokenAddress ? PAMENT_CollectionAddress.findIndex(e => e.address === selectedTokenAddress) : -1;
       if (selectedTokenAddress === undefined) {
         let query = QUERY_MARKETPLACE_STATE();
         const response = await request(
@@ -88,10 +91,7 @@ const FreshTradesPage = () => {
         count =
           parseInt(response.marketplaceStat.buyOrderFillNum) +
           parseInt(response.marketplaceStat.sellOrderFillNum);
-      } else if (
-        selectedTokenAddress.toLowerCase() !==
-        '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75'
-      ) {
+      } else if (foundIndex === -1) {
         let query = QUERY_COLLECTION_STATE(
           selectedTokenAddress.toLowerCase() +
             '-0x0000000000000000000000000000000000000000'
@@ -104,7 +104,7 @@ const FreshTradesPage = () => {
       } else {
         let promises: Array<Promise<any>> = [];
         count = 0;
-        Msama_MC_Plots_S1_Token_Address.map((token) => {
+        PAYMENT_Token_Address[PAMENT_CollectionAddress[foundIndex].name].map((token : any) => {
           promises.push(
             new Promise(async (resolve, reject) => {
               let query = QUERY_COLLECTION_STATE(
@@ -129,7 +129,7 @@ const FreshTradesPage = () => {
         take,
         'time',
         'desc',
-        selectedTokenAddress,
+        selectedTokenAddress?.toLowerCase(),
         setTake
       );
       console.log('data', data);

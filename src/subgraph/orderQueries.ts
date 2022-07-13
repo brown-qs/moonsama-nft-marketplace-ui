@@ -285,6 +285,23 @@ export const QUERY_LATEST_SELL_ORDERS_FOR_TOKEN = (
   }
 `;
 
+export const QUERY_LATEST_PAYMENTTOKEN_SELL_ORDERS_FOR_TOKEN = (
+  sellAssetAddress: string,
+  from: number,
+  num: number,
+  sortBy: string,
+  direction: string,
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    latestOrders: orders(where: {active: true, sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+  num ?? DEFAULT_ORDERBOOK_PAGINATION
+}) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
 export const QUERY_LATEST_BUY_ORDERS_FOR_TOKEN = (
   sellAssetId: string,
   buyAssetAddress: string,
@@ -296,6 +313,23 @@ export const QUERY_LATEST_BUY_ORDERS_FOR_TOKEN = (
   query getUserActiveOrders {
     ${META}
     latestOrders: orders(where: {active: true, sellAsset: "${sellAssetId}", buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+  num ?? DEFAULT_ORDERBOOK_PAGINATION
+}) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_LATEST_PAYMENTTOKEN_BUY_ORDERS_FOR_TOKEN = (
+  buyAssetAddress: string,
+  from: number,
+  num: number,
+  sortBy: string,
+  direction: string,
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    latestOrders: orders(where: {active: true, buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}

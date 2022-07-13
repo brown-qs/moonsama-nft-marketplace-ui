@@ -6,15 +6,12 @@ import { TokenMeta } from '../../hooks/useFetchTokenUri.ts/useFetchTokenUri.type
 import {
   useLatestBuyOrdersForTokenWithStaticCallback,
   useLatestSellOrdersForTokenWithStaticCallback,
-  useLatestSellOrdersForTokenTotalSupplyWithStaticCallback,
-  useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback,
 } from 'hooks/useLatestOrdersWithStaticCallback/useLatestOrdersWithStaticCallback';
 import { useRawCollectionsFromList } from '../../hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { StaticTokenData } from '../../hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useWhitelistedAddresses } from '../../hooks/useWhitelistedAddresses/useWhitelistedAddresses';
-import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import {
   Drawer,
   GlitchText,
@@ -30,12 +27,12 @@ import {
 import { orderFilter } from '../../utils/marketplace';
 import { TokenOrder } from '../../components/TokenOrder/TokenOrder';
 import { useActiveWeb3React, useClasses } from '../../hooks';
-import {
-  QUERY_MARKETPLACE_STATE,
-  QUERY_COLLECTION_STATE,
-} from 'subgraph/common';
+import { QUERY_COLLECTION_STATE } from 'subgraph/common';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
-import { Msama_MC_Plots_S1_Token_Address } from '../../constants/paymenToken';
+import {
+  PAYMENT_Token_Address,
+  PAMENT_CollectionAddress,
+} from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { styles } from './styles';
 
@@ -156,10 +153,6 @@ const FreshOrdersPage = () => {
     pageContainer,
     tabsContainer,
     tabs,
-    select,
-    selectLabel,
-    dropDown,
-    filterControls,
     filterChip,
   } = useClasses(styles);
   const whitelist = useWhitelistedAddresses(); // REMOVEME later
@@ -167,12 +160,8 @@ const FreshOrdersPage = () => {
   const getPaginatedSellOrders =
     useLatestSellOrdersForTokenWithStaticCallback();
   const getPaginatedBuyOrders = useLatestBuyOrdersForTokenWithStaticCallback();
-  const getOrderTotal =
-    useLatestSellOrdersForTokenTotalSupplyWithStaticCallback();
-  const getBuyTotal = useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback();
 
-  const selectedTokenAddress =
-    collections[selectedIndex]?.address?.toLowerCase();
+  const selectedTokenAddress = collections[selectedIndex]?.address;
 
   useEffect(() => {
     if (chainId) {
@@ -390,11 +379,15 @@ const FreshOrdersPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       setPageLoading(true);
-      let sellCount = 0, buyCount = 0;
-      if (
-        selectedTokenAddress.toLowerCase() !==
-        '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75'
-      ) {
+      let sellCount = 0,
+        buyCount = 0;
+      let foundIndex = selectedTokenAddress
+        ? PAMENT_CollectionAddress.findIndex(
+            (e) => e.address === selectedTokenAddress
+          )
+        : -1;
+
+      if (foundIndex === -1) {
         let query = QUERY_COLLECTION_STATE(
           selectedTokenAddress.toLowerCase() +
             '-0x0000000000000000000000000000000000000000'
@@ -407,24 +400,28 @@ const FreshOrdersPage = () => {
         buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
       } else {
         let promises: Array<Promise<any>> = [];
-        sellCount = buyCount = 0;
-        Msama_MC_Plots_S1_Token_Address.map((token) => {
-          promises.push(
-            new Promise(async (resolve, reject) => {
-              let query = QUERY_COLLECTION_STATE(
-                '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-' +
-                  token.address.toLowerCase()
-              );
-              let response = await request(
-                MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-                query
-              );
-              sellCount += parseInt(response.collectionStat.activeSellOrderNum);
-              buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
-              resolve(0);
-            })
-          );
-        });
+        PAYMENT_Token_Address[PAMENT_CollectionAddress[foundIndex].name].map(
+          (token: any) => {
+            promises.push(
+              new Promise(async (resolve, reject) => {
+                let query = QUERY_COLLECTION_STATE(
+                  selectedTokenAddress.toLowerCase() +
+                    '-' +
+                    token.address.toLowerCase()
+                );
+                let response = await request(
+                  MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+                  query
+                );
+                sellCount += parseInt(
+                  response.collectionStat.activeSellOrderNum
+                );
+                buyCount += parseInt(response.collectionStat.activeBuyOrderNum);
+                resolve(0);
+              })
+            );
+          }
+        );
         await Promise.all(promises);
       }
       sellCount =
@@ -453,7 +450,6 @@ const FreshOrdersPage = () => {
         sortBy,
         sortDirection
       );
-
       buyData = buyData.filter((x) =>
         whitelist.includes(x.order.buyAsset.assetAddress.toLowerCase())
       ); // REMOVEME later
