@@ -126,7 +126,7 @@ export const collections = {
       ordersDisabledFor: ['11'],
       symbol: 'MMAF',
       minId: 1,
-      maxId: 15,
+      maxId: 16,
       idSearchOn: true,
       type: 'ERC1155',
       contractURI: 'ipfs://Qmc97e79xzzrdNuU3RumGXcK5FYh8PWTb6GyxxHMyRvUYm',
