@@ -76,12 +76,14 @@ const FreshTradesPage = () => {
   useEffect(() => {
     const getCollectionById = async () => {
       const selectedTokenAddress =
-        selectedIndex === -1
-          ? undefined
-          : collections[selectedIndex]?.address;
+        selectedIndex === -1 ? undefined : collections[selectedIndex]?.address;
       setPageLoading(true);
       let count = 0;
-      let foundIndex = selectedTokenAddress ? PAMENT_CollectionAddress.findIndex(e => e.address === selectedTokenAddress) : -1;
+      let foundIndex = selectedTokenAddress
+        ? PAMENT_CollectionAddress.findIndex(
+            (e) => e.address === selectedTokenAddress
+          )
+        : -1;
       if (selectedTokenAddress === undefined) {
         let query = QUERY_MARKETPLACE_STATE();
         const response = await request(
@@ -104,22 +106,25 @@ const FreshTradesPage = () => {
       } else {
         let promises: Array<Promise<any>> = [];
         count = 0;
-        PAYMENT_Token_Address[PAMENT_CollectionAddress[foundIndex].name].map((token : any) => {
-          promises.push(
-            new Promise(async (resolve, reject) => {
-              let query = QUERY_COLLECTION_STATE(
-                '0xa17a550871e5f5f692a69a3abe26e8dbd5991b75-' +
-                  token.address.toLowerCase()
-              );
-              let response = await request(
-                MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-                query
-              );
-              count += parseInt(response.collectionStat.tradeCount);
-              resolve(0);
-            })
-          );
-        });
+        PAYMENT_Token_Address[PAMENT_CollectionAddress[foundIndex].name].map(
+          (token: any) => {
+            promises.push(
+              new Promise(async (resolve, reject) => {
+                let query = QUERY_COLLECTION_STATE(
+                  selectedTokenAddress.toLowerCase() +
+                    '-' +
+                    token.address.toLowerCase()
+                );
+                let response = await request(
+                  MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+                  query
+                );
+                count += parseInt(response.collectionStat.tradeCount);
+                resolve(0);
+              })
+            );
+          }
+        );
         await Promise.all(promises);
       }
       count = count % 10 ? Math.floor(count / 10) + 1 : Math.floor(count / 10);
