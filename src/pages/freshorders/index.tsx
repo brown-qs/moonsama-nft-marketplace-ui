@@ -32,6 +32,7 @@ import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import {
   PAYMENT_Token_Address,
   PAMENT_CollectionAddress,
+  PAMENT_Native_Token_Address,
 } from '../../constants/paymenToken';
 import { request } from 'graphql-request';
 import { styles } from './styles';
@@ -390,7 +391,8 @@ const FreshOrdersPage = () => {
       if (foundIndex === -1) {
         let query = QUERY_COLLECTION_STATE(
           selectedTokenAddress.toLowerCase() +
-            '-0x0000000000000000000000000000000000000000'
+            '-' +
+            PAMENT_Native_Token_Address.toLowerCase()
         );
         let response = await request(
           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],

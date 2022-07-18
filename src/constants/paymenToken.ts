@@ -2,6 +2,8 @@ export enum  PaymentName{
   MSAMA_MC_PLOTS_S1 =  'Msama MC Plots S1',
 }
 
+export const PAMENT_Native_Token_Address = '0x0000000000000000000000000000000000000000';
+
 export const PAYMENT_Token_Address = {
   'Msama MC Plots S1': [
     { name: 'GOLD', address: '0x088Fe6e0e1CaCA1eE45E8DE96AbE79e4e139F4Ab' },
