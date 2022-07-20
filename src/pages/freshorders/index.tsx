@@ -120,10 +120,10 @@ const FreshOrdersPage = () => {
   let navigate = useNavigate();
   const sampleLocation = useLocation();
   const [searchParams] = useSearchParams();
-  const sortByParam = searchParams.get('sortBy') ?? 'time';
+  const sortByParam = searchParams.get('sortBy') ?? 'price';
   const tabParamRes = searchParams.get('tab');
   const tabParam = tabParamRes ? parseInt(tabParamRes) : 0;
-  const sortDirectionParam = searchParams.get('sortDirection') ?? 'desc';
+  const sortDirectionParam = searchParams.get('sortDirection') ?? 'asc';
   const selectedIndexParamRes = searchParams.get('collIndex');
   const tempIndx =
     collections.findIndex((x) => (x.display_name = 'Moonsama')) ?? 0;
@@ -280,15 +280,26 @@ const FreshOrdersPage = () => {
         }
         newPath = newPath + '&page=1' + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=1';
+      navigate(newPath);
     }
   };
 
   const handleTabChange = (newValue: number) => {
-    if (newValue == 0) setTotalCount(sellTotalCount);
-    else setTotalCount(buyTotalCount);
+    setBuyOrders([]);
+    setSellOrders([]);
+    setPaginationEnded(false);
     setCurrentTab(newValue);
     setPage(1);
     setTake(0);
+    if (newValue == 0) {
+      setSortBy('price');
+      setSortDirection('asc');
+      setTotalCount(sellTotalCount);
+    } else {
+      setSortBy('price');
+      setSortDirection('desc');
+      setTotalCount(buyTotalCount);
+    }
     let href = window.location.href;
     let temp = href.split('?');
     let path = '?' + temp[1];
@@ -303,6 +314,32 @@ const FreshOrdersPage = () => {
       }
       tempPath = tempPath + '&tab=' + newValue + path.slice(ind, path.length);
     } else tempPath = path + '&tab=' + newValue;
+
+
+    if (ind != -1) {
+      tempPath = path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      tempPath =
+        tempPath + '&sortBy=' + sortBy + path.slice(ind, path.length);
+    } else tempPath = path + '&sortBy=' + sortBy;
+
+    path = tempPath;
+    ind = path.search('&sortDirection=');
+    if (ind != -1) {
+      tempPath = path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] == '&') break;
+      }
+      tempPath =
+        tempPath +
+        '&sortDirection=' +
+        sortDirection +
+        path.slice(ind, path.length);
+    } else tempPath = path + '&sortDirection=' + sortDirection;
 
     path = tempPath;
     ind = path.search('&page=');
@@ -480,7 +517,7 @@ const FreshOrdersPage = () => {
       getCollectionById();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [take, paginationEnded, selectedTokenAddress, sortBy, sortDirection]);
+  }, [take,currentTab, paginationEnded, selectedTokenAddress, sortBy, sortDirection]);
 
   const getTableBody = (
     filteredCollection:
