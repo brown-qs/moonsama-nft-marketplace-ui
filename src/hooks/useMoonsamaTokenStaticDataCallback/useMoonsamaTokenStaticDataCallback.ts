@@ -23,6 +23,7 @@ import {
   QUERY_ERC721_OWNED_ID,
   QUERY_ERC721_NOTOWNED_ID,
   QUERY_ERC721_ID_IN,
+  QUERY_SUBSQUID_META,
 } from 'subgraph/erc721Queries';
 import request from 'graphql-request';
 import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
@@ -155,7 +156,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
   let subgraph = coll ? coll?.subgraph : '';
-
+  let subsquid = coll ? coll?.subsquid : '';
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -235,8 +236,11 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         const tokens = ress.tokens;
 
         let staticData: StaticTokenData[] = [];
+        let numberIds:string[] = [];
+
         if (tokens.length) {
           staticData = assets.map((ca) => {
+            numberIds.push(ca.assetId);
             const tok = tokens.find(
               (t) => t.numericId === ca.assetId
             ) as TokenSubgraphQueryResult;
@@ -251,11 +255,17 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             };
           });
         }
-        const metas = await fetchUri(staticData);
 
-        return metas.map((x, i) => {
+        const query1 = QUERY_SUBSQUID_META(numberIds)
+        const result1 = await request(
+          subsquid ?? "",
+          query1
+        );
+        // const metas = await fetchUri(staticData);
+
+        return result1.tokens.map((x:any, i:any) => {
           return {
-            meta: x,
+            meta: x.meta,
             staticData: staticData[i],
             order: orders?.[i],
           };
@@ -280,14 +290,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           idsAndUris,
           sortBy
         );
-        // console.log('SEARCH', {
-        //   assetAddress,
-        //   assetType,
-        //   idsAndUris,
-        //   num,
-        //   offset: offset?.toString(),
-        //   chosenAssets,
-        // });
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
         );
@@ -328,7 +330,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       ) {
         let index = 0;
         flag = 1;
-        console.log('ordersFetch0', ordersFetch);
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,

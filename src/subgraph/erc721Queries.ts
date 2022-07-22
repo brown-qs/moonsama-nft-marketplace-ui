@@ -16,10 +16,7 @@ export const QUERY_USER_ERC721 = (account: string) => gql`
   }
 `;
 
-export const QUERY_ERC721_ACTIVE_ID = (
-  from: number,
-  count: number
-  ) => gql`
+export const QUERY_ERC721_ACTIVE_ID = (from: number, count: number) => gql`
   query getUserActiveOrders {
     tokens(
       orderBy: numericId,
@@ -38,7 +35,7 @@ export const QUERY_ERC721_OWNED_ID = (
   from: number,
   count: number,
   owner: string
-  ) => gql`
+) => gql`
   query getUserActiveOrders {
     tokens(
       orderBy: numericId,
@@ -53,12 +50,11 @@ export const QUERY_ERC721_OWNED_ID = (
   }
 `;
 
-
 export const QUERY_ERC721_NOTOWNED_ID = (
   from: number,
   count: number,
   owner: string
-  ) => gql`
+) => gql`
   query getUserActiveOrders {
     tokens(
       orderBy: numericId,
@@ -73,13 +69,13 @@ export const QUERY_ERC721_NOTOWNED_ID = (
   }
 `;
 
-export const QUERY_ERC721_ID_IN = (
-  ids: (number | string)[]
-  ) => gql`
+export const QUERY_ERC721_ID_IN = (ids: (number | string)[]) => gql`
   query getTokensIdInArray {
     tokens(
       orderBy: numericId,
-      where: {numericId_in: [${ids.map(id => typeof id === 'string' ? Number.parseInt(id): id)}]}
+      where: {numericId_in: [${ids.map((id) =>
+        typeof id === 'string' ? Number.parseInt(id) : id
+      )}]}
     ) {
       id
       numericId
@@ -97,6 +93,31 @@ export const QUERY_ERC721_CONTRACT_DATA = () => gql`
       contractURI
       decimals
       address
+    }
+  }
+`;
+
+export const QUERY_SUBSQUID_META =  (ids: (number | string)[]) => gql`
+  query getTokensMeata {
+    tokens(
+      orderBy: numericId_ASC,
+      where: {numericId_in: [${ids.map((id) =>
+        typeof id === 'string' ? Number.parseInt(id) : id
+      )}]}
+    ){
+      meta {
+        animationUrl
+        attributes {
+          display
+          trait
+          value
+        }
+        description
+        id
+        image
+        name
+        type
+      }
     }
   }
 `;
