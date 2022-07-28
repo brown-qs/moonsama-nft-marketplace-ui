@@ -18,7 +18,12 @@ import {
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { Filters, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -87,7 +92,8 @@ const CollectionDefaultPage = () => {
   const [page, setPage] = useState<number>(pageParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [totalLength, setTotalLength] = useState<number>(0);
-  const { placeholderContainer, container, paginationContainer } = useClasses(styles);
+  const { placeholderContainer, container, paginationContainer } =
+    useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
   let searchSize =
@@ -107,41 +113,35 @@ const CollectionDefaultPage = () => {
     sortBy
   ); //useTokenStaticDataCallback(asset)//
 
-  const getERC721ItemsWithFilterAndSort = useERC721TokenStaticDataCallbackArrayWithFilter(
-    asset,
-    subcollectionId,
-    filters,
-    sortBy
-  );
+  const getERC721ItemsWithFilterAndSort =
+    useERC721TokenStaticDataCallbackArrayWithFilter(
+      asset,
+      subcollectionId,
+      filters,
+      sortBy
+    );
 
-  // const handleScrollToBottom = useCallback(() => {
-  //   if (pageLoading) return;
-  //   // console.log('SCROLLBOTTOM');
-  //   setTake((state) => (state += searchSize));
-  //   setSearchCounter((state) => (state += 1));
-  // }, [searchSize]);
-  // useBottomScrollListener(handleScrollToBottom, {
-  //   offset: 400,
-  //   debounce: 1000,
-  // });
+  function handleNavigate(searchParam: string, param: any) {
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search(searchParam);
+    if (ind !== -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] === '&') break;
+      }
+      newPath = newPath + searchParam + param + path.slice(ind, path.length);
+    } else newPath = newPath + path + searchParam + param;
+    navigate(newPath);
+  }
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
       if (pageLoading) return;
-      let href = window.location.href;
-      let temp = href.split('?');
-      let path = '?' + temp[1];
-      let newPath = sampleLocation.pathname;
-      let ind = path.search('&page=');
-      if (ind != -1) {
-        newPath = newPath + path.slice(0, ind);
-        ind += 3;
-        for (; ind < path.length; ind++) {
-          if (path[ind] === '&') break;
-        }
-        newPath = newPath + '&page=' + value + path.slice(ind, path.length);
-      } else newPath = newPath + path + '&page=' + value;
-      navigate(newPath);
+      handleNavigate('page=', value);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));
       setSearchCounter((state) => (state += 1));
@@ -241,13 +241,7 @@ const CollectionDefaultPage = () => {
     if (!paginationEnded && searchCounter) {
       getCollectionById();
     }
-  }, [
-    address,
-    searchCounter,
-    paginationEnded,
-    searchSize,
-    sortBy,
-  ]);
+  }, [address, searchCounter, paginationEnded, searchSize, sortBy]);
 
   if (assetType.valueOf() === StringAssetType.UNKNOWN) {
     throw Error('Asset type was not recognized');
@@ -258,21 +252,7 @@ const CollectionDefaultPage = () => {
 
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
     let filterStrings = JSON.stringify(filters);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&filter=');
-    if (ind != -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath =
-        newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&filter=' + filterStrings;
-    navigate(newPath);
+    handleNavigate('&filter=', filterStrings);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -283,20 +263,7 @@ const CollectionDefaultPage = () => {
 
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
-      let href = window.location.href;
-      let temp = href.split('?');
-      let path = '?' + temp[1];
-      let newPath = sampleLocation.pathname;
-      let ind = path.search('&search=');
-      if (ind != -1) {
-        newPath = newPath + path.slice(0, ind);
-        ind += 3;
-        for (; ind < path.length; ind++) {
-          if (path[ind] === '&') break;
-        }
-        newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
-      } else newPath = newPath + path + '&search=' + tokenID;
-      navigate(newPath);
+      handleNavigate('&search=', tokenID);
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -362,20 +329,7 @@ const CollectionDefaultPage = () => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&sort=');
-    if (ind != -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&sort=' + sortBy;
-    navigate(newPath);
+    handleNavigate('&sort=', sortBy);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -456,9 +410,7 @@ const CollectionDefaultPage = () => {
 
           {displayFilters && (
             <div>
-              <Filters
-                onFiltersUpdate={handleFiltersUpdate}
-              />
+              <Filters onFiltersUpdate={handleFiltersUpdate} />
             </div>
           )}
           <div>
@@ -505,19 +457,25 @@ const CollectionDefaultPage = () => {
         )}
       </div>
       <Grid container alignContent="center">
-        {collection.map(
-          (token, i) =>
-            token && (
-              <Grid
-                item
-                key={`${token.staticData.asset.id}-${i}`}
-                xs={12}
-                md={6}
-                lg={3}
-              >
-                <TokenComponent {...token} />
-              </Grid>
-            )
+        {collection.length ? (
+          collection.map(
+            (token, i) =>
+              token && (
+                <Grid
+                  item
+                  key={`${token.staticData.asset.id}-${i}`}
+                  xs={12}
+                  md={6}
+                  lg={3}
+                >
+                  <TokenComponent {...token} />
+                </Grid>
+              )
+          )
+        ) : pageLoading ? (
+          <></>
+        ) : (
+          <GlitchText>No items</GlitchText>
         )}
       </Grid>
       {pageLoading && (

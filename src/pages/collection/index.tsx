@@ -16,9 +16,9 @@ const CollectionPage = () => {
       collection.display_name === 'Moonsama'
     )
       moonsamaAddress = collection.address;
-    if (
+    else if (
       collection.chainId === chainId &&
-      collection.display_name === 'PONDSAMA'
+      collection.display_name === 'Pondsama'
     )
       pondsamaAddress = collection.address;
   });

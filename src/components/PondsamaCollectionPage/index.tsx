@@ -81,7 +81,8 @@ const PondsamaCollectionPage = () => {
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [page, setPage] = useState<number>(pageParam);
   const [totalLength, setTotalLength] = useState<number>(0);
-  const { placeholderContainer, container, paginationContainer } = useClasses(styles);
+  const { placeholderContainer, container, paginationContainer } =
+    useClasses(styles);
   const { register, handleSubmit } = useForm();
   let searchSize =
     filters?.selectedOrderType === undefined
@@ -103,26 +104,27 @@ const PondsamaCollectionPage = () => {
       sortBy
     ); //useTokenStaticDataCallback(asset)//
 
+  function handleNavigate(searchParam: string, param: any) {
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search(searchParam);
+    if (ind !== -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] === '&') break;
+      }
+      newPath = newPath + searchParam + param + path.slice(ind, path.length);
+    } else newPath = newPath + path + searchParam + param;
+    navigate(newPath);
+  }
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
       if (pageLoading) return;
-      let href = window.location.href;
-      let temp = href.split('?');
-      let path = '?' + temp[1];
-      let newPath = sampleLocation.pathname;
-      let ind = path.search('page=');
-      console.log("newPath1",newPath, ind, path)
-      if (ind !== -1) {
-        newPath = newPath + path.slice(0, ind);
-        ind += 3;
-        for (; ind < path.length; ind++) {
-          if (path[ind] === '&') break;
-        }
-        newPath = newPath + 'page=' + value + path.slice(ind, path.length);
-      } else newPath = newPath + path + 'page=' + value;
-      console.log("newPath1",newPath)
-      navigate(newPath);
+      handleNavigate('page=', value);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));
       setSearchCounter((state) => (state += 1));
@@ -189,20 +191,7 @@ const PondsamaCollectionPage = () => {
 
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
-      let href = window.location.href;
-      let temp = href.split('?');
-      let path = '?' + temp[1];
-      let newPath = sampleLocation.pathname;
-      let ind = path.search('&search=');
-      if (ind !== -1) {
-        newPath = newPath + path.slice(0, ind);
-        ind += 3;
-        for (; ind < path.length; ind++) {
-          if (path[ind] === '&') break;
-        }
-        newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
-      } else newPath = newPath + path + '&search=' + tokenID;
-      navigate(newPath);
+      handleNavigate('&search=', tokenID);
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -238,21 +227,7 @@ const PondsamaCollectionPage = () => {
 
   const handleFiltersUpdate = useCallback(async (filters: PondsamaFilter) => {
     let filterStrings = JSON.stringify(filters);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&filter=');
-    if (ind !== -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath =
-        newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&filter=' + filterStrings;
-    navigate(newPath);
+    handleNavigate('&filter=', filterStrings);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -265,20 +240,7 @@ const PondsamaCollectionPage = () => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&sort=');
-    if (ind !== -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&sort=' + sortBy;
-    navigate(newPath);
+    handleNavigate('&sort=', sortBy);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -356,9 +318,7 @@ const PondsamaCollectionPage = () => {
 
           {displayFilters && (
             <div>
-              <PondsamaFilter
-                onFiltersUpdate={handleFiltersUpdate}
-              />
+              <PondsamaFilter onFiltersUpdate={handleFiltersUpdate} />
             </div>
           )}
           <div>
@@ -405,19 +365,25 @@ const PondsamaCollectionPage = () => {
         )}
       </div>
       <Grid container alignContent="center">
-        {collection.map(
-          (token, i) =>
-            token && (
-              <Grid
-                item
-                key={`${token.staticData.asset.id}-${i}`}
-                xs={12}
-                md={6}
-                lg={3}
-              >
-                <TokenComponent {...token} />
-              </Grid>
-            )
+        {collection.length ? (
+          collection.map(
+            (token, i) =>
+              token && (
+                <Grid
+                  item
+                  key={`${token.staticData.asset.id}-${i}`}
+                  xs={12}
+                  md={6}
+                  lg={3}
+                >
+                  <TokenComponent {...token} />
+                </Grid>
+              )
+          )
+        ) : pageLoading ? (
+          <></>
+        ) : (
+          <GlitchText>No items</GlitchText>
         )}
       </Grid>
       {pageLoading && (

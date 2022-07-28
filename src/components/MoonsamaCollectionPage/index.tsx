@@ -414,6 +414,8 @@ const MoonsamaCollectionPage = () => {
                 </Grid>
               )
           )
+        ) : pageLoading ? (
+          <></>
         ) : (
           <GlitchText>No items</GlitchText>
         )}
