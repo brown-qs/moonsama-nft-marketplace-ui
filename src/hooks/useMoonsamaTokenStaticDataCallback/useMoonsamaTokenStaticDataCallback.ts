@@ -9,7 +9,6 @@ import {
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 import { useCallback } from 'react';
 import { Asset, Order } from 'hooks/marketplace/types';
-import { useFetchTokenUriCallback } from 'hooks/useFetchTokenUri.ts/useFetchTokenUriCallback';
 import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
@@ -18,11 +17,6 @@ import {
   QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
-  QUERY_ERC721_ACTIVE_ID,
-  QUERY_ERC721_CONTRACT_DATA,
-  QUERY_ERC721_OWNED_ID,
-  QUERY_ERC721_NOTOWNED_ID,
-  QUERY_ERC721_ID_IN,
   QUERY_SUBSQUID_ERC721_ACTIVE_ID,
   QUERY_SUBSQUID_ERC721_CONTRACT_DATA,
   QUERY_SUBSQUID_ERC721_OWNED_ID,
@@ -36,7 +30,6 @@ import {
   TOKEN_SUBSQUID_URLS,
 } from '../../constants';
 import { TEN_POW_18 } from 'utils';
-import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
 
 export interface StaticTokenData {
@@ -157,7 +150,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   });
   const { chainId, account } = useActiveWeb3React();
 
-  const fetchUri = useFetchTokenUriCallback();
   let ids = useMoonsamaAttrIds(filter?.traits);
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
@@ -214,15 +206,15 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             0,
             moonsamaTotalSupply
           );
-					res1 = await request(
-						TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
-						moonsamaQuery
-						);
-						res = res1.erc721Tokens;
-					} else {
-						let from = 0;
-						while (from < moonsamaTotalSupply) {
-							if (!owned)
+        res1 = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          moonsamaQuery
+        );
+        res = res1.erc721Tokens;
+      } else {
+        let from = 0;
+        while (from < moonsamaTotalSupply) {
+          if (!owned)
             moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
               assetAddress,
               from,
@@ -271,7 +263,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           throw new Error('Orders/assets length mismatch');
         }
 
-        if (!assets) {
+        if (!assets.length) {
           return [];
         }
 
@@ -279,11 +271,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           assetAddress,
           assets.map((a) => a.assetId)
         );
+
         const ress = await request(
-          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+					TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           query
-        );
-        const tokens = ress.erc721Tokens;
+					);
+					let tokens = ress.erc721Tokens;
+
+        if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
@@ -302,7 +297,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             };
           });
         }
-        // const metas = await fetchUri(staticData);
 
         return tokens.map((x: any, i: any) => {
           return {
@@ -452,7 +446,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ? theAssets.length
             : offsetNum + num;
         let sliceAssets = theAssets.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets);
+        let newOrders = orders.slice(offsetNum, to);
+        const result = await fetchStatics(sliceAssets, newOrders);
         let totalLength1 = num === 1 ? num : theAssets.length;
         return { data: result, length: totalLength1 };
       }

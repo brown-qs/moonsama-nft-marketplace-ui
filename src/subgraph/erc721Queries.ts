@@ -215,7 +215,8 @@ export const QUERY_SUBSQUID_ERC721_ID_IN = (
         contract: { address_eq: "${address.toLowerCase()}" }
         numericId_in: [${ids.map((id) =>
           typeof id === 'string' ? Number.parseInt(id) : id
-        )}]}
+        )}]
+      }
     ) {
       id
       numericId
