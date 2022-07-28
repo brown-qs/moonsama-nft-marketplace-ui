@@ -8,7 +8,6 @@ import Stack from '@mui/material/Stack';
 import { Token as TokenComponent } from 'components';
 import { useClasses } from 'hooks';
 import { Asset } from 'hooks/marketplace/types';
-import { useFetchSubcollectionMeta } from 'hooks/useFetchCollectionMeta/useFetchCollectionMeta';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import {
@@ -17,7 +16,12 @@ import {
 } from 'hooks/useMoonsamaTokenStaticDataCallback/useMoonsamaTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { MoonsamaFilter, GlitchText, Loader, Sort } from 'ui';
 import { SortOption } from 'ui/Sort/Sort';
 import { truncateHexString } from 'utils';
@@ -29,7 +33,6 @@ import {
   getDisplayUnitPrice,
 } from 'utils/subgraph';
 import { styles } from './styles';
-
 import { useFloorOrder } from 'hooks/useFloorOrder/useFloorOrder';
 import { useTokenStaticData } from 'hooks/useTokenStaticData/useTokenStaticData';
 import { useFetchTokenUri } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri';
@@ -70,15 +73,6 @@ const MoonsamaCollectionPage = () => {
   };
   const recognizedCollection = useRawcollection(asset.assetAddress);
   const searchBarOn = recognizedCollection?.idSearchOn ?? true;
-  const subcollection = recognizedCollection?.subcollections?.find(
-    (x) => x.id === subcollectionId
-  );
-  const submeta = useFetchSubcollectionMeta(
-    subcollection ? [subcollection] : undefined
-  );
-
-  const isSubcollection = subcollectionId !== '0';
-
   const [filters, setFilters] = useState<MoonsamaFilter | undefined>(undefined);
   const [sortBy, setSortBy] = useState<SortOption>(sort);
   const [paginationEnded, setPaginationEnded] = useState<boolean>(false);
@@ -86,32 +80,44 @@ const MoonsamaCollectionPage = () => {
   const [page, setPage] = useState<number>(pageParam);
   const [searchCounter, setSearchCounter] = useState<number>(0);
   const [totalLength, setTotalLength] = useState<number>(0);
-  const { placeholderContainer, container, paginationContainer } = useClasses(styles);
+  const { placeholderContainer, container, paginationContainer } =
+    useClasses(styles);
   const { register, handleSubmit } = useForm();
   const displayFilters = assetType === StringAssetType.ERC721;
   let searchSize =
     filters?.selectedOrderType === undefined
       ? DEFAULT_PAGE_SIZE
       : SEARCH_PAGE_SIZE;
-  let forTake = (pageParam - 1) * searchSize;
+  const forTake = (pageParam - 1) * searchSize;
   const [take, setTake] = useState<number>(forTake);
   const collectionName = recognizedCollection
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-  const getItemsWithFilterAndSort = useMoonsamaTokenStaticDataCallbackArrayWithFilter(
-    asset,
-    subcollectionId,
-    filters,
-    sortBy
-  ); //useTokenStaticDataCallback(asset)//
+  const getItemsWithFilterAndSort =
+    useMoonsamaTokenStaticDataCallbackArrayWithFilter(
+      asset,
+      subcollectionId,
+      filters,
+      sortBy
+    ); //useTokenStaticDataCallback(asset)//
 
-  // const handleScrollToBottom = useCallback(() => {
-  //   if (pageLoading) return;
-  //   // console.log('SCROLLBOTTOM');
-  //   setTake((state) => (state += searchSize));
-  //   setSearchCounter((state) => (state += 1));
-  // }, [searchSize]);
+  function handleNavigate(searchParam: string, param: any) {
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search(searchParam);
+    if (ind !== -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] === '&') break;
+      }
+      newPath = newPath + searchParam + param + path.slice(ind, path.length);
+    } else newPath = newPath + path + searchParam + param;
+    navigate(newPath);
+  }
 
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
@@ -136,11 +142,6 @@ const MoonsamaCollectionPage = () => {
     },
     []
   );
-
-  // useBottomScrollListener(handleScrollToBottom, {
-  //   offset: 400,
-  //   debounce: 1000,
-  // });
 
   useEffect(() => {
     const filter = searchParams.get('filter') ?? '';
@@ -198,14 +199,6 @@ const MoonsamaCollectionPage = () => {
       }
       setPageLoading(false);
 
-      //for scroll infinite
-      // if (isEnd) {
-      //   setPaginationEnded(true);
-      //   setCollection((state) => state.concat(pieces));
-      //   return;
-      // }
-      // setCollection((state) => state.concat(pieces));
-
       if (isEnd) {
         setPaginationEnded(true);
         setCollection(pieces);
@@ -234,21 +227,7 @@ const MoonsamaCollectionPage = () => {
 
   const handleFiltersUpdate = useCallback(async (filters: MoonsamaFilter) => {
     let filterStrings = JSON.stringify(filters);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&filter=');
-    if (ind !== -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath =
-        newPath + '&filter=' + filterStrings + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&filter=' + filterStrings;
-    navigate(newPath);
+    handleNavigate('&filter=', filterStrings);
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -259,20 +238,7 @@ const MoonsamaCollectionPage = () => {
 
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
-      let href = window.location.href;
-      let temp = href.split('?');
-      let path = '?' + temp[1];
-      let newPath = sampleLocation.pathname;
-      let ind = path.search('&search=');
-      if (ind !== -1) {
-        newPath = newPath + path.slice(0, ind);
-        ind += 3;
-        for (; ind < path.length; ind++) {
-          if (path[ind] === '&') break;
-        }
-        newPath = newPath + '&search=' + tokenID + path.slice(ind, path.length);
-      } else newPath = newPath + path + '&search=' + tokenID;
-      navigate(newPath);
+      handleNavigate('&search=', tokenID);
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -282,8 +248,6 @@ const MoonsamaCollectionPage = () => {
           BigNumber.from(tokenID - 1),
           setTake
         );
-        console.log('setTotalLength', res);
-
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1
@@ -303,8 +267,6 @@ const MoonsamaCollectionPage = () => {
           BigNumber.from(take),
           setTake
         );
-        console.log('setTotalLength', res);
-
         setTotalLength(
           res.length % searchSize
             ? Math.floor(res.length / searchSize) + 1
@@ -325,20 +287,7 @@ const MoonsamaCollectionPage = () => {
     setCollection([]);
     setTake(0);
     setSortBy(sortBy);
-    let href = window.location.href;
-    let temp = href.split('?');
-    let path = '?' + temp[1];
-    let newPath = sampleLocation.pathname;
-    let ind = path.search('&sort=');
-    if (ind !== -1) {
-      newPath = newPath + path.slice(0, ind);
-      ind += 3;
-      for (; ind < path.length; ind++) {
-        if (path[ind] === '&') break;
-      }
-      newPath = newPath + '&sort=' + sortBy + path.slice(ind, path.length);
-    } else newPath = newPath + path + '&sort=' + sortBy;
-    navigate(newPath);
+    handleNavigate('&sort=', sortBy);
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
@@ -381,9 +330,6 @@ const MoonsamaCollectionPage = () => {
     <>
       <div className={container}>
         <GlitchText variant="h1">{collectionName}</GlitchText>
-        {isSubcollection && !!submeta?.[0]?.name && (
-          <GlitchText variant="h2">{submeta?.[0].name}</GlitchText>
-        )}
         <Stack
           direction={{ xs: 'column', sm: 'column', md: 'row' }}
           spacing={{ xs: 1, sm: 2, md: 4 }}
@@ -419,9 +365,7 @@ const MoonsamaCollectionPage = () => {
 
           {displayFilters && (
             <div>
-              <MoonsamaFilter
-                onFiltersUpdate={handleFiltersUpdate}
-              />
+              <MoonsamaFilter onFiltersUpdate={handleFiltersUpdate} />
             </div>
           )}
           <div>

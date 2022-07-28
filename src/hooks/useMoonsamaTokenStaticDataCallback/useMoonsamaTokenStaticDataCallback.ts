@@ -23,9 +23,18 @@ import {
   QUERY_ERC721_OWNED_ID,
   QUERY_ERC721_NOTOWNED_ID,
   QUERY_ERC721_ID_IN,
+  QUERY_SUBSQUID_ERC721_ACTIVE_ID,
+  QUERY_SUBSQUID_ERC721_CONTRACT_DATA,
+  QUERY_SUBSQUID_ERC721_OWNED_ID,
+  QUERY_SUBSQUID_ERC721_NOTOWNED_ID,
+  QUERY_SUBSQUID_ERC721_ID_IN,
 } from 'subgraph/erc721Queries';
 import request from 'graphql-request';
-import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import {
+  DEFAULT_CHAIN,
+  MARKETPLACE_SUBGRAPH_URLS,
+  TOKEN_SUBSQUID_URLS,
+} from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
@@ -150,11 +159,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
   const fetchUri = useFetchTokenUriCallback();
   let ids = useMoonsamaAttrIds(filter?.traits);
-  let coll = useRawcollection(assetAddress ?? '');
-
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  let subgraph = coll ? coll?.subgraph : '';
 
   const fetchTokenStaticData = useCallback(
     async (
@@ -170,43 +176,84 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       let idsAndUris: { tokenURI: string; assetId: string }[] = [];
 
       const owned: OwnedFilterType | undefined = filter?.owned;
-      const moonsamaTotalyQuery = QUERY_ERC721_CONTRACT_DATA();
-      const moonsamaTotalSupply1 = await request(subgraph, moonsamaTotalyQuery);
+      const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+      const contractData = await request(
+        TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+        CONTRACT_QUERY
+      );
       let moonsamaTotalSupply = parseInt(
-        moonsamaTotalSupply1.contract.totalSupply
+        contractData.erc721Contracts[0].totalSupply
       );
       let res = [],
         moonsamaQuery: any,
         res1;
       if (moonsamaTotalSupply <= 1000) {
         if (!owned)
-          moonsamaQuery = QUERY_ERC721_ACTIVE_ID(0, moonsamaTotalSupply);
+          moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+            assetAddress,
+            0,
+            moonsamaTotalSupply
+          );
         else if (owned === OwnedFilterType.OWNED && account)
-          moonsamaQuery = QUERY_ERC721_OWNED_ID(
+          moonsamaQuery = QUERY_SUBSQUID_ERC721_OWNED_ID(
+            assetAddress,
             0,
             moonsamaTotalSupply,
             account
           );
         else if (owned === OwnedFilterType.NOTOWNED && account)
-          moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(
+          moonsamaQuery = QUERY_SUBSQUID_ERC721_NOTOWNED_ID(
+            assetAddress,
             0,
             moonsamaTotalSupply,
             account
           );
-        else moonsamaQuery = QUERY_ERC721_ACTIVE_ID(0, moonsamaTotalSupply);
-        res1 = await request(subgraph, moonsamaQuery);
-        res = res1.tokens;
-      } else {
-        let from = 0;
-        while (from < moonsamaTotalSupply) {
-          if (!owned) moonsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
+        else
+          moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+            assetAddress,
+            0,
+            moonsamaTotalSupply
+          );
+					res1 = await request(
+						TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+						moonsamaQuery
+						);
+						res = res1.erc721Tokens;
+					} else {
+						let from = 0;
+						while (from < moonsamaTotalSupply) {
+							if (!owned)
+            moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+              assetAddress,
+              from,
+              1000
+            );
           else if (owned === OwnedFilterType.OWNED && account)
-            moonsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
+            moonsamaQuery = QUERY_SUBSQUID_ERC721_OWNED_ID(
+              assetAddress,
+              from,
+              1000,
+              account
+            );
           else if (owned === OwnedFilterType.NOTOWNED && account)
-            moonsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
-          else moonsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
-          let res1 = await request(subgraph, moonsamaQuery);
-          for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
+            moonsamaQuery = QUERY_SUBSQUID_ERC721_NOTOWNED_ID(
+              assetAddress,
+              from,
+              1000,
+              account
+            );
+          else
+            moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+              assetAddress,
+              from,
+              1000
+            );
+          let res1 = await request(
+            TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+            moonsamaQuery
+          );
+          for (let i = 0; i < res1.erc721Tokens.length; i++)
+            res.push(res1.erc721Tokens[i]);
           from += 1000;
         }
       }
@@ -218,8 +265,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
       }
 
-      const CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
-      const contractData = await request(subgraph, CONTRACT_QUERY);
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
         console.log('assets', assets);
         if (orders && orders.length !== assets.length) {
@@ -230,32 +275,38 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           return [];
         }
 
-        const query = QUERY_ERC721_ID_IN(assets.map((a) => a.assetId));
-        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
-        const tokens = ress.tokens;
+        const query = QUERY_SUBSQUID_ERC721_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        const tokens = ress.erc721Tokens;
 
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
             const tok = tokens.find(
-              (t) => t.numericId === ca.assetId
+              (t: any) => t.numericId === ca.assetId
             ) as TokenSubgraphQueryResult;
             return {
               asset: ca,
-              decimals: contractData.contract.decimals,
-              contractURI: contractData.contract.contractURI,
-              name: contractData.contract.name,
-              symbol: contractData.contract.symbol,
-              totalSupply: contractData.contract.totalSupply,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
             };
           });
         }
-        const metas = await fetchUri(staticData);
+        // const metas = await fetchUri(staticData);
 
-        return metas.map((x, i) => {
+        return tokens.map((x: any, i: any) => {
           return {
-            meta: x,
+            meta: x.meta,
             staticData: staticData[i],
             order: orders?.[i],
           };
