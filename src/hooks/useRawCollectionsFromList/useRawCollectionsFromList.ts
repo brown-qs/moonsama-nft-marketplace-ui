@@ -33,7 +33,6 @@ export type RawCollection = {
   tags: string[];
   min_items: number;
   subgraph: string;
-  subsquid?: string;
   decimals?: number;
   maxId?: number;
   minId: number;

@@ -52,9 +52,13 @@ export const NETWORK_ICONS: { [chainId: number]: string } = {
 };
 
 export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
-
-  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev7',
+  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev8',
   [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4'
+};
+
+export const TOKEN_SUBSQUID_URLS: { [chainId: number]: string } = {
+  [ChainId.MOONRIVER]: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/all/graphql',
+  [ChainId.MOONBEAM]: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/all/graphql'
 };
 
 export const MULTICALL_NETWORKS: { [chainId: number]: string } = {

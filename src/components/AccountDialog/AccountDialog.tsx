@@ -54,7 +54,7 @@ export const AccountDialog = () => {
     //`(max-width: 400px)`
     theme.breakpoints.down('sm')
   )
-  console.log({isSm})
+  // console.log({isSm})
 
   const pendingTransactions = sortedRecentTransactions
     .filter((tx) => !tx.receipt)

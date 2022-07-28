@@ -38,7 +38,7 @@ export const CollectionListPage = () => {
 
   useBottomScrollListener(handleScrollToBottom);
 
-  console.log('this runs', collections);
+  // console.log('this runs', collections);
   return collections && collections.length > 0 ? (
     <>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
@@ -51,6 +51,7 @@ export const CollectionListPage = () => {
               collection={collection}
               salt={i}
               meta={metas[i]}
+              key = {i}
             />
           );
         })}
