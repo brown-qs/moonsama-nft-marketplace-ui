@@ -15,6 +15,7 @@ import {
   StaticTokenData,
   useTokenStaticDataCallbackArrayWithFilter,
   useERC721TokenStaticDataCallbackArrayWithFilter,
+  useERC1155TokenStaticDataCallbackArrayWithFilter,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';

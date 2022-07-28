@@ -249,30 +249,5 @@ query getUserActiveOrders {
     address
   }
 }
-
 `;
 
-export const QUERY_SUBSQUID_META = (ids: (number | string)[]) => gql`
-  query getTokensMeata {
-    tokens(
-      orderBy: numericId_ASC,
-      where: {numericId_in: [${ids.map((id) =>
-        typeof id === 'string' ? Number.parseInt(id) : id
-      )}]}
-    ){
-      meta {
-        animationUrl
-        attributes {
-          display
-          trait
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
-    }
-  }
-`;
