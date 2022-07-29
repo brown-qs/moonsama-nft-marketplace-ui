@@ -27,8 +27,6 @@ import {
 import {
   QUERY_ERC721_ACTIVE_ID,
   QUERY_ERC721_CONTRACT_DATA,
-  QUERY_ERC721_OWNED_ID,
-  QUERY_ERC721_NOTOWNED_ID,
   QUERY_ERC721_ID_IN,
 } from 'subgraph/erc721Queries';
 import request from 'graphql-request';

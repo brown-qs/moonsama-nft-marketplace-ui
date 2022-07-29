@@ -17,16 +17,19 @@ import {
   QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
-  QUERY_ERC721_ACTIVE_ID,
-  QUERY_ERC721_CONTRACT_DATA,
-  QUERY_ERC721_OWNED_ID,
-  QUERY_ERC721_NOTOWNED_ID,
-  QUERY_ERC721_ID_IN,
+  QUERY_SUBSQUID_ERC721_ACTIVE_ID,
+  QUERY_SUBSQUID_ERC721_CONTRACT_DATA,
+  QUERY_SUBSQUID_ERC721_OWNED_ID,
+  QUERY_SUBSQUID_ERC721_NOTOWNED_ID,
+  QUERY_SUBSQUID_ERC721_ID_IN,
 } from 'subgraph/erc721Queries';
 import request from 'graphql-request';
-import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import {
+  DEFAULT_CHAIN,
+  MARKETPLACE_SUBGRAPH_URLS,
+  TOKEN_SUBSQUID_URLS,
+} from '../../constants';
 import { TEN_POW_18 } from 'utils';
-import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
@@ -73,9 +76,7 @@ const choosePondsamaAssets = (
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: AssetWithUri[];
 
-  // in this case offsetnum should be substracted one
   if (idsAndUris?.length > 0) {
-    //console.log('xxxx')
     if (offsetNum >= idsAndUris.length) {
       return [];
     }
@@ -89,7 +90,6 @@ const choosePondsamaAssets = (
       chosenIds = idsAndUris.slice(offsetNum, to);
     else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
-    // console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
     chosenAssets = chosenIds.map((x) => {
       return {
         assetId: x.assetId,
@@ -149,58 +149,93 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
     subcollectionId,
   });
   const { account, chainId } = useActiveWeb3React();
-  const fetchUri = useFetchTokenUriCallback();
-
-  let coll = useRawcollection(assetAddress ?? '');
-  let subgraph = coll ? coll?.subgraph : '';
-
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
   const fetchTokenStaticData = useCallback(
-    async (
-      num: number,
-      offset: BigNumber,
-      setCollection
-    ) => {
+    async (num: number, offset: BigNumber, setCollection) => {
       if (!assetAddress || !assetType) {
         return [];
       }
       const owned: OwnedFilterType | undefined = filter?.owned;
-      const PONDSAMA_CONTRACT_QUERY = QUERY_ERC721_CONTRACT_DATA();
-      const contractData = await request(subgraph, PONDSAMA_CONTRACT_QUERY);
-      let pondsamaTotalSupply = parseInt(contractData.contract.totalSupply);
+      const PONDSAMA_CONTRACT_QUERY =
+        QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+      const contractData = await request(
+        TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+        PONDSAMA_CONTRACT_QUERY
+      );
+      let pondsamaTotalSupply = parseInt(
+        contractData.erc721Contracts[0].totalSupply
+      );
       let res = [],
         pondsamaQuery: any,
         res1;
       if (pondsamaTotalSupply < 1000) {
         if (!owned)
-          pondsamaQuery = QUERY_ERC721_ACTIVE_ID(0, pondsamaTotalSupply);
+          pondsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+            assetAddress,
+            0,
+            pondsamaTotalSupply
+          );
         else if (owned === OwnedFilterType.OWNED && account)
-          pondsamaQuery = QUERY_ERC721_OWNED_ID(
+          pondsamaQuery = QUERY_SUBSQUID_ERC721_OWNED_ID(
+            assetAddress,
             0,
             pondsamaTotalSupply,
             account
           );
         else if (owned === OwnedFilterType.NOTOWNED && account)
-          pondsamaQuery = QUERY_ERC721_NOTOWNED_ID(
+          pondsamaQuery = QUERY_SUBSQUID_ERC721_NOTOWNED_ID(
+            assetAddress,
             0,
             pondsamaTotalSupply,
             account
           );
-        else pondsamaQuery = QUERY_ERC721_ACTIVE_ID(0, pondsamaTotalSupply);
-        res1 = await request(subgraph, pondsamaQuery);
-        res = res1.tokens;
+        else
+          pondsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+            assetAddress,
+            0,
+            pondsamaTotalSupply
+          );
+        res1 = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          pondsamaQuery
+        );
+        res = res1.erc721Tokens;
       } else {
         let from = 0;
         while (from < pondsamaTotalSupply) {
-          if (!owned) pondsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
+          if (!owned)
+            pondsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+              assetAddress,
+              from,
+              1000
+            );
           else if (owned === OwnedFilterType.OWNED && account)
-            pondsamaQuery = QUERY_ERC721_OWNED_ID(from, 1000, account);
+            pondsamaQuery = QUERY_SUBSQUID_ERC721_OWNED_ID(
+              assetAddress,
+              from,
+              1000,
+              account
+            );
           else if (owned === OwnedFilterType.NOTOWNED && account)
-            pondsamaQuery = QUERY_ERC721_NOTOWNED_ID(from, 1000, account);
-          else pondsamaQuery = QUERY_ERC721_ACTIVE_ID(from, 1000);
-          let res1 = await request(subgraph, pondsamaQuery);
-          for (let i = 0; i < res1.tokens.length; i++) res.push(res1.tokens[i]);
+            pondsamaQuery = QUERY_SUBSQUID_ERC721_NOTOWNED_ID(
+              assetAddress,
+              from,
+              1000,
+              account
+            );
+          else
+            pondsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+              assetAddress,
+              from,
+              1000
+            );
+          let res1 = await request(
+            TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+            pondsamaQuery
+          );
+          for (let i = 0; i < res1.erc721Tokens.length; i++)
+            res.push(res1.erc721Tokens[i]);
           from += 1000;
         }
       }
@@ -215,18 +250,27 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
-        if (!assets) {
+        if (!assets.length) {
           return [];
         }
 
-        const query = QUERY_ERC721_ID_IN(assets.map((a) => a.assetId));
-        const ress = await request<TokenSubgraphQueryResults>(subgraph, query);
-        const tokens = ress.tokens;
+        const query = QUERY_SUBSQUID_ERC721_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        let tokens:any[] = ress.erc721Tokens;
+
+        if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
+
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
             const tok = tokens.find(
-              (t) => t.numericId === ca.assetId
+              (t:any) => t.numericId === ca.assetId
             ) as TokenSubgraphQueryResult;
             return {
               asset: ca,
@@ -239,10 +283,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             };
           });
         }
-        const metas = await fetchUri(staticData);
-        return metas.map((x, i) => {
+        return tokens.map((x, i) => {
           return {
-            meta: x,
+            meta: x.meta,
             staticData: staticData[i],
             order: orders?.[i],
           };
@@ -303,9 +346,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
           );
-          console.log('YOLO getOrders', result);
           const orders = result?.orders;
-
           if (orders && orders.length > 0) {
             ordersFetch = ordersFetch.concat(orders);
           }
@@ -406,8 +447,16 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               tokenURI: ca.tokenURI,
             };
           });
-          const metas = await fetchUri(staticData);
-          // console.log('metas', metas);
+          const query = QUERY_SUBSQUID_ERC721_ID_IN(
+            assetAddress,
+            tempIds.map((a) => a.assetId)
+          );
+          const ress = await request(
+            TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+          const metas = ress.erc721Tokens.map((token : any) => token.meta);
+          console.log('metas', metas);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
             let selectedPondTraits = filter.pondTraits;
@@ -459,7 +508,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                   staticData: staticData[i],
                 };
                 pieces.push(piece);
-                setCollection(pieces)
+                setCollection(pieces);
               }
             }
           }
@@ -474,10 +523,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           sortBy
         );
         const statics = await fetchStatics(chosenAssets);
-        setCollection(statics)
+        setCollection(statics);
 
         let totalLength = num === 1 ? num : idsAndUris.length;
-        return totalLength ;
+        return totalLength;
       } else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
@@ -485,13 +534,14 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             ? theAssets.length
             : offsetNum + num;
         let sliceAssets = theAssets.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets);
-        setCollection(result)
+        let newOrders = orders.slice(offsetNum, to);
+        const result = await fetchStatics(sliceAssets, newOrders);
+        setCollection(result);
         let totalLength = num === 1 ? num : theAssets.length;
-        return totalLength ;
+        return totalLength;
       }
       const totalLength1 = num === 1 ? num : newMetas.length;
-      return  totalLength1 ;
+      return totalLength1;
     },
     [
       chainId,

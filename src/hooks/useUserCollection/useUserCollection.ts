@@ -7,11 +7,16 @@ import {
   StaticTokenData,
   useTokenStaticDataCallbackArray,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
-import { QUERY_USER_ERC721 } from 'subgraph/erc721Queries';
-import { QUERY_USER_ERC1155 } from 'subgraph/erc1155Queries';
+import { QUERY_SUBSQUID_USER_ERC721 } from 'subgraph/erc721Queries';
+import { QUERY_SUBSQUID_USER_ERC1155 } from 'subgraph/erc1155Queries';
 import { getAssetEntityId, StringAssetType } from 'utils/subgraph';
 import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
+import {
+  DEFAULT_CHAIN,
+  MARKETPLACE_SUBGRAPH_URLS,
+  TOKEN_SUBSQUID_URLS,
+} from '../../constants';
 
 export interface OwnedTokens {
   id: string;
@@ -37,23 +42,23 @@ export const useUserCollection = () => {
   const { chainId } = useActiveWeb3React();
   const staticCallback = useTokenStaticDataCallbackArray();
   const rawCollections = useRawCollectionsFromList();
+  console.log('YOLO fetchUserCollection');
 
   const fetchUserCollection = useCallback(
     async (account: string) => {
       const result: UserCollection = {};
       const fetches = rawCollections.map(async (collection) => {
-        if (!collection.subgraph) {
-          result[collection.display_name] = [];
-          return;
-        }
+        // if (!collection.subgraph) {
+        //   result[collection.display_name] = [];
+        //   return;
+        // }
 
         let assetsAndBalances: {assets: Asset[], balances: string[]};
 
         if (collection.type === 'ERC721') {
-          const query = QUERY_USER_ERC721(account);
+          const query = QUERY_SUBSQUID_USER_ERC721(account);
           //console.log(query, collection)
-          const response = await request(collection.subgraph, query);
-          //console.debug('YOLO fetchUserCollection', response);
+          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
 
           if (!response) {
             result[collection.display_name] = [];
@@ -85,8 +90,8 @@ export const useUserCollection = () => {
             balances: assets.map(x => '1')
           }
         } else {
-          const query = QUERY_USER_ERC1155(account);
-          const response = await request(collection.subgraph, query);
+          const query = QUERY_SUBSQUID_USER_ERC1155(account);
+          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
           //console.debug('YOLO fetchUserCollection', response);
 
           if (!response) {

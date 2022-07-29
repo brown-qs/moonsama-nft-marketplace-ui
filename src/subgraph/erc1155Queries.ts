@@ -19,8 +19,7 @@ export const QUERY_USER_ERC1155 = (account: string) => gql`
 
 export const QUERY_SUBSQUID_USER_ERC1155 = (account: string) => gql`
   query getUserTokens {
-    ${META}
-    erc1155TokenOwners(where: {owner: "${account.toLowerCase()}"}) {
+    erc1155TokenOwners(where: {owner: {id_eq: "${account.toLowerCase()}"}}) {
       id,
       balance
       token {

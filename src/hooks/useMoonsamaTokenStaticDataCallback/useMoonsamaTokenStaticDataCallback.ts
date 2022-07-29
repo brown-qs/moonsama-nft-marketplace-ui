@@ -276,7 +276,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 					TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           query
 					);
-					let tokens = ress.erc721Tokens;
+					let tokens: any[] = ress.erc721Tokens;
 
         if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
@@ -298,7 +298,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
         }
 
-        return tokens.map((x: any, i: any) => {
+        return tokens.map((x, i) => {
           return {
             meta: x.meta,
             staticData: staticData[i],

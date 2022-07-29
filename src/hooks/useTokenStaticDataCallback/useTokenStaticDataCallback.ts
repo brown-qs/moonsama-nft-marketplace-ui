@@ -76,60 +76,60 @@ export type TokenSubgraphQueryResults = {
   tokens: TokenSubgraphQueryResult[];
 };
 
-export const useTokenStaticDataCallback = ({
-  assetAddress,
-  assetType,
-}: TokenStaticCallbackInput) => {
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
+// export const useTokenStaticDataCallback = ({
+//   assetAddress,
+//   assetType,
+// }: TokenStaticCallbackInput) => {
+//   const { chainId } = useActiveWeb3React();
+//   const multi = useMulticall2Contract();
 
-  const fetchUri = useFetchTokenUriCallback();
+//   const fetchUri = useFetchTokenUriCallback();
 
-  const fetchTokenStaticData = useCallback(
-    async (num: number, offset: BigNumber) => {
-      if (!assetAddress || !assetType || !num) {
-        return [];
-      }
+//   const fetchTokenStaticData = useCallback(
+//     async (num: number, offset: BigNumber) => {
+//       if (!assetAddress || !assetType || !num) {
+//         return [];
+//       }
 
-      // just because Indexes can be super huge
-      const assets: Asset[] = Array.from({ length: num }, (_, i) => {
-        const x = offset.add(i).toString();
-        return {
-          assetId: x,
-          assetType,
-          assetAddress,
-          id: getAssetEntityId(assetAddress, x),
-        };
-      });
+//       // just because Indexes can be super huge
+//       const assets: Asset[] = Array.from({ length: num }, (_, i) => {
+//         const x = offset.add(i).toString();
+//         return {
+//           assetId: x,
+//           assetType,
+//           assetAddress,
+//           id: getAssetEntityId(assetAddress, x),
+//         };
+//       });
 
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
+//       let calls: any[] = [];
+//       assets.map((asset, i) => {
+//         calls = [...calls, ...getTokenStaticCalldata(asset)];
+//       });
 
-      const results = await tryMultiCallCore(multi, calls);
+//       const results = await tryMultiCallCore(multi, calls);
 
-      if (!results) {
-        return [];
-      }
+//       if (!results) {
+//         return [];
+//       }
 
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
+//       //console.log('yolo tryMultiCallCore res', results);
+//       const staticData = processTokenStaticCallResults(assets, results);
 
-      const metas = await fetchUri(staticData);
+//       const metas = await fetchUri(staticData);
 
-      return metas.map((x, i) => {
-        return {
-          meta: x,
-          staticData: staticData[i],
-        };
-      });
-    },
-    [chainId, assetAddress, assetType]
-  );
+//       return metas.map((x, i) => {
+//         return {
+//           meta: x,
+//           staticData: staticData[i],
+//         };
+//       });
+//     },
+//     [chainId, assetAddress, assetType]
+//   );
 
-  return fetchTokenStaticData;
-};
+//   return fetchTokenStaticData;
+// };
 
 export const useTokenStaticDataCallbackArray = () => {
   const { chainId } = useActiveWeb3React();
@@ -139,9 +139,12 @@ export const useTokenStaticDataCallbackArray = () => {
 
   const fetchTokenStaticData = useCallback(
     async (assets: Asset[]) => {
-      if (!assets) {
+      if (!assets.length) {
         return [];
       }
+
+      let assetType = assets[0].assetType;
+      let assetAddress = assets[0].assetAddress;
 
       let calls: any[] = [];
       assets.map((asset, i) => {
@@ -157,357 +160,36 @@ export const useTokenStaticDataCallbackArray = () => {
       //console.log('yolo tryMultiCallCore res', results);
       const staticData = processTokenStaticCallResults(assets, results);
 
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
+      let tokens :any[] =[];
+      if (assetType == 'ERC721') {
+        const query = QUERY_SUBSQUID_ERC721_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        tokens = ress.erc721Tokens;
+      } else {
+        const query = QUERY_SUBSQUID_ERC1155_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(
+          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          query
+        );
+        tokens = ress.erc1155Tokens;
+      }
+      return tokens.map((x, i) => {
         return {
-          meta: x,
+          meta: x.meta,
           staticData: staticData[i],
         };
       });
     },
     [chainId]
-  );
-
-  return fetchTokenStaticData;
-};
-
-const chooseAssets = (
-  assetType: StringAssetType,
-  assetAddress: string,
-  offset: BigNumber,
-  num: number,
-  ids: number[],
-  minId: number,
-  maxId: number,
-  direction: SortOption
-) => {
-  let offsetNum = BigNumber.from(offset).toNumber();
-  let chosenAssets: Asset[];
-
-  // in this case offsetnum should be substracted one
-  if (ids?.length > 0) {
-    //console.log('xxxx')
-    if (offsetNum >= ids.length) {
-      return [];
-    }
-    const to = offsetNum + num >= ids.length ? ids.length : offsetNum + num;
-    let chosenIds = [];
-
-    if (direction == SortOption.TOKEN_ID_ASC)
-      chosenIds = ids.slice(offsetNum, to);
-    else chosenIds = [...ids].reverse().slice(offsetNum, to);
-
-    console.log('xxxx', { ids, offsetNum, num, to, chosenIds });
-    chosenAssets = chosenIds.map((x) => {
-      return {
-        assetId: x.toString(),
-        assetType,
-        assetAddress,
-        id: getAssetEntityId(assetAddress, x),
-      };
-    });
-  } else {
-    const rnum =
-      maxId && offsetNum + num < maxId ? num : maxId ? maxId - offsetNum : num;
-
-    console.log('INDICES', { rnum, num, offsetNum, ids, maxId });
-    if (rnum == 0) {
-      return [];
-    }
-
-    chosenAssets = Array.from({ length: rnum }, (_, i) => {
-      let x;
-      if (direction == SortOption.TOKEN_ID_ASC) x = offset.add(i).toString();
-      else x = (maxId - (offsetNum - minId) - i).toString();
-
-      return {
-        assetId: x,
-        assetType,
-        assetAddress,
-        id: getAssetEntityId(assetAddress, x),
-      };
-    });
-
-    console.log('INDICES 2', { chosenAssets, len: chosenAssets.length });
-  }
-
-  return chosenAssets;
-};
-
-export const useTokenStaticDataCallbackArrayWithFilter = (
-  { assetAddress, assetType }: TokenStaticCallbackInput,
-  subcollectionId: string,
-  filter: Filters | undefined,
-  sortBy: SortOption
-) => {
-  console.log('useTokenStaticDataCallbackArrayWithFilter', {
-    assetAddress,
-    assetType,
-    filter,
-    subcollectionId,
-  });
-  const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-  let ids: number[] = [];
-  let coll = useRawcollection(assetAddress ?? '');
-  if (!!subcollectionId && subcollectionId !== '0') {
-    ids =
-      coll?.subcollections?.find((c: any) => c.id === subcollectionId)
-        ?.tokens ?? [];
-  }
-  const minId = subcollectionId !== '0' ? 0 : coll?.minId ?? 1;
-  const maxId = coll?.maxId ?? 1000;
-
-  if (!ids?.length) {
-    for (let i = minId; i <= maxId; i++) ids.push(i);
-  }
-
-  const priceRange = filter?.priceRange;
-  const selectedOrderType = filter?.selectedOrderType;
-
-  const fetchTokenStaticData = useCallback(
-    async (
-      num: number,
-      offset: BigNumber,
-      setTake?: (take: number) => void
-    ) => {
-      if (!assetAddress || !assetType) {
-        console.log({ assetAddress, assetType });
-        return [];
-      }
-      // console.log('ids', ids);
-      const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        // console.log('fetch statistics');
-        console.log('assets', assets);
-        if (orders && orders.length !== assets.length) {
-          throw new Error('Orders/assets length mismatch');
-        }
-        let calls: any[] = [];
-        assets.map((asset, i) => {
-          calls = [...calls, ...getTokenStaticCalldata(asset)];
-        });
-
-        const results = await tryMultiCallCore(multi, calls);
-
-        if (!results) {
-          return [];
-        }
-
-        console.log('yolo tryMultiCallCore res', results);
-        const staticData = processTokenStaticCallResults(assets, results);
-        console.log('staticData', { staticData });
-
-        const metas = await fetchUri(staticData);
-
-        console.log('metas', metas);
-
-        return metas.map((x, i) => {
-          return {
-            meta: x,
-            staticData: staticData[i],
-            order: orders?.[i],
-          };
-        });
-      };
-
-      let ordersFetch: any[] = [];
-
-      // let assetIdsJSONString = JSON.stringify(ids);
-
-      // if (coll?.type === 'ERC721') {
-      //   const query = QUERY_USER_ERC721(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // if (coll?.type === 'ERC1155') {
-      //   const query = QUERY_USER_ERC1155(assetIdsJSONString);
-      //   const response = await request(coll?.subgraph, query);
-      //   return response;
-      // }
-      // return [];
-
-      // if we don't have a price range, it's just business as usual
-      if (
-        sortBy == SortOption.TOKEN_ID_ASC ||
-        sortBy == SortOption.TOKEN_ID_DESC
-      ) {
-        let chosenAssets = chooseAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          ids,
-          minId,
-          maxId,
-          sortBy
-        );
-
-        if (
-          !priceRange ||
-          priceRange.length === 0 ||
-          priceRange.length !== 2 ||
-          !selectedOrderType
-        ) {
-          console.log('DEFAULT SEARCH', {
-            assetAddress,
-            assetType,
-            ids,
-            num,
-            offset: offset?.toString(),
-            chosenAssets,
-          });
-
-          // console.log('no price range');
-          chosenAssets = chooseAssets(
-            assetType,
-            assetAddress,
-            offset,
-            num,
-            ids,
-            minId,
-            maxId,
-            sortBy
-          );
-          const statics = await fetchStatics(chosenAssets);
-          console.log('statistics', statics);
-          let totalLength = num == 1 ? num : ids.length;
-          return { data: statics, length: totalLength };
-        }
-
-        console.log('SEARCH', {
-          assetAddress,
-          assetType,
-          ids,
-          num,
-          offset: offset?.toString(),
-          chosenAssets,
-        });
-
-        const rangeInWei = priceRange.map((x) =>
-          parseEther(x.toString()).mul(TEN_POW_18)
-        );
-
-        let canStop = false;
-        let pager = offset;
-        do {
-          const sgAssets = chosenAssets.map((x) => {
-            return x.id;
-          });
-
-          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
-            selectedOrderType,
-            JSON.stringify(sgAssets),
-            rangeInWei[0].toString(),
-            rangeInWei[1].toString()
-          );
-
-          const result = await request(
-            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-            query
-          );
-          console.log('YOLO getOrders', result);
-          const orders = result?.orders;
-
-          //console.debug('YOLO getOrders', { orders });
-
-          if (orders && orders.length > 0) {
-            ordersFetch = ordersFetch.concat(orders);
-          }
-
-          console.log('INDICES 3', {
-            orders,
-            ordersLength: orders.length,
-            ordersFetch,
-            ordersFetchLength: ordersFetch.length,
-            sgAssets,
-            num,
-            pager: pager.toString(),
-            ids,
-            maxId,
-          });
-
-          if (ordersFetch.length >= num) {
-            canStop = true;
-            setTake?.(pager.toNumber());
-            continue;
-          }
-          pager = pager.add(BigNumber.from(num));
-
-          chosenAssets = chooseAssets(
-            assetType,
-            assetAddress,
-            pager,
-            num,
-            ids,
-            minId,
-            maxId,
-            sortBy
-          );
-
-          //chosenAssets = []
-          if (!chosenAssets || chosenAssets.length == 0) {
-            canStop = true;
-            setTake?.(pager.toNumber());
-          }
-        } while (!canStop);
-      } else {
-        let query = QUERY_ORDERS_FOR_TOKEN(
-          assetAddress,
-          sortBy == SortOption.PRICE_ASC || sortBy == SortOption.PRICE_DESC
-            ? 'price'
-            : 'id',
-          sortBy == SortOption.PRICE_ASC,
-          offset.toNumber(),
-          num
-        );
-
-        const result = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        console.log('YOLO getOrders', result);
-        const orders = result?.orders;
-
-        //console.debug('YOLO getOrders', { orders });
-
-        if (orders && orders.length > 0) {
-          ordersFetch = ordersFetch.concat(orders);
-        }
-      }
-
-      const theAssets: Asset[] = [];
-      const orders = ordersFetch.map((x) => {
-        const o = parseOrder(x) as Order;
-        const a =
-          selectedOrderType == OrderType.BUY
-            ? (o?.buyAsset as Asset)
-            : (o?.sellAsset as Asset);
-        theAssets.push({
-          assetId: a?.assetId,
-          assetType: assetType,
-          assetAddress: assetAddress,
-          id: getAssetEntityId(assetAddress, a?.assetId),
-        });
-        return o;
-      });
-
-      const result = await fetchStatics(theAssets, orders);
-      // console.log('final result', result);
-      let totalLength1 = num == 1 ? num : orders.length;
-      return { data: result, length: totalLength1 };
-    },
-    [
-      chainId,
-      assetType,
-      assetAddress,
-      JSON.stringify(ids),
-      JSON.stringify(priceRange),
-      JSON.stringify(selectedOrderType),
-      sortBy,
-    ]
   );
 
   return fetchTokenStaticData;
@@ -865,7 +547,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
   return fetchTokenStaticData;
 };
 
-
 export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
   { assetAddress, assetType }: TokenStaticCallbackInput,
   subcollectionId: string,
@@ -903,7 +584,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
       let idsAndUris: { tokenURI: string; assetId: string }[] = [];
 
-      const CONTRACT_QUERY =  QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
+      const CONTRACT_QUERY = QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
       const contractData = await request(
         TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
         CONTRACT_QUERY
@@ -920,14 +601,13 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           0,
           moonsamaTotalSupply
         );
-      console.log("CONTRACT_QUERY1", moonsamaQuery)
+        console.log('CONTRACT_QUERY1', moonsamaQuery);
 
         res1 = await request(
           TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           moonsamaQuery
         );
         res = res1.erc1155Tokens;
-
       } else {
         let from = 0;
         while (from < moonsamaTotalSupply) {
@@ -967,13 +647,13 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           assetAddress,
           assets.map((a) => a.assetId)
         );
-        
+
         const ress = await request(
           TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           query
-          );
-          let tokens = ress.erc1155Tokens;
-          console.log("CONTRACT_QUERY2", tokens)
+        );
+        let tokens = ress.erc1155Tokens;
+        console.log('CONTRACT_QUERY2', tokens);
         if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
         let staticData: StaticTokenData[] = [];
@@ -1126,7 +806,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
-        console.log("data1",statics, totalLength)
+        console.log('data1', statics, totalLength);
 
         return { data: statics, length: totalLength };
       } else {
@@ -1139,7 +819,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let newOrders = orders.slice(offsetNum, to);
         const result = await fetchStatics(sliceAssets, newOrders);
         let totalLength1 = num === 1 ? num : theAssets.length;
-        console.log("data2",result, totalLength1)
+        console.log('data2', result, totalLength1);
         return { data: result, length: totalLength1 };
       }
     },

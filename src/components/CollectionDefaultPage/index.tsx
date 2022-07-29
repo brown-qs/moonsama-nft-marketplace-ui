@@ -13,7 +13,6 @@ import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import {
   StaticTokenData,
-  useTokenStaticDataCallbackArrayWithFilter,
   useERC721TokenStaticDataCallbackArrayWithFilter,
   useERC1155TokenStaticDataCallbackArrayWithFilter,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
