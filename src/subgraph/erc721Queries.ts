@@ -97,6 +97,22 @@ export const QUERY_ERC721_CONTRACT_DATA = () => gql`
   }
 `;
 
+
+export const QUERY_SUBSQUID_USER_ERC721 = (account: string) => gql`
+  query getUserActiveOrders {
+    ${META}
+    owners(where: {id: "${account.toLowerCase()}"}) {
+      id,
+      ownedTokens {
+        id,
+        contract {
+          address
+        }
+      }
+    }
+  }
+`;
+
 export const QUERY_SUBSQUID_ERC721_ACTIVE_ID = (
   address: string,
   from: number,

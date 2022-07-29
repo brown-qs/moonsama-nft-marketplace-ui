@@ -107,7 +107,7 @@ const CollectionDefaultPage = () => {
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-  const getItemsWithFilterAndSort = useTokenStaticDataCallbackArrayWithFilter(
+  const getItemsWithFilterAndSort = useERC1155TokenStaticDataCallbackArrayWithFilter(
     asset,
     subcollectionId,
     filters,

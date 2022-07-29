@@ -904,7 +904,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       let idsAndUris: { tokenURI: string; assetId: string }[] = [];
 
       const CONTRACT_QUERY =  QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
-      console.log("CONTRACT_QUERY", CONTRACT_QUERY)
       const contractData = await request(
         TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
         CONTRACT_QUERY
@@ -928,6 +927,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           moonsamaQuery
         );
         res = res1.erc1155Tokens;
+
       } else {
         let from = 0;
         while (from < moonsamaTotalSupply) {
@@ -936,8 +936,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             from,
             1000
           );
-      console.log("CONTRACT_QUERY1", moonsamaQuery)
-
           let res1 = await request(
             TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
             moonsamaQuery
@@ -969,14 +967,13 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           assetAddress,
           assets.map((a) => a.assetId)
         );
-        console.log("CONTRACT_QUERY2", query)
-
+        
         const ress = await request(
           TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           query
-        );
-        let tokens = ress.erc1155Tokens;
-
+          );
+          let tokens = ress.erc1155Tokens;
+          console.log("CONTRACT_QUERY2", tokens)
         if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
         let staticData: StaticTokenData[] = [];
@@ -1024,14 +1021,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           idsAndUris,
           sortBy
         );
-        // console.log('SEARCH', {
-        //   assetAddress,
-        //   assetType,
-        //   idsAndUris,
-        //   num,
-        //   offset: offset?.toString(),
-        //   chosenAssets,
-        // });
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
         );
@@ -1137,6 +1126,8 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
+        console.log("data1",statics, totalLength)
+
         return { data: statics, length: totalLength };
       } else {
         let offsetNum = BigNumber.from(offset).toNumber();
@@ -1148,6 +1139,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let newOrders = orders.slice(offsetNum, to);
         const result = await fetchStatics(sliceAssets, newOrders);
         let totalLength1 = num === 1 ? num : theAssets.length;
+        console.log("data2",result, totalLength1)
         return { data: result, length: totalLength1 };
       }
     },

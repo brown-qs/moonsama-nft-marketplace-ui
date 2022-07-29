@@ -33,22 +33,13 @@ export const QUERY_SUBSQUID_USER_ERC1155 = (account: string) => gql`
   }
 `;
 
-
 export const QUERY_SUBSQUID_ERC1155_ACTIVE_ID = (
   address: string,
   from: number,
   count: number
 ) => gql`
   query getUserActiveOrders {
-    erc1155Tokens(
-      where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
-        owner: { id_not_eq: "0x0000000000000000000000000000000000000000" }
-      }
-      orderBy: numericId_ASC
-      offset: ${from}
-      limit: ${count}
-    ) {
+    erc1155Tokens(orderBy: numericId_ASC, where: {contract: {address_eq: "${address.toLowerCase()}"}}, limit: ${count}, offset:  ${from}) {
       id
       numericId
       uri
@@ -80,7 +71,6 @@ export const QUERY_SUBSQUID_ERC1155_OWNED_ID = (
     erc1155Tokens(
       where: {
         contract: { address_eq: "${address.toLowerCase()}" }
-        owner: { id_eq: "${owner.toLowerCase()}" }
       }
       orderBy: numericId_ASC
       offset: ${from}
@@ -117,7 +107,6 @@ export const QUERY_SUBSQUID_ERC1155_NOTOWNED_ID = (
     erc1155Tokens(
       where: {
         contract: { address_eq: "${address.toLowerCase()}" }
-        owner: { id_not_eq: "${owner.toLowerCase()}" }
       }
       orderBy: numericId_ASC
       offset: ${from}
@@ -191,5 +180,3 @@ query getUserActiveOrders {
   }
 }
 `;
-
-

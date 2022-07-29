@@ -57,7 +57,7 @@ export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
 };
 
 export const TOKEN_SUBSQUID_URLS: { [chainId: number]: string } = {
-  [ChainId.MOONRIVER]: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/all/graphql',
+  [ChainId.MOONRIVER]: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/allv1/graphql',
   [ChainId.MOONBEAM]: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/all/graphql'
 };
 
