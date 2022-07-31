@@ -53,7 +53,7 @@ export const NETWORK_ICONS: { [chainId: number]: string } = {
 
 export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
 
-  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev7',
+  [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev8',
   [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4'
 };
 
