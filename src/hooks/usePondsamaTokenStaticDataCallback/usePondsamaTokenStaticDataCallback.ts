@@ -262,7 +262,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
           query
         );
-        let tokens:any[] = ress.erc721Tokens;
+        let tokens: any[] = ress.erc721Tokens;
 
         if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
@@ -270,15 +270,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         if (tokens.length) {
           staticData = assets.map((ca) => {
             const tok = tokens.find(
-              (t:any) => t.numericId === ca.assetId
+              (t: any) => t.numericId === ca.assetId
             ) as TokenSubgraphQueryResult;
             return {
               asset: ca,
-              decimals: contractData.contract.decimals,
-              contractURI: contractData.contract.contractURI,
-              name: contractData.contract.name,
-              symbol: contractData.contract.symbol,
-              totalSupply: contractData.contract.totalSupply,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
             };
           });
@@ -360,9 +360,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-              ? 'price'
-              : 'id',
+           'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -412,9 +410,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       });
       idsAndUris = tempIdsAndUris;
       let totalLength =
-        idsAndUris.length % 300
-          ? Math.floor(idsAndUris.length / 300) + 1
-          : Math.floor(idsAndUris.length / 300);
+        idsAndUris.length % 1000
+          ? Math.floor(idsAndUris.length / 1000) + 1
+          : Math.floor(idsAndUris.length / 1000);
       let newMetas: any[] = [],
         totalStaicDatas: StaticTokenData[] = [];
       let pieces: {
@@ -426,10 +424,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
-          if (k * 300 + 300 < res.length)
-            tempIds = idsAndUris.slice(k * 300, k * 300 + 300);
-          else if (k * 300 + 300 >= res.length)
-            tempIds = idsAndUris.slice(k * 300, res.length);
+          if (k * 1000 + 1000 < res.length)
+            tempIds = idsAndUris.slice(k * 1000, k * 1000 + 1000);
+          else if (k * 1000 + 1000 >= res.length)
+            tempIds = idsAndUris.slice(k * 1000, res.length);
           let chosenAssets = choosePondsamaAssetsAll(
             assetType,
             assetAddress,
@@ -455,7 +453,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
             query
           );
-          const metas = ress.erc721Tokens.map((token : any) => token.meta);
+          const metas = ress.erc721Tokens.map((token: any) => token.meta);
           console.log('metas', metas);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
