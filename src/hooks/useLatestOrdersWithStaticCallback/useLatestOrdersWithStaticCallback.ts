@@ -168,7 +168,6 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query
       );
-      console.log('useLatestSellOrdersForTokenWithStaticCallback', offset, num);
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -257,7 +256,6 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query
       );
-      console.log("useLatestBuyOrdersForTokenWithStaticCallback")
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },

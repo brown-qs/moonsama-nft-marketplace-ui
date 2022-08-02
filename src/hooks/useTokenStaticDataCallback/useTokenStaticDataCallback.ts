@@ -94,15 +94,12 @@ export const useTokenStaticDataCallbackArray = () => {
       });
 
       const results = await tryMultiCallCore(multi, calls);
-      console.log("useTokenStaticDataCallbackArray1", {calls, results})
-
       if (!results) {
         return [];
       }
-
       //console.log('yolo tryMultiCallCore res', results);
       const staticData = processTokenStaticCallResults(assets, results);
-
+      console.log("useTokenStaticDataCallbackArray1", staticData)
       let tokens: any[] = [];
       if (assetType == 'ERC721') {
         const query = QUERY_SUBSQUID_ERC721_ID_IN(
