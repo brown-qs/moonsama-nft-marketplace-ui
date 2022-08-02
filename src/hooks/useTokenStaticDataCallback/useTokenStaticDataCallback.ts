@@ -71,7 +71,6 @@ export type TokenSubgraphQueryResult = {
 
 export const useTokenStaticDataCallbackArray = () => {
   const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
   const rawCollections = useRawCollectionsFromList();
   const fetchTokenStaticData = useCallback(
     async (assets: Asset[]) => {
@@ -82,25 +81,14 @@ export const useTokenStaticDataCallbackArray = () => {
       let assetType = assets[0].assetType;
       let assetAddress = assets[0].assetAddress;
 
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
-      });
-
       let subsquid = '';
       rawCollections.map(async (collection) => {
         if (collection.address.toLowerCase() === assetAddress.toLowerCase())
           subsquid = collection.subsquid;
       });
 
-      const results = await tryMultiCallCore(multi, calls);
-      if (!results) {
-        return [];
-      }
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-      console.log("useTokenStaticDataCallbackArray1", staticData)
       let tokens: any[] = [];
+      let staticData: StaticTokenData[] = [];
       if (assetType == 'ERC721') {
         const query = QUERY_SUBSQUID_ERC721_ID_IN(
           assetAddress,
@@ -108,6 +96,24 @@ export const useTokenStaticDataCallbackArray = () => {
         );
         const ress = await request(subsquid, query);
         tokens = ress.erc721Tokens;
+        const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+        const contractData = await request(subsquid, CONTRACT_QUERY);
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            const tok = tokens.find(
+              (t: any) => t.numericId === ca.assetId
+            ) as TokenSubgraphQueryResult;
+            return {
+              asset: ca,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
+              tokenURI: tok.uri,
+            };
+          });
+        }
       } else {
         const query = QUERY_SUBSQUID_ERC1155_ID_IN(
           assetAddress,
@@ -115,6 +121,24 @@ export const useTokenStaticDataCallbackArray = () => {
         );
         const ress = await request(subsquid, query);
         tokens = ress.erc1155Tokens;
+        const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+        const contractData = await request(subsquid, CONTRACT_QUERY);
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            const tok = tokens.find(
+              (t: any) => t.numericId === ca.assetId
+            ) as TokenSubgraphQueryResult;
+            return {
+              asset: ca,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
+              tokenURI: tok.uri,
+            };
+          });
+        }
       }
       return tokens.map((x, i) => {
         return {
