@@ -69,69 +69,9 @@ export type TokenSubgraphQueryResult = {
   id: string;
 };
 
-export type TokenSubgraphQueryResults = {
-  tokens: TokenSubgraphQueryResult[];
-};
-
-// export const useTokenStaticDataCallback = ({
-//   assetAddress,
-//   assetType,
-// }: TokenStaticCallbackInput) => {
-//   const { chainId } = useActiveWeb3React();
-//   const multi = useMulticall2Contract();
-
-//   const fetchUri = useFetchTokenUriCallback();
-
-//   const fetchTokenStaticData = useCallback(
-//     async (num: number, offset: BigNumber) => {
-//       if (!assetAddress || !assetType || !num) {
-//         return [];
-//       }
-
-//       // just because Indexes can be super huge
-//       const assets: Asset[] = Array.from({ length: num }, (_, i) => {
-//         const x = offset.add(i).toString();
-//         return {
-//           assetId: x,
-//           assetType,
-//           assetAddress,
-//           id: getAssetEntityId(assetAddress, x),
-//         };
-//       });
-
-//       let calls: any[] = [];
-//       assets.map((asset, i) => {
-//         calls = [...calls, ...getTokenStaticCalldata(asset)];
-//       });
-
-//       const results = await tryMultiCallCore(multi, calls);
-
-//       if (!results) {
-//         return [];
-//       }
-
-//       //console.log('yolo tryMultiCallCore res', results);
-//       const staticData = processTokenStaticCallResults(assets, results);
-
-//       const metas = await fetchUri(staticData);
-
-//       return metas.map((x, i) => {
-//         return {
-//           meta: x,
-//           staticData: staticData[i],
-//         };
-//       });
-//     },
-//     [chainId, assetAddress, assetType]
-//   );
-
-//   return fetchTokenStaticData;
-// };
-
 export const useTokenStaticDataCallbackArray = () => {
   const { chainId } = useActiveWeb3React();
   const multi = useMulticall2Contract();
-  const staticCallback = useTokenStaticDataCallbackArray();
   const rawCollections = useRawCollectionsFromList();
   const fetchTokenStaticData = useCallback(
     async (assets: Asset[]) => {
@@ -633,16 +573,17 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            const tok = tokens.find(
+            let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
-            ) as TokenSubgraphQueryResult;
+            )
+            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc1155Contracts[0].decimals,
               contractURI: contractData.erc1155Contracts[0].contractURI,
               name: contractData.erc1155Contracts[0].name,
               symbol: contractData.erc1155Contracts[0].symbol,
-              totalSupply: contractData.erc1155Contracts[0].totalSupply,
+              totalSupply: token.totalSupply,
               tokenURI: tok.uri,
             };
           });
