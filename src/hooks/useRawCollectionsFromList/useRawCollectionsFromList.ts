@@ -32,6 +32,7 @@ export type RawCollection = {
   contractURI: string;
   tags: string[];
   min_items: number;
+  subsquid: string;
   decimals?: number;
   maxId?: number;
   minId: number;
@@ -84,6 +85,7 @@ const collectionListSchema = yup.object<RawCollectionList>({
             .required(),
           contractURI: yup.string().required(),
           tags: yup.array().of(yup.string().required()).required(),
+          subsquid: yup.string().required(),
           decimals: yup.number().optional(),
           minId: yup.number().required(),
           maxId: yup.number().optional(),
@@ -91,8 +93,16 @@ const collectionListSchema = yup.object<RawCollectionList>({
           idSearchOn: yup.boolean().required(),
           ordersDisabled: yup.boolean().optional().default(false),
           transferDisabled: yup.boolean().optional().default(false),
-          ordersDisabledFor: yup.array().of(yup.string().required()).optional().default(undefined),
-          transferDisabledFor: yup.array().of(yup.string().required()).optional().default(undefined),
+          ordersDisabledFor: yup
+            .array()
+            .of(yup.string().required())
+            .optional()
+            .default(undefined),
+          transferDisabledFor: yup
+            .array()
+            .of(yup.string().required())
+            .optional()
+            .default(undefined),
           plot: yup.boolean().optional(),
           hasVersion2: yup.boolean().optional().default(false),
           showAttributes: yup.boolean().optional().default(false),

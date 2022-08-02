@@ -23,6 +23,7 @@ import {
   QUERY_SUBSQUID_ERC721_NOTOWNED_ID,
   QUERY_SUBSQUID_ERC721_ID_IN,
 } from 'subgraph/erc721Queries';
+import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import request from 'graphql-request';
 import {
   DEFAULT_CHAIN,
@@ -153,7 +154,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   let ids = useMoonsamaAttrIds(filter?.traits);
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-
+  const recognizedCollection = useRawcollection(assetAddress?? "");
+  const subsquid = recognizedCollection?.subsquid?? ""
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -170,7 +172,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       const owned: OwnedFilterType | undefined = filter?.owned;
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
       const contractData = await request(
-        TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+        subsquid,
         CONTRACT_QUERY
       );
       let moonsamaTotalSupply = parseInt(
@@ -207,7 +209,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             moonsamaTotalSupply
           );
         res1 = await request(
-          TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+          subsquid,
           moonsamaQuery
         );
         res = res1.erc721Tokens;
@@ -241,7 +243,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               1000
             );
           let res1 = await request(
-            TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+            subsquid,
             moonsamaQuery
           );
           for (let i = 0; i < res1.erc721Tokens.length; i++)
@@ -273,7 +275,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         );
 
         const ress = await request(
-					TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN],
+					subsquid,
           query
 					);
 					let tokens: any[] = ress.erc721Tokens;

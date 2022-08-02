@@ -55,10 +55,12 @@ export const useUserCollection = () => {
 
         let assetsAndBalances: {assets: Asset[], balances: string[]};
 
+        let subsquid = collection.subsquid?? "";
+
         if (collection.type === 'ERC721') {
           const query = QUERY_SUBSQUID_USER_ERC721(account);
           //console.log(query, collection)
-          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
+          const response = await request( subsquid, query);
 
           if (!response) {
             result[collection.display_name] = [];
@@ -91,7 +93,7 @@ export const useUserCollection = () => {
           }
         } else {
           const query = QUERY_SUBSQUID_USER_ERC1155(account);
-          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
+          const response = await request( subsquid, query);
           //console.debug('YOLO fetchUserCollection', response);
 
           if (!response) {

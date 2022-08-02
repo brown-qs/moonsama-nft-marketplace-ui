@@ -85,6 +85,8 @@ export const collections = {
       contractURI: 'ipfs://QmRffvf3cGzarRaJEH99JRrXqyZyyie6gPr1yp7JFMB7Z2',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-moonsama-v3',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/moonsama/graphql',
     },
     {
       chainId: 1285,
@@ -101,6 +103,8 @@ export const collections = {
       contractURI: 'ipfs://QmdCKgexLpBjST3FdWLbPZLH2FWRtu2NXE9dk5ZirdDRGb',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-pondsama-v3',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/pondsama/graphql',
     },
     {
       chainId: 1285,
@@ -116,6 +120,8 @@ export const collections = {
       contractURI: 'ipfs://QmZQtUcwgEsjoE9FnZs2ATE1kZL3ZrCM6skFyRSTZKKQkj',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-mx',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/moonx/graphql',
     },
     {
       chainId: 1285,
@@ -132,6 +138,8 @@ export const collections = {
       contractURI: 'ipfs://Qmc97e79xzzrdNuU3RumGXcK5FYh8PWTb6GyxxHMyRvUYm',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-factory',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/factory/graphql',
     },
     {
       chainId: 1285,
@@ -244,6 +252,7 @@ export const collections = {
       contractURI: 'ipfs://QmUCMVkJa849UQYN728hyiYm3ZJVPk8yGyiJQ6wwHfLcgz',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-multiverseart',
+      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/art/graphql',
     },
     {
       chainId: 1285,
@@ -260,6 +269,8 @@ export const collections = {
       contractURI: 'ipfs://QmR8K7eLZnhFqC5qUStMyFAgawSJcpRfSvMDMffQVQFn38',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/erc721-mmplotss1-v3',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/plot/graphql',
     },
     {
       chainId: 1285,
@@ -271,7 +282,9 @@ export const collections = {
       maxId: 3,
       type: 'ERC1155',
       contractURI: 'ipfs://QmPisJNXRvd1h8BBiBs1PHu8666HTDWVJWkAf2AS7c4zkM',
-      subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-samabox'
+      subgraph:
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-samabox',
+      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/box/graphql',
     },
     {
       chainId: 1285,
@@ -285,7 +298,10 @@ export const collections = {
       maxId: 15,
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
-      subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
+      subgraph:
+        'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy',
+      subsquid:
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/emabsssy/graphql',
     },
     /*
     {
