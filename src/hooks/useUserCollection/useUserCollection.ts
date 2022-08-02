@@ -14,7 +14,6 @@ import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRa
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 import {
   DEFAULT_CHAIN,
-  MARKETPLACE_SUBGRAPH_URLS,
   TOKEN_SUBSQUID_URLS,
 } from '../../constants';
 

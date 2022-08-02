@@ -435,6 +435,7 @@ const FreshOrdersPage = () => {
           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
           query
         );
+        console.log("useEffect-response",response)
         sellCount = parseInt(response.collectionStat.activeSellOrderNum);
         buyCount = parseInt(response.collectionStat.activeBuyOrderNum);
       } else {
@@ -452,6 +453,8 @@ const FreshOrdersPage = () => {
                   MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
                   query
                 );
+        console.log("useEffect-response1",response)
+
                 sellCount += parseInt(
                   response.collectionStat.activeSellOrderNum
                 );

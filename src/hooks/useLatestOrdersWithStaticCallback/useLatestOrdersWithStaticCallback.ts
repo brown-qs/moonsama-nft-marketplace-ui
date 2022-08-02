@@ -142,7 +142,6 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
       sortBy: string,
       sortDirection: string
     ) => {
-      console.log('order query', offset, num);
       let query: any;
       let foundIndex = tokenAddress
         ? PAMENT_CollectionAddress.findIndex((e) => e.address === tokenAddress)
@@ -169,6 +168,7 @@ export const useLatestSellOrdersForTokenWithStaticCallback = () => {
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query
       );
+      console.log('useLatestSellOrdersForTokenWithStaticCallback', offset, num);
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },
@@ -257,6 +257,7 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
         query
       );
+      console.log("useLatestBuyOrdersForTokenWithStaticCallback")
       const datas = await orderProcessCore(chainId, response, staticCallback);
       return datas;
     },

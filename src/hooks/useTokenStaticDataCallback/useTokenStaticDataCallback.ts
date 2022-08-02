@@ -94,6 +94,7 @@ export const useTokenStaticDataCallbackArray = () => {
       });
 
       const results = await tryMultiCallCore(multi, calls);
+      console.log("useTokenStaticDataCallbackArray1", {calls, results})
 
       if (!results) {
         return [];
@@ -524,8 +525,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           0,
           moonsamaTotalSupply
         );
-        console.log('CONTRACT_QUERY1', moonsamaQuery);
-
         res1 = await request(subsquid, moonsamaQuery);
         res = res1.erc1155Tokens;
       } else {
@@ -567,7 +566,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
         const ress = await request(subsquid, query);
         let tokens = ress.erc1155Tokens;
-        console.log('CONTRACT_QUERY2', tokens);
         if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
 
         let staticData: StaticTokenData[] = [];
@@ -721,8 +719,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
-        console.log('data1', statics, totalLength);
-
         return { data: statics, length: totalLength };
       } else {
         let offsetNum = BigNumber.from(offset).toNumber();
@@ -734,7 +730,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let newOrders = orders.slice(offsetNum, to);
         const result = await fetchStatics(sliceAssets, newOrders);
         let totalLength1 = num === 1 ? num : theAssets.length;
-        console.log('data2', result, totalLength1);
         return { data: result, length: totalLength1 };
       }
     },
