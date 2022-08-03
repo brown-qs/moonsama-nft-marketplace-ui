@@ -40,6 +40,7 @@ import { TEN_POW_18 } from 'utils';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { SortOption } from 'ui/Sort/Sort';
+import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -49,6 +50,7 @@ export interface StaticTokenData {
   totalSupply?: BigNumber;
   tokenURI?: string;
   contractURI?: string;
+  metadata? : TokenMeta | undefined;
 }
 
 export type TokenStaticCallbackInput = {
@@ -100,9 +102,10 @@ export const useTokenStaticDataCallbackArray = () => {
         const contractData = await request(subsquid, CONTRACT_QUERY);
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            const tok = tokens.find(
+            let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
-            ) as TokenSubgraphQueryResult;
+            )
+            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -111,6 +114,7 @@ export const useTokenStaticDataCallbackArray = () => {
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
+              metadata: token.metadata,
             };
           });
         }
@@ -125,9 +129,10 @@ export const useTokenStaticDataCallbackArray = () => {
         const contractData = await request(subsquid, CONTRACT_QUERY);
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            const tok = tokens.find(
+            let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
-            ) as TokenSubgraphQueryResult;
+            )
+            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -136,14 +141,15 @@ export const useTokenStaticDataCallbackArray = () => {
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
+              metadata: token.metadata,
             };
           });
         }
       }
-      return tokens.map((x, i) => {
+      return staticData.map((x, i) => {
         return {
-          meta: x.meta,
-          staticData: staticData[i],
+          meta: x.metadata,
+          staticData: x,
         };
       });
     },
@@ -313,15 +319,13 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
 
         const ress = await request(subsquid, query);
         let tokens = ress.erc721Tokens;
-
-        if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
-
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            const tok = tokens.find(
+            let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
-            ) as TokenSubgraphQueryResult;
+            )
+            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -330,15 +334,14 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
+              metadata: token.metadata,
             };
           });
         }
-
-        return tokens.map((x: any, i: any) => {
+        return staticData.map((x, i) => {
           return {
-            meta: x.meta,
-            staticData: staticData[i],
-            order: orders?.[i],
+            meta: x.metadata,
+            staticData: x,
           };
         });
       };
@@ -587,8 +590,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
         const ress = await request(subsquid, query);
         let tokens = ress.erc1155Tokens;
-        if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
-
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
@@ -604,15 +605,14 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc1155Contracts[0].symbol,
               totalSupply: token.totalSupply,
               tokenURI: tok.uri,
+              metadata: token.metadata,
             };
           });
         }
-
-        return tokens.map((x: any, i: any) => {
+        return staticData.map((x, i) => {
           return {
-            meta: x.meta,
-            staticData: staticData[i],
-            order: orders?.[i],
+            meta: x.metadata,
+            staticData: x,
           };
         });
       };

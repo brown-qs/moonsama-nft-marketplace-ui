@@ -32,6 +32,7 @@ import {
 } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { SortOption } from 'ui/Sort/Sort';
+import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
 
 export interface StaticTokenData {
   asset: Asset;
@@ -41,6 +42,7 @@ export interface StaticTokenData {
   totalSupply?: BigNumber;
   tokenURI?: string;
   contractURI?: string;
+  metadata? : TokenMeta | undefined;
 }
 
 export type TokenStaticCallbackInput = {
@@ -285,9 +287,10 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            const tok = tokens.find(
+            let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
-            ) as TokenSubgraphQueryResult;
+            )
+            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -296,15 +299,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
+              metadata: token.metadata,
             };
           });
         }
-
-        return tokens.map((x, i) => {
+        return staticData.map((x, i) => {
           return {
-            meta: x.meta,
-            staticData: staticData[i],
-            order: orders?.[i],
+            meta: x.metadata,
+            staticData: x,
           };
         });
       };
