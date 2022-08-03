@@ -279,7 +279,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: token.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }

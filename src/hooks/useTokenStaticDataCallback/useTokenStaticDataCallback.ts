@@ -113,7 +113,7 @@ export const useTokenStaticDataCallbackArray = () => {
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: token.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }
@@ -139,7 +139,7 @@ export const useTokenStaticDataCallbackArray = () => {
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: token.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }
@@ -331,7 +331,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: token.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }
@@ -602,7 +602,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc1155Contracts[0].symbol,
               totalSupply: token.totalSupply,
               tokenURI: token.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }

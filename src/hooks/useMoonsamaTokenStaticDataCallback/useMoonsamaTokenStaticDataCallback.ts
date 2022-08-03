@@ -299,7 +299,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: tok.uri,
-              metadata: token.metadata,
+              metadata: token.meta,
             };
           });
         }
