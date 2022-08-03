@@ -105,7 +105,6 @@ export const useTokenStaticDataCallbackArray = () => {
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -113,7 +112,7 @@ export const useTokenStaticDataCallbackArray = () => {
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.metadata,
             };
           });
@@ -132,7 +131,6 @@ export const useTokenStaticDataCallbackArray = () => {
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -140,7 +138,7 @@ export const useTokenStaticDataCallbackArray = () => {
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.metadata,
             };
           });
@@ -325,7 +323,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -333,7 +330,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.metadata,
             };
           });
@@ -342,6 +339,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           return {
             meta: x.metadata,
             staticData: x,
+            order: orders?.[i],
           };
         });
       };
@@ -596,7 +594,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc1155Contracts[0].decimals,
@@ -604,7 +601,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc1155Contracts[0].name,
               symbol: contractData.erc1155Contracts[0].symbol,
               totalSupply: token.totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.metadata,
             };
           });
@@ -613,6 +610,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           return {
             meta: x.metadata,
             staticData: x,
+            order: orders?.[i],
           };
         });
       };

@@ -271,7 +271,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -279,7 +278,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.metadata,
             };
           });
@@ -288,6 +287,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           return {
             meta: x.metadata,
             staticData: x,
+            order: orders?.[i],
           };
         });
       };

@@ -307,6 +307,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           return {
             meta: x.metadata,
             staticData: x,
+            order: orders?.[i],
           };
         });
       };
