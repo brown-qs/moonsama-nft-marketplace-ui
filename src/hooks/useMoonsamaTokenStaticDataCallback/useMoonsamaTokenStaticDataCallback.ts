@@ -282,15 +282,12 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 					);
 					let tokens: any[] = ress.erc721Tokens;
 
-        if (sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
-
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
             let token = tokens.find(
               (t: any) => t.numericId === ca.assetId
             )
-            const tok = token as TokenSubgraphQueryResult;
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -298,7 +295,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: tok.uri,
+              tokenURI: token.uri,
               metadata: token.meta,
             };
           });
