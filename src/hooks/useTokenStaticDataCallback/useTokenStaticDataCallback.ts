@@ -437,13 +437,15 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      idsAndUris.map((idsAndUri, i) => {
-        if (
-          !theAssetNumber.length ||
-          theAssetNumber.includes(idsAndUri.assetId)
-        )
-          tempIdsAndUris.push(idsAndUri);
-      });
+      if (theAssetNumber.length) {
+        theAssetNumber.map((number) => {
+          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+            idsAndUri.assetId == number;
+            return idsAndUri;
+          });
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+        });
+      }
       idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
@@ -714,13 +716,15 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       );
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      idsAndUris.map((idsAndUri, i) => {
-        if (
-          !theAssetNumber.length ||
-          theAssetNumber.includes(idsAndUri.assetId)
-        )
-          tempIdsAndUris.push(idsAndUri);
-      });
+      if (theAssetNumber.length) {
+        theAssetNumber.map((number) => {
+          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+            idsAndUri.assetId == number;
+            return idsAndUri;
+          });
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+        });
+      }
       idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||

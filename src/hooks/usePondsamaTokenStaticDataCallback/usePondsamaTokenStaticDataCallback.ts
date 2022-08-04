@@ -352,7 +352,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             1000
           );
 
-          console.log("pondsamaQuery1",query)
+          console.log('pondsamaQuery1', query);
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
@@ -369,7 +369,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           }
         }
       }
-      console.log("pondsamaQuery2",ordersFetch)
+      console.log('pondsamaQuery2', ordersFetch);
 
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
@@ -388,16 +388,25 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
-      console.log("pondsamaQuery3",{theAssetNumber, idsAndUris})
+      console.log('pondsamaQuery3', { theAssetNumber, idsAndUris });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      idsAndUris.map((idsAndUri, i) => {
-        if (
-          !theAssetNumber.length ||
-          theAssetNumber.includes(idsAndUri.assetId)
-        )
-          tempIdsAndUris.push(idsAndUri);
-      });
+      if (theAssetNumber.length) {
+        theAssetNumber.map((number) => {
+          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+            idsAndUri.assetId == number;
+            return idsAndUri;
+          });
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+        });
+      }
+      // idsAndUris.map((idsAndUri, i) => {
+      //   if (
+      //     !theAssetNumber.length ||
+      //     theAssetNumber.includes(idsAndUri.assetId)
+      //   )
+      //     tempIdsAndUris.push(idsAndUri);
+      // });
       idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
@@ -405,7 +414,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       ) {
         idsAndUris = idsAndUris.reverse();
       }
-      console.log("pondsamaQuery4",idsAndUris)
+      console.log('pondsamaQuery4', idsAndUris);
 
       let totalLength =
         idsAndUris.length % 1000
