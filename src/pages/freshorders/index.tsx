@@ -193,18 +193,18 @@ const FreshOrdersPage = () => {
     setTake(0);
     setPaginationEnded(false);
     setPage(1);
-    if (_sortBy != sortBy) {
+    if (_sortBy !== sortBy) {
       let href = window.location.href;
       let temp = href.split('?');
       let path = '?' + temp[1];
       let newPath = sampleLocation.pathname;
       let tempPath = '';
       let ind = path.search('&sortBy=');
-      if (ind != -1) {
+      if (ind !== -1) {
         tempPath = path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         tempPath =
           tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
@@ -212,11 +212,11 @@ const FreshOrdersPage = () => {
 
       path = tempPath;
       ind = path.search('&sortDirection=');
-      if (ind != -1) {
+      if (ind !== -1) {
         tempPath = path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         tempPath =
           tempPath + '&sortDirection=asc' + path.slice(ind, path.length);
@@ -224,11 +224,11 @@ const FreshOrdersPage = () => {
 
       path = tempPath;
       ind = path.search('&page=');
-      if (ind != -1) {
+      if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&page=1' + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=1';
@@ -245,11 +245,11 @@ const FreshOrdersPage = () => {
       let newPath = sampleLocation.pathname;
       let tempPath = '';
       let ind = path.search('&sortBy=');
-      if (ind != -1) {
+      if (ind !== -1) {
         tempPath = path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         tempPath =
           tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
@@ -257,11 +257,11 @@ const FreshOrdersPage = () => {
 
       path = tempPath;
       ind = path.search('&sortDirection=');
-      if (ind != -1) {
+      if (ind !== -1) {
         tempPath = path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         tempPath =
           tempPath +
@@ -272,11 +272,11 @@ const FreshOrdersPage = () => {
 
       path = tempPath;
       ind = path.search('&page=');
-      if (ind != -1) {
+      if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&page=1' + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=1';

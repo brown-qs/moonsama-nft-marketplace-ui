@@ -452,8 +452,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             subsquid,
             query
           );
-          const metas = ress.erc721Tokens.map((token: any) => token.meta);
-          console.log('metas', metas);
+          let tokens = ress.erc721Tokens;
+          if( sortBy === SortOption.PRICE_DESC ||  sortBy === SortOption.TOKEN_ID_DESC) tokens = tokens.reverse();
+          const metas = tokens.map((token: any) => token.meta);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
             let selectedPondTraits = filter.pondTraits;

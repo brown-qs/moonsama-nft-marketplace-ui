@@ -641,8 +641,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             rangeInWei[1].toString()
           );
 
-          console.log("QUERY_ACTIVE_ORDERS_FOR_FILTER", query)
-
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
@@ -669,8 +667,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             index,
             1000
           );
-
-          console.log("QUERY_ACTIVE_ORDERS_FOR_FILTER1", query)
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
