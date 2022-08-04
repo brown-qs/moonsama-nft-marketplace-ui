@@ -395,9 +395,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-              ? 'price'
-              : 'id',
+            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -445,8 +443,8 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
+        idsAndUris = tempIdsAndUris;
       }
-      idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
         sortBy === SortOption.PRICE_DESC
@@ -654,7 +652,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
           );
-          console.log('YOLO getOrders', result);
           const orders = result?.orders;
 
           if (orders && orders.length > 0) {
@@ -667,7 +664,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       ) {
         let index = 0;
         flag = 1;
-        console.log('ordersFetch0', ordersFetch);
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -709,12 +705,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
-      console.log(
-        'useERC1155TokenStaticDataCallbackArrayWithFilter-1',
-        orders,
-        idsAndUris
-      );
-
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         theAssetNumber.map((number) => {
@@ -724,8 +714,8 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
+        idsAndUris = tempIdsAndUris;
       }
-      idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
         sortBy === SortOption.PRICE_DESC

@@ -364,9 +364,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-              ? 'price'
-              : 'id',
+            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -414,8 +412,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
+        idsAndUris = tempIdsAndUris;
       }
-      idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
         sortBy === SortOption.PRICE_DESC

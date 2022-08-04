@@ -399,6 +399,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
+        idsAndUris = tempIdsAndUris;
       }
       // idsAndUris.map((idsAndUri, i) => {
       //   if (
@@ -407,7 +408,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       //   )
       //     tempIdsAndUris.push(idsAndUri);
       // });
-      idsAndUris = tempIdsAndUris;
       if (
         sortBy === SortOption.TOKEN_ID_DESC ||
         sortBy === SortOption.PRICE_DESC
