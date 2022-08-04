@@ -10,7 +10,7 @@ import { useLatestTradesWithStaticCallback } from 'hooks/useLatestTradesWithStat
 import { useRawCollectionsFromList } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { useWhitelistedAddresses } from 'hooks/useWhitelistedAddresses/useWhitelistedAddresses';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GlitchText, Loader } from 'ui';
 import {
@@ -174,22 +174,22 @@ const FreshTradesPage = () => {
       let tempPath = '';
       let newPath = sampleLocation.pathname;
       let ind = path.search('collIndex=');
-      if (ind != -1) {
+      if (ind !== -1) {
         tempPath = path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         tempPath = tempPath + 'collIndex=' + i + path.slice(ind, path.length);
       } else tempPath = path + 'collIndex=' + i;
 
       path = tempPath;
       ind = path.search('&page=');
-      if (ind != -1) {
+      if (ind !== -1) {
         newPath = newPath + path.slice(0, ind);
         ind += 3;
         for (; ind < path.length; ind++) {
-          if (path[ind] == '&') break;
+          if (path[ind] === '&') break;
         }
         newPath = newPath + '&page=1' + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=1';
@@ -208,11 +208,11 @@ const FreshTradesPage = () => {
         let path = '?' + temp[1];
         let newPath = sampleLocation.pathname;
         let ind = path.search('&page=');
-        if (ind != -1) {
+        if (ind !== -1) {
           newPath = newPath + path.slice(0, ind);
           ind += 3;
           for (; ind < path.length; ind++) {
-            if (path[ind] == '&') break;
+            if (path[ind] === '&') break;
           }
           newPath = newPath + '&page=' + value + path.slice(ind, path.length);
         } else newPath = newPath + path + '&page=' + value;
