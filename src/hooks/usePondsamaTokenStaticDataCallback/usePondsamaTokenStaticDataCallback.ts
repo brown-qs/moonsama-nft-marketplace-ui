@@ -421,7 +421,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       const offsetNum = BigNumber.from(offset).toNumber();
       // const to = offsetNum + num >= newMetas.length ? newMetas.length : offsetNum + num;
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
-        console.log("construct data", contractData)
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
           if (k * 1000 + 1000 < res.length)
@@ -437,11 +436,11 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
               asset: ca,
-              decimals: contractData.contract.decimals,
-              contractURI: contractData.contract.contractURI,
-              name: contractData.contract.name,
-              symbol: contractData.contract.symbol,
-              totalSupply: contractData.contract.totalSupply,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: ca.tokenURI,
             };
           });
