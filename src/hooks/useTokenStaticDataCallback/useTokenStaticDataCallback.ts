@@ -46,7 +46,7 @@ export interface StaticTokenData {
   totalSupply?: BigNumber;
   tokenURI?: string;
   contractURI?: string;
-  metadata? : TokenMeta | undefined;
+  metadata?: TokenMeta | undefined;
 }
 
 export type TokenStaticCallbackInput = {
@@ -94,13 +94,12 @@ export const useTokenStaticDataCallbackArray = () => {
         );
         const ress = await request(subsquid, query);
         tokens = ress.erc721Tokens;
-        const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+        const CONTRACT_QUERY =
+          QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
         const contractData = await request(subsquid, CONTRACT_QUERY);
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -120,13 +119,12 @@ export const useTokenStaticDataCallbackArray = () => {
         );
         const ress = await request(subsquid, query);
         tokens = ress.erc1155Tokens;
-        const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+        const CONTRACT_QUERY =
+          QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
         const contractData = await request(subsquid, CONTRACT_QUERY);
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -311,9 +309,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -447,7 +443,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
-      if (!ordersFetch.length && !flag) {
+      if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -581,9 +577,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc1155Contracts[0].decimals,
@@ -639,12 +633,15 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             return x.id;
           });
 
+
           let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
             rangeInWei[1].toString()
           );
+
+          console.log("QUERY_ACTIVE_ORDERS_FOR_FILTER", query)
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
@@ -667,13 +664,13 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC
-              ? 'price'
-              : 'id',
+            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
           );
+
+          console.log("QUERY_ACTIVE_ORDERS_FOR_FILTER1", query)
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
@@ -707,7 +704,11 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
-      console.log("useERC1155TokenStaticDataCallbackArrayWithFilter-1",orders, idsAndUris)
+      console.log(
+        'useERC1155TokenStaticDataCallbackArrayWithFilter-1',
+        orders,
+        idsAndUris
+      );
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       idsAndUris.map((idsAndUri, i) => {
@@ -718,7 +719,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
-      if (!ordersFetch.length && !flag) {
+      if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,

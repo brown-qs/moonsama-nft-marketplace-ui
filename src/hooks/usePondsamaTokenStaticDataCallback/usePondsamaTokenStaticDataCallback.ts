@@ -509,7 +509,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!ordersFetch.length && !flag) {
+      } else if (!flag || flag && ordersFetch.length) {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
