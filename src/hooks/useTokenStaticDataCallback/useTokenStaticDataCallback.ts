@@ -76,6 +76,8 @@ export const useTokenStaticDataCallbackArray = () => {
         return [];
       }
 
+      console.log("useTokenStaticDataCallbackArray", assets)
+
       let assetType = assets[0].assetType;
       let assetAddress = assets[0].assetAddress;
 
@@ -87,7 +89,7 @@ export const useTokenStaticDataCallbackArray = () => {
 
       let tokens: any[] = [];
       let staticData: StaticTokenData[] = [];
-      if (assetType == 'ERC721') {
+      if (assetType === 'ERC721') {
         const query = QUERY_SUBSQUID_ERC721_ID_IN(
           assetAddress,
           assets.map((a) => a.assetId)
@@ -117,6 +119,7 @@ export const useTokenStaticDataCallbackArray = () => {
           assetAddress,
           assets.map((a) => a.assetId)
         );
+        console.log("useTokenStaticDataCallbackArray-ERC1155query",query)
         const ress = await request(subsquid, query);
         tokens = ress.erc1155Tokens;
         const CONTRACT_QUERY =
