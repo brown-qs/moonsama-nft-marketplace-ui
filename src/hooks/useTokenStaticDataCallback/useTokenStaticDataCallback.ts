@@ -122,9 +122,11 @@ export const useTokenStaticDataCallbackArray = () => {
         console.log('useTokenStaticDataCallbackArray-ERC1155query', query);
         const ress = await request(subsquid, query);
         tokens = ress.erc1155Tokens;
+        console.log('useTokenStaticDataCallbackArray-ERC1155query1', tokens);
         const CONTRACT_QUERY =
           QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
         const contractData = await request(subsquid, CONTRACT_QUERY);
+        console.log('useTokenStaticDataCallbackArray-ERC1155query2', contractData);
         if (tokens.length) {
           staticData = assets.map((ca) => {
             let token = tokens.find((t: any) => t.numericId === ca.assetId);
@@ -141,6 +143,7 @@ export const useTokenStaticDataCallbackArray = () => {
           });
         }
       }
+      console.log('useTokenStaticDataCallbackArray-ERC1155query3', staticData);
       return staticData.map((x, i) => {
         return {
           meta: x.metadata,

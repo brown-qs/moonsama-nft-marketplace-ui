@@ -352,6 +352,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             1000
           );
 
+          console.log("pondsamaQuery1",query)
+
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
@@ -367,6 +369,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           }
         }
       }
+      console.log("pondsamaQuery2",ordersFetch)
 
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
@@ -385,6 +388,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
+      console.log("pondsamaQuery3",{theAssetNumber, idsAndUris})
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       idsAndUris.map((idsAndUri, i) => {
@@ -401,6 +405,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       ) {
         idsAndUris = idsAndUris.reverse();
       }
+      console.log("pondsamaQuery4",idsAndUris)
+
       let totalLength =
         idsAndUris.length % 1000
           ? Math.floor(idsAndUris.length / 1000) + 1
