@@ -132,11 +132,11 @@ export const useTokenStaticDataCallbackArray = () => {
             let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
-              decimals: contractData.erc1155Tokens[0].decimals,
-              contractURI: contractData.erc1155Tokens[0].contractURI,
-              name: contractData.erc1155Tokens[0].name,
-              symbol: contractData.erc1155Tokens[0].symbol,
-              totalSupply: contractData.erc1155Tokens[0].totalSupply,
+              decimals: contractData.erc1155Contracts[0].decimals,
+              contractURI: contractData.erc1155Contracts[0].contractURI,
+              name: contractData.erc1155Contracts[0].name,
+              symbol: contractData.erc1155Contracts[0].symbol,
+              totalSupply: contractData.erc1155Contracts[0].totalSupply,
               tokenURI: token.uri,
               metadata: token.meta,
             };
