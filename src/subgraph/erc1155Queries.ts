@@ -1,25 +1,25 @@
 import { gql } from 'graphql-request';
 import { META } from './common';
 
-// export const QUERY_USER_ERC1155 = (account: string) => gql`
-//   query getUserTokens {
-//     ${META}
-//     tokenOwners(where: {owner: "${account.toLowerCase()}"}) {
-//       id,
-//       balance
-//       token {
-//         id
-//         contract {
-//           id
-//         }
-//       }
-//     }
-//   }
-// `;
+export const QUERY_USER_ERC1155 = (account: string) => gql`
+  query getUserTokens {
+    ${META}
+    tokenOwners(where: {owner: "${account.toLowerCase()}"}) {
+      id,
+      balance
+      token {
+        id
+        contract {
+          id
+        }
+      }
+    }
+  }
+`;
 
 export const QUERY_SUBSQUID_USER_ERC1155 = (account: string) => gql`
   query getUserTokens {
-    erc1155TokenOwners(where: {owner: {id_eq: "${account.toLowerCase()}"}}) {
+    erc1155TokenOwners(where: {owner: {id_eq: "${account}"}}) {
       id,
       balance
       token {
