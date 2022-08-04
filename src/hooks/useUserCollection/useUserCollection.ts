@@ -51,9 +51,8 @@ export const useUserCollection = () => {
         //   result[collection.display_name] = [];
         //   return;
         // }
-
+        console.log("collectionssss", collection)
         let assetsAndBalances: {assets: Asset[], balances: string[]};
-
         let subsquid = collection.subsquid?? "";
 
         if (collection.type === 'ERC721') {
