@@ -436,12 +436,11 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
-        theAssetNumber.map((number) => {
+        tempIdsAndUris = theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            idsAndUri.assetId == number;
-            return idsAndUri;
+            return idsAndUri.assetId == number;
           });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+          return tempIdsAndUri || { tokenURI:'', assetId:''};
         });
         idsAndUris = tempIdsAndUris;
       }
@@ -707,12 +706,11 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       });
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
-        theAssetNumber.map((number) => {
+        tempIdsAndUris = theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            idsAndUri.assetId == number;
-            return idsAndUri;
+            return idsAndUri.assetId == number;
           });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+          return tempIdsAndUri || { tokenURI:'', assetId:''};
         });
         idsAndUris = tempIdsAndUris;
       }
