@@ -10,10 +10,6 @@ import {
 import { useActiveWeb3React } from 'hooks/useActiveWeb3React/useActiveWeb3React';
 import { useCallback } from 'react';
 import { Asset, Order } from 'hooks/marketplace/types';
-import {
-  getTokenStaticCalldata,
-  processTokenStaticCallResults,
-} from 'utils/calls';
 import { Filters } from 'ui/Filters/Filters';
 import { parseEther } from '@ethersproject/units';
 import {
@@ -711,6 +707,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
+      console.log("useERC1155TokenStaticDataCallbackArrayWithFilter-1",orders, idsAndUris)
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       idsAndUris.map((idsAndUri, i) => {

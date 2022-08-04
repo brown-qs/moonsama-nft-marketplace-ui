@@ -42,7 +42,7 @@ export interface StaticTokenData {
   totalSupply?: BigNumber;
   tokenURI?: string;
   contractURI?: string;
-  metadata? : TokenMeta | undefined;
+  metadata?: TokenMeta | undefined;
 }
 
 export type TokenStaticCallbackInput = {
@@ -156,8 +156,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   let ids = useMoonsamaAttrIds(filter?.traits);
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  const recognizedCollection = useRawcollection(assetAddress?? "");
-  const subsquid = recognizedCollection?.subsquid?? ""
+  const recognizedCollection = useRawcollection(assetAddress ?? '');
+  const subsquid = recognizedCollection?.subsquid ?? '';
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -173,10 +173,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const owned: OwnedFilterType | undefined = filter?.owned;
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
-      const contractData = await request(
-        subsquid,
-        CONTRACT_QUERY
-      );
+      const contractData = await request(subsquid, CONTRACT_QUERY);
       let moonsamaTotalSupply = parseInt(
         contractData.erc721Contracts[0].totalSupply
       );
@@ -210,10 +207,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             0,
             moonsamaTotalSupply
           );
-        res1 = await request(
-          subsquid,
-          moonsamaQuery
-        );
+        res1 = await request(subsquid, moonsamaQuery);
         res = res1.erc721Tokens;
       } else {
         let from = 0;
@@ -244,10 +238,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               from,
               1000
             );
-          let res1 = await request(
-            subsquid,
-            moonsamaQuery
-          );
+          let res1 = await request(subsquid, moonsamaQuery);
           for (let i = 0; i < res1.erc721Tokens.length; i++)
             res.push(res1.erc721Tokens[i]);
           from += 1000;
@@ -276,18 +267,13 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           assets.map((a) => a.assetId)
         );
 
-        const ress = await request(
-					subsquid,
-          query
-					);
-					let tokens: any[] = ress.erc721Tokens;
+        const ress = await request(subsquid, query);
+        let tokens: any[] = ress.erc721Tokens;
 
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -428,7 +414,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
-      if (!ordersFetch.length && !flag) {
+      if (!flag || flag && ordersFetch.length) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
@@ -440,7 +426,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else {
+      }
+      else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length
