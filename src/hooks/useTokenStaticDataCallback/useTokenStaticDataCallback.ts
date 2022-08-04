@@ -243,7 +243,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
   });
   const { chainId } = useActiveWeb3React();
 
-  let ids: number[] = [];
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
   let coll = useRawcollection(assetAddress ?? '');
@@ -293,11 +292,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         }
       }
       for (let i = 0; i < res.length; i++) {
-        if (
-          !ids.length ||
-          (ids.length && ids.includes(parseInt(res[i].numericId)))
-        )
-          idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
@@ -485,7 +480,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       chainId,
       assetType,
       assetAddress,
-      JSON.stringify(ids),
       JSON.stringify(priceRange),
       JSON.stringify(selectedOrderType),
       sortBy,

@@ -375,7 +375,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       ) {
         let index = 0;
         flag = 1;
-        console.log('ordersFetch0', ordersFetch);
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,

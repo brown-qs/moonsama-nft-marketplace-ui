@@ -413,8 +413,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         idsAndUris.length % 1000
           ? Math.floor(idsAndUris.length / 1000) + 1
           : Math.floor(idsAndUris.length / 1000);
-      let newMetas: any[] = [],
-        totalStaicDatas: StaticTokenData[] = [];
+      let newMetas: any[] = [];
       let pieces: {
         meta: TokenMeta | undefined;
         staticData: StaticTokenData;
@@ -422,6 +421,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       const offsetNum = BigNumber.from(offset).toNumber();
       // const to = offsetNum + num >= newMetas.length ? newMetas.length : offsetNum + num;
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
+        console.log("construct data", contractData)
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
           if (k * 1000 + 1000 < res.length)
@@ -496,7 +496,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
             if (flag === true && !selectedPondTraits.length) {
               newMetas.push(metas[i]);
-              totalStaicDatas.push(staticData[i]);
               if (
                 newMetas.length >= offsetNum &&
                 newMetas.length < offsetNum + num
