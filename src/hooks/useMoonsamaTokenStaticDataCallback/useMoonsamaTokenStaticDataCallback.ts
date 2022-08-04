@@ -414,6 +414,12 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
       if (!flag || flag && ordersFetch.length) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,

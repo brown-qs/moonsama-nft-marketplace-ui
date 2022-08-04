@@ -76,7 +76,7 @@ export const useTokenStaticDataCallbackArray = () => {
         return [];
       }
 
-      console.log("useTokenStaticDataCallbackArray", assets)
+      console.log('useTokenStaticDataCallbackArray', assets);
 
       let assetType = assets[0].assetType;
       let assetAddress = assets[0].assetAddress;
@@ -119,7 +119,7 @@ export const useTokenStaticDataCallbackArray = () => {
           assetAddress,
           assets.map((a) => a.assetId)
         );
-        console.log("useTokenStaticDataCallbackArray-ERC1155query",query)
+        console.log('useTokenStaticDataCallbackArray-ERC1155query', query);
         const ress = await request(subsquid, query);
         tokens = ress.erc1155Tokens;
         const CONTRACT_QUERY =
@@ -446,6 +446,12 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
       if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
@@ -636,7 +642,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             return x.id;
           });
 
-
           let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
             selectedOrderType,
             JSON.stringify(sgAssets),
@@ -718,6 +723,12 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
       if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,

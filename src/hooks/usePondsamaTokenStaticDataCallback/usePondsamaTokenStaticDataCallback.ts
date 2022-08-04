@@ -40,7 +40,7 @@ export interface StaticTokenData {
   totalSupply?: BigNumber;
   tokenURI?: string;
   contractURI?: string;
-  metadata? : TokenMeta | undefined;
+  metadata?: TokenMeta | undefined;
 }
 
 export type TokenStaticCallbackInput = {
@@ -151,8 +151,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   const { account, chainId } = useActiveWeb3React();
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  const coll = useRawcollection(assetAddress?? "");
-  const subsquid = coll?.subsquid?? ""
+  const coll = useRawcollection(assetAddress ?? '');
+  const subsquid = coll?.subsquid ?? '';
   const fetchTokenStaticData = useCallback(
     async (num: number, offset: BigNumber, setCollection) => {
       if (!assetAddress || !assetType) {
@@ -161,10 +161,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       const owned: OwnedFilterType | undefined = filter?.owned;
       const PONDSAMA_CONTRACT_QUERY =
         QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
-      const contractData = await request(
-        subsquid,
-        PONDSAMA_CONTRACT_QUERY
-      );
+      const contractData = await request(subsquid, PONDSAMA_CONTRACT_QUERY);
       let pondsamaTotalSupply = parseInt(
         contractData.erc721Contracts[0].totalSupply
       );
@@ -198,10 +195,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             0,
             pondsamaTotalSupply
           );
-        res1 = await request(
-          subsquid,
-          pondsamaQuery
-        );
+        res1 = await request(subsquid, pondsamaQuery);
         res = res1.erc721Tokens;
       } else {
         let from = 0;
@@ -232,10 +226,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               from,
               1000
             );
-          let res1 = await request(
-            subsquid,
-            pondsamaQuery
-          );
+          let res1 = await request(subsquid, pondsamaQuery);
           for (let i = 0; i < res1.erc721Tokens.length; i++)
             res.push(res1.erc721Tokens[i]);
           from += 1000;
@@ -260,17 +251,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           assetAddress,
           assets.map((a) => a.assetId)
         );
-        const ress = await request(
-          subsquid,
-          query
-        );
+        const ress = await request(subsquid, query);
         let tokens: any[] = ress.erc721Tokens;
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
           staticData = assets.map((ca) => {
-            let token = tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            )
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -360,7 +346,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-           'price',
+            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -409,6 +395,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           tempIdsAndUris.push(idsAndUri);
       });
       idsAndUris = tempIdsAndUris;
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
       let totalLength =
         idsAndUris.length % 1000
           ? Math.floor(idsAndUris.length / 1000) + 1
@@ -448,16 +440,13 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetAddress,
             tempIds.map((a) => a.assetId)
           );
-          const ress = await request(
-            subsquid,
-            query
-          );
-          const metas = tempIds.map((ca)=>{
-            let token =  ress.erc721Tokens.find(
+          const ress = await request(subsquid, query);
+          const metas = tempIds.map((ca) => {
+            let token = ress.erc721Tokens.find(
               (t: any) => t.numericId === ca.assetId
-            )
-            return token.meta
-          })
+            );
+            return token.meta;
+          });
           // const metas = ress.erc721Tokens.map((token: any) => token.meta);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
@@ -514,7 +503,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!flag || flag && ordersFetch.length) {
+      } else if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
