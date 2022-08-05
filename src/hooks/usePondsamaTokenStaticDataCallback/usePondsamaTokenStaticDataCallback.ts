@@ -86,9 +86,10 @@ const choosePondsamaAssets = (
         : offsetNum + num;
     let chosenIds = [];
 
-    if (direction === SortOption.TOKEN_ID_ASC)
-      chosenIds = idsAndUris.slice(offsetNum, to);
-    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
+    // if (direction === SortOption.TOKEN_ID_ASC)
+    //   chosenIds = idsAndUris.slice(offsetNum, to);
+    // else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
+    chosenIds = idsAndUris.slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
       return {
