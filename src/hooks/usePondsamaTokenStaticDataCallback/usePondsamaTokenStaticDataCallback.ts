@@ -71,7 +71,7 @@ const choosePondsamaAssets = (
   offset: BigNumber,
   num: number,
   idsAndUris: { tokenURI: string; assetId: string }[],
-  direction: SortOption
+  direction: boolean
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: AssetWithUri[];
@@ -86,10 +86,8 @@ const choosePondsamaAssets = (
         : offsetNum + num;
     let chosenIds = [];
 
-    // if (direction === SortOption.TOKEN_ID_ASC)
-    //   chosenIds = idsAndUris.slice(offsetNum, to);
-    // else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
-    chosenIds = idsAndUris.slice(offsetNum, to);
+    if (direction) chosenIds = idsAndUris.slice(offsetNum, to);
+    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -111,14 +109,14 @@ const choosePondsamaAssetsAll = (
   assetType: StringAssetType,
   assetAddress: string,
   idsAndUris: { tokenURI: string; assetId: string }[],
-  direction: SortOption
+  direction: boolean
 ) => {
   let chosenAssets: AssetWithUri[];
 
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    if (direction === SortOption.TOKEN_ID_ASC) chosenIds = idsAndUris;
+    if (direction) chosenIds = idsAndUris;
     else chosenIds = [...idsAndUris].reverse();
 
     chosenAssets = chosenIds.map((x) => {
@@ -296,7 +294,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           assetType,
           assetAddress,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
         );
         // console.log('SEARCH', {
         //   assetAddress,
@@ -424,7 +422,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            sortBy
+            flag == 1 && sortBy === SortOption.TOKEN_ID_ASC
           );
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
@@ -504,20 +502,30 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!flag || (flag && ordersFetch.length)) {
+      } else if (!flag) {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
-        setCollection(statics);
-
         let totalLength = num === 1 ? num : idsAndUris.length;
-        return totalLength;
+        return { data: statics, length: totalLength };
+      } else if (flag && ordersFetch.length) {
+        const chosenAssets = choosePondsamaAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          false
+        );
+        const statics = await fetchStatics(chosenAssets);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
       } else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =

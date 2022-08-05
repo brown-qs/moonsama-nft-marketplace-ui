@@ -205,7 +205,7 @@ const chooseTokenAssets = (
   offset: BigNumber,
   num: number,
   idsAndUris: { tokenURI: string; assetId: string }[],
-  direction: SortOption
+  direction: boolean
 ) => {
   let offsetNum = BigNumber.from(offset).toNumber();
   let chosenAssets: AssetWithUri[];
@@ -222,10 +222,8 @@ const chooseTokenAssets = (
         : offsetNum + num;
     let chosenIds = [];
 
-    // if (direction === SortOption.TOKEN_ID_ASC)
-    //   chosenIds = idsAndUris.slice(offsetNum, to);
-    // else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
-    chosenIds = idsAndUris.slice(offsetNum, to);
+    if (direction) chosenIds = idsAndUris.slice(offsetNum, to);
+    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -247,13 +245,13 @@ const chooseTokenAssetsAll = (
   assetType: StringAssetType,
   assetAddress: string,
   idsAndUris: { tokenURI: string; assetId: string }[],
-  direction: SortOption
+  direction: boolean
 ) => {
   let chosenAssets: AssetWithUri[];
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    if (direction === SortOption.TOKEN_ID_ASC) chosenIds = idsAndUris;
+    if (direction) chosenIds = idsAndUris;
     else chosenIds = [...idsAndUris].reverse();
 
     chosenAssets = chosenIds.map((x) => {
@@ -396,7 +394,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           assetType,
           assetAddress,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
         );
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
@@ -492,14 +490,26 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
       }
 
-      if (!flag || (flag && ordersFetch.length)) {
+      if (!flag) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
+        );
+        const statics = await fetchStatics(chosenAssets);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      } else if (flag && ordersFetch.length) {
+        const chosenAssets = chooseTokenAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          false
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
@@ -664,7 +674,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           assetType,
           assetAddress,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
         );
         const rangeInWei = priceRange.map((x) =>
           parseEther(x.toString()).mul(TEN_POW_18)
@@ -758,19 +768,31 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
       }
 
-      if (!flag || (flag && ordersFetch.length)) {
+      if (!flag) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy
+          sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else {
+      } else if (flag && ordersFetch.length) {
+        const chosenAssets = chooseTokenAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          false
+        );
+        const statics = await fetchStatics(chosenAssets);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      }  else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length
