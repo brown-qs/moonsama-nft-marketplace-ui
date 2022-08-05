@@ -434,6 +434,13 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
+
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
@@ -444,12 +451,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         });
         idsAndUris = tempIdsAndUris;
       }
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
+
       if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
@@ -704,6 +706,14 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
+
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
+
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
@@ -714,12 +724,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         });
         idsAndUris = tempIdsAndUris;
       }
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
+
       if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,

@@ -390,6 +390,13 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       });
       console.log('pondsamaQuery3', { theAssetNumber, idsAndUris });
 
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
+      
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
@@ -400,19 +407,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         idsAndUris = tempIdsAndUris;
       }
-      // idsAndUris.map((idsAndUri, i) => {
-      //   if (
-      //     !theAssetNumber.length ||
-      //     theAssetNumber.includes(idsAndUri.assetId)
-      //   )
-      //     tempIdsAndUris.push(idsAndUri);
-      // });
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
+
       console.log('pondsamaQuery4', idsAndUris);
 
       let totalLength =

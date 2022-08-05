@@ -403,6 +403,13 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
+      }
+
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
@@ -413,12 +420,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         idsAndUris = tempIdsAndUris;
       }
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
+ 
       if (!flag || flag && ordersFetch.length) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
