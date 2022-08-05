@@ -339,7 +339,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        console.log('assets', assets);
+        console.log('assets', { assets, orders });
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
@@ -607,7 +607,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
-        console.log('assets', assets);
+        console.log('assets', { assets, orders });
         if (orders && orders.length !== assets.length) {
           throw new Error('Orders/assets length mismatch');
         }
