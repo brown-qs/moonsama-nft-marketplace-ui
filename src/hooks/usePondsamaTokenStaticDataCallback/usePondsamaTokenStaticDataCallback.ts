@@ -477,7 +477,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 newMetas.length >= offsetNum &&
                 newMetas.length < offsetNum + num
               ) {
-
                 //add orders when it have someday
                 let piece = {
                   meta: metas[i],
@@ -496,6 +495,11 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
+        if (
+          sortBy === SortOption.TOKEN_ID_DESC ||
+          sortBy === SortOption.PRICE_DESC
+        )
+          newOrders = orders.reverse().slice(offsetNum, to);
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,

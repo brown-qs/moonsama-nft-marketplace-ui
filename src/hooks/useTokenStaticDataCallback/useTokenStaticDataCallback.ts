@@ -487,6 +487,11 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
+        if (
+          sortBy === SortOption.TOKEN_ID_DESC ||
+          sortBy === SortOption.PRICE_DESC
+        )
+          newOrders = orders.reverse().slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -749,6 +754,11 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
+        if (
+          sortBy === SortOption.TOKEN_ID_DESC ||
+          sortBy === SortOption.PRICE_DESC
+        )
+          newOrders = orders.reverse().slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -757,6 +767,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           idsAndUris,
           sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
         );
+
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
