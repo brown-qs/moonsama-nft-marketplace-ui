@@ -410,8 +410,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
+        idsAndUris = tempIdsAndUris;
       }
-      idsAndUris = tempIdsAndUris;
       if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
