@@ -305,28 +305,18 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
 
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
       const contractData = await request(subsquid, CONTRACT_QUERY);
-      let totalSupply = parseInt(
-        contractData.erc721Contracts[0].totalSupply
-      );
+      let totalSupply = parseInt(contractData.erc721Contracts[0].totalSupply);
       let res = [],
         query: any,
         res1;
       if (totalSupply <= 1000) {
-        query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
-          assetAddress,
-          0,
-          totalSupply
-        );
+        query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(assetAddress, 0, totalSupply);
         res1 = await request(subsquid, query);
         res = res1.erc721Tokens;
       } else {
         let from = 0;
         while (from < totalSupply) {
-          query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
-            assetAddress,
-            from,
-            1000
-          );
+          query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(assetAddress, from, 1000);
           let res1 = await request(subsquid, query);
           for (let i = 0; i < res1.erc721Tokens.length; i++)
             res.push(res1.erc721Tokens[i]);
@@ -481,12 +471,14 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      theAssetNumber.map((number) => {
-        let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-          return idsAndUri.assetId == number;
+      if (theAssetNumber.length) {
+        theAssetNumber.map((number) => {
+          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+            return idsAndUri.assetId == number;
+          });
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
-        if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
-      });
+      }
       idsAndUris = tempIdsAndUris;
       if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
@@ -573,28 +565,18 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
       const contractData = await request(subsquid, CONTRACT_QUERY);
-      let totalSupply = parseInt(
-        contractData.erc1155Contracts[0].totalSupply
-      );
+      let totalSupply = parseInt(contractData.erc1155Contracts[0].totalSupply);
       let res = [],
         query: any,
         res1;
       if (totalSupply <= 1000) {
-        query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
-          assetAddress,
-          0,
-          totalSupply
-        );
+        query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(assetAddress, 0, totalSupply);
         res1 = await request(subsquid, query);
         res = res1.erc1155Tokens;
       } else {
         let from = 0;
         while (from < totalSupply) {
-          query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
-            assetAddress,
-            from,
-            1000
-          );
+          query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(assetAddress, from, 1000);
           let res1 = await request(subsquid, query);
           for (let i = 0; i < res1.erc1155Tokens.length; i++)
             res.push(res1.erc1155Tokens[i]);
@@ -751,12 +733,14 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      theAssetNumber.map((number) => {
-        let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-          return idsAndUri.assetId == number;
+      if (theAssetNumber.length) {
+        theAssetNumber.map((number) => {
+          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+            return idsAndUri.assetId == number;
+          });
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
-        if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
-      });
+      }
       idsAndUris = tempIdsAndUris;
       if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
