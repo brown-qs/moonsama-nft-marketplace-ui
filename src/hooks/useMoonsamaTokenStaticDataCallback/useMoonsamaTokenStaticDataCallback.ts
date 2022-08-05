@@ -386,6 +386,11 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       }
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
+      if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      )
+        ordersFetch = ordersFetch.reverse();
       const orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
@@ -419,11 +424,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
-        if (
-          sortBy === SortOption.TOKEN_ID_DESC ||
-          sortBy === SortOption.PRICE_DESC
-        )
-          newOrders = orders.reverse().slice(offsetNum, to);
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
