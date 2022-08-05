@@ -390,22 +390,20 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       });
       console.log('pondsamaQuery3', { theAssetNumber, idsAndUris });
 
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
-      
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI:'', assetId:''};
+          return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
+      } else if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
       }
 
       console.log('pondsamaQuery4', idsAndUris);

@@ -403,25 +403,23 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
-
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI:'', assetId:''};
+          return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
+      } else if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
       }
- 
-      if (!flag || flag && ordersFetch.length) {
+
+      if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
@@ -433,8 +431,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }
-      else {
+      } else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length

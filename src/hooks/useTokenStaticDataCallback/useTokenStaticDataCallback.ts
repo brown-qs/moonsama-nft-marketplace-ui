@@ -494,22 +494,20 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
-
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
         tempIdsAndUris = theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI:'', assetId:''};
+          return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
+      } else if (
+        sortBy === SortOption.TOKEN_ID_DESC ||
+        sortBy === SortOption.PRICE_DESC
+      ) {
+        idsAndUris = idsAndUris.reverse();
       }
 
       if (!flag || (flag && ordersFetch.length)) {
@@ -780,7 +778,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI:'', assetId:''};
+          return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
       }
