@@ -393,14 +393,14 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
-        tempIdsAndUris = theAssetNumber.map((number) => {
+        theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI: '', assetId: '' };
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-      } 
+      }
 
       let totalLength =
         idsAndUris.length % 1000

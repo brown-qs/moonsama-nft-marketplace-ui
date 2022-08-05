@@ -271,7 +271,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
         const ress = await request(subsquid, query);
         let tokens: any[] = ress.erc721Tokens;
-        console.log("tokens",tokens)
+        console.log('tokens', tokens);
 
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {
@@ -408,11 +408,11 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
-        tempIdsAndUris = theAssetNumber.map((number) => {
+        theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
           });
-          return tempIdsAndUri || { tokenURI: '', assetId: '' };
+          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
       }
