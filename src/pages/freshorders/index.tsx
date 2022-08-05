@@ -163,6 +163,22 @@ const FreshOrdersPage = () => {
   const getPaginatedBuyOrders = useLatestBuyOrdersForTokenWithStaticCallback();
 
   const selectedTokenAddress = collections[selectedIndex]?.address;
+  function handleNavigate(searchParam: string, param: any) {
+    let href = window.location.href;
+    let temp = href.split('?');
+    let path = '?' + temp[1];
+    let newPath = sampleLocation.pathname;
+    let ind = path.search(searchParam);
+    if (ind !== -1) {
+      newPath = newPath + path.slice(0, ind);
+      ind += 3;
+      for (; ind < path.length; ind++) {
+        if (path[ind] === '&') break;
+      }
+      newPath = newPath + searchParam + param + path.slice(ind, path.length);
+    } else newPath = newPath + path + searchParam + param;
+    navigate(newPath);
+  }
 
   useEffect(() => {
     if (chainId) {
@@ -233,6 +249,9 @@ const FreshOrdersPage = () => {
         newPath = newPath + '&page=1' + path.slice(ind, path.length);
       } else newPath = newPath + path + '&page=1';
       navigate(newPath);
+      // handleNavigate("&sortBy=", _sortBy)
+      // handleNavigate("&sortDirection=", "asc")
+      // handleNavigate("&page=", "1")
       setSortBy(_sortBy);
       setSortDirection('asc');
     } else {

@@ -488,6 +488,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 newMetas.length >= offsetNum &&
                 newMetas.length < offsetNum + num
               ) {
+
+                //add orders when it have someday
                 let piece = {
                   meta: metas[i],
                   staticData: staticData[i],

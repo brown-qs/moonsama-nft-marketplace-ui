@@ -215,6 +215,7 @@ const MoonsamaCollectionPage = () => {
   const handleFiltersUpdate = useCallback(async (filters: MoonsamaFilter) => {
     let filterStrings = JSON.stringify(filters);
     handleNavigate('&filter=', filterStrings);
+    handleNavigate('page=', '1');
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -226,6 +227,7 @@ const MoonsamaCollectionPage = () => {
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
       handleNavigate('&search=', tokenID);
+      handleNavigate('page=', '1');
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -275,6 +277,7 @@ const MoonsamaCollectionPage = () => {
     setTake(0);
     setSortBy(sortBy);
     handleNavigate('&sort=', sortBy);
+    handleNavigate('page=', '1');
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));

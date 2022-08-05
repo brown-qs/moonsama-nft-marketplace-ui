@@ -106,12 +106,13 @@ const CollectionDefaultPage = () => {
     ? recognizedCollection.display_name
     : `Collection ${truncateHexString(address)}`;
 
-  const getItemsWithFilterAndSort = useERC1155TokenStaticDataCallbackArrayWithFilter(
-    asset,
-    subcollectionId,
-    filters,
-    sortBy
-  ); //useTokenStaticDataCallback(asset)//
+  const getItemsWithFilterAndSort =
+    useERC1155TokenStaticDataCallbackArrayWithFilter(
+      asset,
+      subcollectionId,
+      filters,
+      sortBy
+    ); //useTokenStaticDataCallback(asset)//
 
   const getERC721ItemsWithFilterAndSort =
     useERC721TokenStaticDataCallbackArrayWithFilter(
@@ -253,6 +254,7 @@ const CollectionDefaultPage = () => {
   const handleFiltersUpdate = useCallback(async (filters: Filters) => {
     let filterStrings = JSON.stringify(filters);
     handleNavigate('&filter=', filterStrings);
+    handleNavigate('page=', '1');
     setCollection([]);
     setTake(0);
     setFilters(filters);
@@ -264,6 +266,7 @@ const CollectionDefaultPage = () => {
   const handleTokenSearch = useCallback(
     async ({ tokenID }) => {
       handleNavigate('&search=', tokenID);
+      handleNavigate('page=', '1');
       if (!!tokenID) {
         setPaginationEnded(true);
         setPageLoading(true);
@@ -330,6 +333,7 @@ const CollectionDefaultPage = () => {
     setTake(0);
     setSortBy(sortBy);
     handleNavigate('&sort=', sortBy);
+    handleNavigate('page=', '1');
     setPageLoading(true);
     setPaginationEnded(false);
     setSearchCounter((state) => (state += 1));
