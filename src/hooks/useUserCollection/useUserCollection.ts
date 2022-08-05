@@ -47,38 +47,33 @@ export const useUserCollection = () => {
     async (account: string) => {
       const result: UserCollection = {};
       const fetches = rawCollections.map(async (collection) => {
-        // if (!collection.subgraph) {
-        //   result[collection.display_name] = [];
-        //   return;
-        // }
+
         let assetsAndBalances: {assets: Asset[], balances: string[]};
         let subsquid = collection.subsquid?? "";
 
         if (collection.type === 'ERC721') {
           const query = QUERY_SUBSQUID_USER_ERC721(account);
           const response = await request( subsquid, query);
-          console.log("useUserCollection-ERC721", collection.address, query, response)
 
           if (!response) {
             result[collection.display_name] = [];
             return;
           }
 
-          const ot: OwnedTokens = response.owners?.[0];
-
+          const ot: OwnedTokens = response.erc721Owners?.[0];
           if (!ot) {
             result[collection.display_name] = [];
             return;
           }
 
           const assets = ot.ownedTokens.map((x) => {
-            const aid = BigNumber.from(x.id).toString();
+            const aid = x.id.split("-");
             if (!x?.contract?.address) {
               return undefined as unknown as Asset
             }
             return {
-              assetId: aid,
-              id: getAssetEntityId(x.contract?.address, aid),
+              assetId: aid[1],
+              id: getAssetEntityId(x.contract?.address, aid[1]),
               assetType: StringAssetType.ERC721,
               assetAddress: x.contract?.address,
             };
@@ -91,16 +86,13 @@ export const useUserCollection = () => {
         } else {
           const query = QUERY_SUBSQUID_USER_ERC1155(account);
           const response = await request( subsquid, query);
-          console.log("useUserCollection-ERC1155", collection.address, query, response)
-          //console.debug('YOLO fetchUserCollection', response);
 
           if (!response) {
             result[collection.display_name] = [];
             return;
           }
 
-          const to: TokenOwner[] = response.tokenOwners;
-
+          const to: TokenOwner[] = response.erc1155TokenOwners;
           if (!to) {
             result[collection.display_name] = [];
             return;
@@ -110,11 +102,12 @@ export const useUserCollection = () => {
           const assets = to
             .filter((x) => x.balance !== '0')
             .map((x) => {
-              const aid = BigNumber.from(x.token.id).toString();
+              // const aid = BigNumber.from(x.token.id).toString();
+              const aid = x.token.id.split("-");
               balances.push(x.balance)
               return {
-                assetId: aid,
-                id: getAssetEntityId(x.token.contract.id, aid),
+                assetId: aid[1],
+                id: getAssetEntityId(x.token.contract.id, aid[1]),
                 assetType: StringAssetType.ERC1155,
                 assetAddress: x.token.contract.id,
               };
