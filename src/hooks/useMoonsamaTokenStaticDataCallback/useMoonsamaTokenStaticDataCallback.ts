@@ -414,26 +414,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
       }
 
-      if (!flag) {
+      if (!flag || ((flag && ordersFetch.length))) {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC
-        );
-        const statics = await fetchStatics(chosenAssets);
-        let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
-      } else if (flag && ordersFetch.length) {
-        const chosenAssets = chooseMoonsamaAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          idsAndUris,
-          false
+          !flag && sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;

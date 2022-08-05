@@ -422,7 +422,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            flag == 1 && sortBy === SortOption.TOKEN_ID_ASC
+            !flag && sortBy === SortOption.TOKEN_ID_ASC
           );
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
@@ -502,31 +502,19 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!flag) {
+      } else if (!flag || ((flag && ordersFetch.length))) {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC
+          !flag && sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else if (flag && ordersFetch.length) {
-        const chosenAssets = choosePondsamaAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          idsAndUris,
-          false
-        );
-        const statics = await fetchStatics(chosenAssets);
-        let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
-      } else {
+      }  else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length

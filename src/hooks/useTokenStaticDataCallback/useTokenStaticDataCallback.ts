@@ -222,7 +222,8 @@ const chooseTokenAssets = (
         : offsetNum + num;
     let chosenIds = [];
 
-    if (direction) chosenIds = idsAndUris.slice(offsetNum, to);
+    if (direction)
+      chosenIds = idsAndUris.slice(offsetNum, to);
     else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
@@ -490,31 +491,19 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
       }
 
-      if (!flag) {
+      if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC
+          !flag && sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else if (flag && ordersFetch.length) {
-        const chosenAssets = chooseTokenAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          idsAndUris,
-          false
-        );
-        const statics = await fetchStatics(chosenAssets);
-        let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
-      } else {
+      }  else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length
@@ -768,31 +757,19 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
       }
 
-      if (!flag) {
+      if (!flag || (flag && ordersFetch.length)) {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC
+          !flag && sortBy === SortOption.TOKEN_ID_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else if (flag && ordersFetch.length) {
-        const chosenAssets = chooseTokenAssets(
-          assetType,
-          assetAddress,
-          offset,
-          num,
-          idsAndUris,
-          false
-        );
-        const statics = await fetchStatics(chosenAssets);
-        let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
-      }  else {
+      } else {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= theAssets.length
