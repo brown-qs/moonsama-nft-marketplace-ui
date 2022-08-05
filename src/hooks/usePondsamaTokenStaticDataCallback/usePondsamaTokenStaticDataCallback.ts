@@ -118,7 +118,7 @@ const choosePondsamaAssetsAll = (
 
     // if (direction) chosenIds = idsAndUris;
     // else chosenIds = [...idsAndUris].reverse();
-    chosenIds = idsAndUris
+    chosenIds = idsAndUris;
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -418,7 +418,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+            sortBy === SortOption.TOKEN_ID_ASC ||
+              sortBy === SortOption.PRICE_ASC
           );
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
@@ -497,11 +498,11 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else  if (theAssetNumber.length) {
+      } else if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
+          offsetNum + num >= idsAndUris.length
+            ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = choosePondsamaAssets(
@@ -515,8 +516,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }
-      else{
+      } else {
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,

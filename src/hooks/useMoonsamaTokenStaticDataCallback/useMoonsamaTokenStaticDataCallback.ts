@@ -413,8 +413,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
+          offsetNum + num >= idsAndUris.length
+            ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = chooseMoonsamaAssets(
@@ -428,8 +428,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }
-      else{
+      } else {
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,

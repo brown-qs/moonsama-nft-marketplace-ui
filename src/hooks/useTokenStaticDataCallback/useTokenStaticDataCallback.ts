@@ -72,124 +72,83 @@ export type TokenSubgraphQueryResult = {
   id: string;
 };
 
-// export const useTokenStaticDataCallbackArray = () => {
-//   const { chainId } = useActiveWeb3React();
-//   const rawCollections = useRawCollectionsFromList();
-//   const fetchTokenStaticData = useCallback(
-//     async (assets: Asset[]) => {
-//       if (!assets.length) {
-//         return [];
-//       }
-
-//       console.log('useTokenStaticDataCallbackArray', assets);
-
-//       let assetType = assets[0].assetType;
-//       let assetAddress = assets[0].assetAddress;
-
-//       let subsquid = '';
-//       rawCollections.map(async (collection) => {
-//         if (collection.address.toLowerCase() === assetAddress.toLowerCase())
-//           subsquid = collection.subsquid;
-//       });
-
-//       let tokens: any[] = [];
-//       let staticData: StaticTokenData[] = [];
-//       if (assetType === 'ERC721') {
-//         const query = QUERY_SUBSQUID_ERC721_ID_IN(
-//           assetAddress,
-//           assets.map((a) => a.assetId)
-//         );
-//         const ress = await request(subsquid, query);
-//         tokens = ress.erc721Tokens;
-//         const CONTRACT_QUERY =
-//           QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
-//         const contractData = await request(subsquid, CONTRACT_QUERY);
-//         if (tokens.length) {
-//           staticData = assets.map((ca) => {
-//             let token = tokens.find((t: any) => t.numericId === ca.assetId);
-//             return {
-//               asset: ca,
-//               decimals: contractData.erc721Contracts[0].decimals,
-//               contractURI: contractData.erc721Contracts[0].contractURI,
-//               name: contractData.erc721Contracts[0].name,
-//               symbol: contractData.erc721Contracts[0].symbol,
-//               totalSupply: contractData.erc721Contracts[0].totalSupply,
-//               tokenURI: token.uri,
-//               metadata: token.meta,
-//             };
-//           });
-//         }
-//       } else {
-//         const query = QUERY_SUBSQUID_ERC1155_ID_IN(
-//           assetAddress,
-//           assets.map((a) => a.assetId)
-//         );
-//         const ress = await request(subsquid, query);
-//         tokens = ress.erc1155Tokens;
-//         const CONTRACT_QUERY =
-//           QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
-//         const contractData = await request(subsquid, CONTRACT_QUERY);
-//         if (tokens.length) {
-//           staticData = assets.map((ca) => {
-//             let token = tokens.find((t: any) => t.numericId === ca.assetId);
-//             return {
-//               asset: ca,
-//               decimals: contractData.erc1155Contracts[0].decimals,
-//               contractURI: contractData.erc1155Contracts[0].contractURI,
-//               name: contractData.erc1155Contracts[0].name,
-//               symbol: contractData.erc1155Contracts[0].symbol,
-//               totalSupply: contractData.erc1155Contracts[0].totalSupply,
-//               tokenURI: token.uri,
-//               metadata: token.meta,
-//             };
-//           });
-//         }
-//       }
-//       return staticData.map((x, i) => {
-//         return {
-//           meta: x.metadata,
-//           staticData: x,
-//         };
-//       });
-//     },
-//     [chainId]
-//   );
-
-//   return fetchTokenStaticData;
-// };
-
 export const useTokenStaticDataCallbackArray = () => {
   const { chainId } = useActiveWeb3React();
-  const multi = useMulticall2Contract();
-
-  const fetchUri = useFetchTokenUriCallback();
-
+  const rawCollections = useRawCollectionsFromList();
   const fetchTokenStaticData = useCallback(
     async (assets: Asset[]) => {
-      if (!assets) {
+      if (!assets.length) {
         return [];
       }
 
-      let calls: any[] = [];
-      assets.map((asset, i) => {
-        calls = [...calls, ...getTokenStaticCalldata(asset)];
+      console.log('useTokenStaticDataCallbackArray', assets);
+
+      let assetType = assets[0].assetType;
+      let assetAddress = assets[0].assetAddress;
+
+      let subsquid = '';
+      rawCollections.map(async (collection) => {
+        if (collection.address.toLowerCase() === assetAddress.toLowerCase())
+          subsquid = collection.subsquid;
       });
 
-      const results = await tryMultiCallCore(multi, calls);
-
-      if (!results) {
-        return [];
+      let tokens: any[] = [];
+      let staticData: StaticTokenData[] = [];
+      if (assetType === 'ERC721') {
+        const query = QUERY_SUBSQUID_ERC721_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(subsquid, query);
+        tokens = ress.erc721Tokens;
+        const CONTRACT_QUERY =
+          QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
+        const contractData = await request(subsquid, CONTRACT_QUERY);
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
+            return {
+              asset: ca,
+              decimals: contractData.erc721Contracts[0].decimals,
+              contractURI: contractData.erc721Contracts[0].contractURI,
+              name: contractData.erc721Contracts[0].name,
+              symbol: contractData.erc721Contracts[0].symbol,
+              totalSupply: contractData.erc721Contracts[0].totalSupply,
+              tokenURI: token.uri,
+              metadata: token.meta,
+            };
+          });
+        }
+      } else {
+        const query = QUERY_SUBSQUID_ERC1155_ID_IN(
+          assetAddress,
+          assets.map((a) => a.assetId)
+        );
+        const ress = await request(subsquid, query);
+        tokens = ress.erc1155Tokens;
+        const CONTRACT_QUERY =
+          QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
+        const contractData = await request(subsquid, CONTRACT_QUERY);
+        if (tokens.length) {
+          staticData = assets.map((ca) => {
+            let token = tokens.find((t: any) => t.numericId === ca.assetId);
+            return {
+              asset: ca,
+              decimals: contractData.erc1155Contracts[0].decimals,
+              contractURI: contractData.erc1155Contracts[0].contractURI,
+              name: contractData.erc1155Contracts[0].name,
+              symbol: contractData.erc1155Contracts[0].symbol,
+              totalSupply: contractData.erc1155Contracts[0].totalSupply,
+              tokenURI: token.uri,
+              metadata: token.meta,
+            };
+          });
+        }
       }
-
-      //console.log('yolo tryMultiCallCore res', results);
-      const staticData = processTokenStaticCallResults(assets, results);
-
-      const metas = await fetchUri(staticData);
-
-      return metas.map((x, i) => {
+      return staticData.map((x, i) => {
         return {
-          meta: x,
-          staticData: staticData[i],
+          meta: x.metadata,
+          staticData: x,
         };
       });
     },
@@ -198,6 +157,47 @@ export const useTokenStaticDataCallbackArray = () => {
 
   return fetchTokenStaticData;
 };
+
+// export const useTokenStaticDataCallbackArray = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const multi = useMulticall2Contract();
+
+//   const fetchUri = useFetchTokenUriCallback();
+
+//   const fetchTokenStaticData = useCallback(
+//     async (assets: Asset[]) => {
+//       if (!assets) {
+//         return [];
+//       }
+
+//       let calls: any[] = [];
+//       assets.map((asset, i) => {
+//         calls = [...calls, ...getTokenStaticCalldata(asset)];
+//       });
+
+//       const results = await tryMultiCallCore(multi, calls);
+
+//       if (!results) {
+//         return [];
+//       }
+
+//       //console.log('yolo tryMultiCallCore res', results);
+//       const staticData = processTokenStaticCallResults(assets, results);
+
+//       const metas = await fetchUri(staticData);
+
+//       return metas.map((x, i) => {
+//         return {
+//           meta: x,
+//           staticData: staticData[i],
+//         };
+//       });
+//     },
+//     [chainId]
+//   );
+
+//   return fetchTokenStaticData;
+// };
 
 const chooseTokenAssets = (
   assetType: StringAssetType,
@@ -222,8 +222,7 @@ const chooseTokenAssets = (
         : offsetNum + num;
     let chosenIds = [];
 
-    if (direction)
-      chosenIds = idsAndUris.slice(offsetNum, to);
+    if (direction) chosenIds = idsAndUris.slice(offsetNum, to);
     else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
@@ -492,8 +491,8 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
+          offsetNum + num >= idsAndUris.length
+            ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
@@ -507,8 +506,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }
-      else{
+      } else {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -763,8 +761,8 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
+          offsetNum + num >= idsAndUris.length
+            ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
@@ -778,8 +776,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }
-      else{
+      } else {
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
