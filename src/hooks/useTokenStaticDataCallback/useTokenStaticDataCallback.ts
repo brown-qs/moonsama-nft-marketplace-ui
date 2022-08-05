@@ -252,8 +252,9 @@ const chooseTokenAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    if (direction) chosenIds = idsAndUris;
-    else chosenIds = [...idsAndUris].reverse();
+    // if (direction) chosenIds = idsAndUris;
+    // else chosenIds = [...idsAndUris].reverse();
+    chosenIds = idsAndUris;
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -489,31 +490,36 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-      }
-
-      if (!flag || (flag && ordersFetch.length)) {
+        let offsetNum = BigNumber.from(offset).toNumber();
+        const to =
+          offsetNum + num >= theAssets.length
+            ? theAssets.length
+            : offsetNum + num;
+        let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          !flag && sortBy === SortOption.TOKEN_ID_ASC
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+        );
+        const statics = await fetchStatics(chosenAssets, newOrders);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      }
+      else{
+        const chosenAssets = chooseTokenAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }  else {
-        let offsetNum = BigNumber.from(offset).toNumber();
-        const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
-            : offsetNum + num;
-        let sliceAssets = theAssets.slice(offsetNum, to);
-        let newOrders = orders.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets, newOrders);
-        let totalLength1 = num === 1 ? num : theAssets.length;
-        return { data: result, length: totalLength1 };
       }
     },
     [
@@ -755,31 +761,36 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-      }
-
-      if (!flag || (flag && ordersFetch.length)) {
+        let offsetNum = BigNumber.from(offset).toNumber();
+        const to =
+          offsetNum + num >= theAssets.length
+            ? theAssets.length
+            : offsetNum + num;
+        let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          !flag && sortBy === SortOption.TOKEN_ID_ASC
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+        );
+        const statics = await fetchStatics(chosenAssets, newOrders);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      }
+      else{
+        const chosenAssets = chooseTokenAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      } else {
-        let offsetNum = BigNumber.from(offset).toNumber();
-        const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
-            : offsetNum + num;
-        let sliceAssets = theAssets.slice(offsetNum, to);
-        let newOrders = orders.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets, newOrders);
-        let totalLength1 = num === 1 ? num : theAssets.length;
-        return { data: result, length: totalLength1 };
       }
     },
     [

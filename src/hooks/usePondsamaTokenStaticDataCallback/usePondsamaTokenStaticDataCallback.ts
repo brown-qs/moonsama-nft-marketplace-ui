@@ -116,8 +116,9 @@ const choosePondsamaAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    if (direction) chosenIds = idsAndUris;
-    else chosenIds = [...idsAndUris].reverse();
+    // if (direction) chosenIds = idsAndUris;
+    // else chosenIds = [...idsAndUris].reverse();
+    chosenIds = idsAndUris
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -351,8 +352,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             1000
           );
 
-          console.log('pondsamaQuery1', query);
-
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
@@ -368,7 +367,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           }
         }
       }
-      console.log('pondsamaQuery2', ordersFetch);
 
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
@@ -387,7 +385,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
-      console.log('pondsamaQuery3', { theAssetNumber, idsAndUris });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
@@ -410,7 +407,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         staticData: StaticTokenData;
       }[] = [];
       const offsetNum = BigNumber.from(offset).toNumber();
-      // const to = offsetNum + num >= newMetas.length ? newMetas.length : offsetNum + num;
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
@@ -422,7 +418,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            !flag && sortBy === SortOption.TOKEN_ID_ASC
+            sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
           );
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
@@ -446,7 +442,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             );
             return token.meta;
           });
-          // const metas = ress.erc721Tokens.map((token: any) => token.meta);
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
             let selectedPondTraits = filter.pondTraits;
@@ -502,33 +497,38 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (!flag || ((flag && ordersFetch.length))) {
+      } else  if (theAssetNumber.length) {
+        let offsetNum = BigNumber.from(offset).toNumber();
+        const to =
+          offsetNum + num >= theAssets.length
+            ? theAssets.length
+            : offsetNum + num;
+        let newOrders = orders.slice(offsetNum, to);
         const chosenAssets = choosePondsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          !flag && sortBy === SortOption.TOKEN_ID_ASC
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+        );
+        const statics = await fetchStatics(chosenAssets, newOrders);
+        let totalLength = num === 1 ? num : idsAndUris.length;
+        return { data: statics, length: totalLength };
+      }
+      else{
+        const chosenAssets = choosePondsamaAssets(
+          assetType,
+          assetAddress,
+          offset,
+          num,
+          idsAndUris,
+          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
-      }  else {
-        let offsetNum = BigNumber.from(offset).toNumber();
-        const to =
-          offsetNum + num >= theAssets.length
-            ? theAssets.length
-            : offsetNum + num;
-        let sliceAssets = theAssets.slice(offsetNum, to);
-        let newOrders = orders.slice(offsetNum, to);
-        const result = await fetchStatics(sliceAssets, newOrders);
-        setCollection(result);
-        let totalLength = num === 1 ? num : theAssets.length;
-        return totalLength;
       }
-      const totalLength1 = num === 1 ? num : newMetas.length;
-      return totalLength1;
     },
     [
       chainId,
