@@ -252,7 +252,7 @@ export const collections = {
       contractURI: 'ipfs://QmUCMVkJa849UQYN728hyiYm3ZJVPk8yGyiJQ6wwHfLcgz',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-multiverseart',
-      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/art/graphql',
+      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/art-v2/graphql',
     },
     {
       chainId: 1285,

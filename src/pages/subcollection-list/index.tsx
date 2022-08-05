@@ -33,8 +33,6 @@ export const SubcollectionListPage = () => {
   const subcollections = collection?.subcollections ?? [];
   const metas = useFetchSubcollectionMeta(subcollections);
 
-  //console.warn('HERE', { rawCollections, metas });
-
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>

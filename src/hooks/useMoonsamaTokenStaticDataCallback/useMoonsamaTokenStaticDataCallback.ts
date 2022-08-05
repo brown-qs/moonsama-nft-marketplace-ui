@@ -403,15 +403,15 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
-        theAssetNumber.map((number) => {
-          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            return idsAndUri.assetId == number;
-          });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      theAssetNumber.map((number) => {
+        let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+          return idsAndUri.assetId == number;
         });
-        idsAndUris = tempIdsAndUris;
-        let offsetNum = BigNumber.from(offset).toNumber();
+        if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      });
+      idsAndUris = tempIdsAndUris;
+      if (theAssetNumber.length) {
+         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
             ? idsAndUris.length

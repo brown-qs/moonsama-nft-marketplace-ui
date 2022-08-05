@@ -305,29 +305,29 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
 
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
       const contractData = await request(subsquid, CONTRACT_QUERY);
-      let moonsamaTotalSupply = parseInt(
+      let totalSupply = parseInt(
         contractData.erc721Contracts[0].totalSupply
       );
       let res = [],
-        moonsamaQuery: any,
+        query: any,
         res1;
-      if (moonsamaTotalSupply <= 1000) {
-        moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+      if (totalSupply <= 1000) {
+        query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
           assetAddress,
           0,
-          moonsamaTotalSupply
+          totalSupply
         );
-        res1 = await request(subsquid, moonsamaQuery);
+        res1 = await request(subsquid, query);
         res = res1.erc721Tokens;
       } else {
         let from = 0;
-        while (from < moonsamaTotalSupply) {
-          moonsamaQuery = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
+        while (from < totalSupply) {
+          query = QUERY_SUBSQUID_ERC721_ACTIVE_ID(
             assetAddress,
             from,
             1000
           );
-          let res1 = await request(subsquid, moonsamaQuery);
+          let res1 = await request(subsquid, query);
           for (let i = 0; i < res1.erc721Tokens.length; i++)
             res.push(res1.erc721Tokens[i]);
           from += 1000;
@@ -481,14 +481,14 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
-        theAssetNumber.map((number) => {
-          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            return idsAndUri.assetId == number;
-          });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      theAssetNumber.map((number) => {
+        let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+          return idsAndUri.assetId == number;
         });
-        idsAndUris = tempIdsAndUris;
+        if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      });
+      idsAndUris = tempIdsAndUris;
+      if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
@@ -573,29 +573,29 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
       const contractData = await request(subsquid, CONTRACT_QUERY);
-      let moonsamaTotalSupply = parseInt(
+      let totalSupply = parseInt(
         contractData.erc1155Contracts[0].totalSupply
       );
       let res = [],
-        moonsamaQuery: any,
+        query: any,
         res1;
-      if (moonsamaTotalSupply <= 1000) {
-        moonsamaQuery = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
+      if (totalSupply <= 1000) {
+        query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
           assetAddress,
           0,
-          moonsamaTotalSupply
+          totalSupply
         );
-        res1 = await request(subsquid, moonsamaQuery);
+        res1 = await request(subsquid, query);
         res = res1.erc1155Tokens;
       } else {
         let from = 0;
-        while (from < moonsamaTotalSupply) {
-          moonsamaQuery = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
+        while (from < totalSupply) {
+          query = QUERY_SUBSQUID_ERC1155_ACTIVE_ID(
             assetAddress,
             from,
             1000
           );
-          let res1 = await request(subsquid, moonsamaQuery);
+          let res1 = await request(subsquid, query);
           for (let i = 0; i < res1.erc1155Tokens.length; i++)
             res.push(res1.erc1155Tokens[i]);
           from += 1000;
@@ -751,14 +751,14 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
-        theAssetNumber.map((number) => {
-          let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            return idsAndUri.assetId == number;
-          });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      theAssetNumber.map((number) => {
+        let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
+          return idsAndUri.assetId == number;
         });
-        idsAndUris = tempIdsAndUris;
+        if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+      });
+      idsAndUris = tempIdsAndUris;
+      if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
