@@ -399,14 +399,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
-      } else if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
-
-      console.log('pondsamaQuery4', idsAndUris);
+      } 
 
       let totalLength =
         idsAndUris.length % 1000

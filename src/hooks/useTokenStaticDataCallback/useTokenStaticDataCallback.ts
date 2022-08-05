@@ -503,11 +503,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           return tempIdsAndUri || { tokenURI: '', assetId: '' };
         });
         idsAndUris = tempIdsAndUris;
-      } else if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
       }
 
       if (!flag || (flag && ordersFetch.length)) {
@@ -764,13 +759,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push(a?.assetId);
         return o;
       });
-
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      ) {
-        idsAndUris = idsAndUris.reverse();
-      }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length) {
