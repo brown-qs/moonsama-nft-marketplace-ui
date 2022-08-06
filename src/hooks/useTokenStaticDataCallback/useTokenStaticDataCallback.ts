@@ -426,7 +426,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       ) {
         let index = 0;
         flag = 1;
-        // console.log('ordersFetch0', ordersFetch);
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -470,7 +469,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
+      if (theAssetNumber.length || flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
@@ -490,7 +489,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           offset,
           num,
           idsAndUris,
-          false
+          true
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
@@ -730,7 +729,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
+      if (theAssetNumber.length || flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
@@ -751,7 +750,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           offset,
           num,
           idsAndUris,
-          false
+          true
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;

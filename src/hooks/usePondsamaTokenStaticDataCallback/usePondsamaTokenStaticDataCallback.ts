@@ -278,6 +278,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       };
 
       let ordersFetch: any[] = [];
+      let flag = 0;
       if (
         !(
           !priceRange ||
@@ -288,6 +289,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         (sortBy === SortOption.TOKEN_ID_ASC ||
           sortBy === SortOption.TOKEN_ID_DESC)
       ) {
+        flag = 1;
         let chosenAssets = choosePondsamaAssetsAll(
           assetType,
           assetAddress,
@@ -331,6 +333,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
+        flag = 1;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -375,7 +378,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
+      if (theAssetNumber.length || flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
@@ -487,7 +490,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (theAssetNumber.length) {
+      } else if (theAssetNumber.length || flag) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
@@ -500,7 +503,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+          true
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;

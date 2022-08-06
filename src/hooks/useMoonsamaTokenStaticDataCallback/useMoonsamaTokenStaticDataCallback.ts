@@ -402,7 +402,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       });
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length) {
+      if (theAssetNumber.length || flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number;
@@ -410,8 +410,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-      }
-      if (theAssetNumber.length) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
@@ -424,7 +422,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           offset,
           num,
           idsAndUris,
-          false
+          true
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
