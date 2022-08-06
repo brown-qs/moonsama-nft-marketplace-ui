@@ -117,9 +117,8 @@ const chooseMoonsamaAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    // if (direction) chosenIds = idsAndUris;
-    // else chosenIds = [...idsAndUris].reverse();
-    chosenIds = idsAndUris;
+    if (direction) chosenIds = idsAndUris;
+    else chosenIds = [...idsAndUris].reverse();
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -419,18 +418,13 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
-        if (
-          sortBy === SortOption.TOKEN_ID_DESC ||
-          sortBy === SortOption.PRICE_DESC
-        )
-          newOrders = [...orders].reverse().slice(offsetNum, to);
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+          false
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;

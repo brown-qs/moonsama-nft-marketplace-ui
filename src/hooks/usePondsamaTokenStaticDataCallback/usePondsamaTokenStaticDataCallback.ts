@@ -116,9 +116,8 @@ const choosePondsamaAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    // if (direction) chosenIds = idsAndUris;
-    // else chosenIds = [...idsAndUris].reverse();
-    chosenIds = idsAndUris;
+    if (direction) chosenIds = idsAndUris;
+    else chosenIds = [...idsAndUris].reverse();
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -384,11 +383,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-        if (
-          sortBy === SortOption.TOKEN_ID_DESC ||
-          sortBy === SortOption.PRICE_DESC
-        )
-          orders = [...orders].reverse();
       }
 
       let totalLength =

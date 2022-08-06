@@ -251,9 +251,8 @@ const chooseTokenAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    // if (direction) chosenIds = idsAndUris;
-    // else chosenIds = [...idsAndUris].reverse();
-    chosenIds = idsAndUris;
+    if (direction) chosenIds = idsAndUris;
+    else chosenIds = [...idsAndUris].reverse();
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -485,18 +484,13 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
-        if (
-          sortBy === SortOption.TOKEN_ID_DESC ||
-          sortBy === SortOption.PRICE_DESC
-        )
-          newOrders = [...orders].reverse().slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+          false
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
@@ -750,21 +744,14 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
-        if (
-          sortBy === SortOption.TOKEN_ID_DESC ||
-          sortBy === SortOption.PRICE_DESC
-        )
-          newOrders = [...orders].reverse().slice(offsetNum, to);
-        console.log("idsAndUris", {idsAndUris ,orders, newOrders},        sortBy === SortOption.TOKEN_ID_DESC || sortBy === SortOption.PRICE_DESC, sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC)
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+          false
         );
-        console.log("idsAndUris1", {chosenAssets, newOrders });        
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
