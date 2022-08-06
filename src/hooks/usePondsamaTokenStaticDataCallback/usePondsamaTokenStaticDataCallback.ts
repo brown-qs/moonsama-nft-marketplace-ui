@@ -380,6 +380,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
+        console.log("flag!",{theAssetNumber, orders})
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
@@ -388,6 +389,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
+        console.log("flag!!",{theAssetNumber, orders})
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
