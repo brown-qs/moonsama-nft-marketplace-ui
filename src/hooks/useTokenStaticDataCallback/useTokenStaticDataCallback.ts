@@ -138,7 +138,7 @@ export const useTokenStaticDataCallbackArray = () => {
               contractURI: contractData.erc1155Contracts[0].contractURI,
               name: contractData.erc1155Contracts[0].name,
               symbol: contractData.erc1155Contracts[0].symbol,
-              totalSupply: contractData.erc1155Contracts[0].totalSupply,
+              totalSupply: token.totalSupply,
               tokenURI: token.uri,
               metadata: token.meta,
             };
