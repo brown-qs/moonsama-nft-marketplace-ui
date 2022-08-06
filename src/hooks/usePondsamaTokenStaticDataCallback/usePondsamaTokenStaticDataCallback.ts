@@ -460,7 +460,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           console.log('flag!!!!!!', { staticData, metas });
 
           for (let i = 0; i < metas.length; i++) {
-            let flag = true;
+            let metaFlag = true;
             let selectedPondTraits = filter.pondTraits;
             for (let j = 0; j < metas[i].attributes.length; j++) {
               if (
@@ -468,28 +468,28 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 (metas[i].attributes[j].value < filter.hpRange[0] ||
                   metas[i].attributes[j].value > filter.hpRange[1])
               ) {
-                flag = false;
+                metaFlag = false;
                 break;
               } else if (
                 metas[i].attributes[j].trait_type === 'PW' &&
                 (metas[i].attributes[j].value < filter?.pwRange[0] ||
                   metas[i].attributes[j].value > filter?.pwRange[1])
               ) {
-                flag = false;
+                metaFlag = false;
                 break;
               } else if (
                 metas[i].attributes[j].trait_type === 'SP' &&
                 (metas[i].attributes[j].value < filter?.spRange[0] ||
                   metas[i].attributes[j].value > filter?.spRange[1])
               ) {
-                flag = false;
+                metaFlag = false;
                 break;
               } else if (
                 metas[i].attributes[j].trait_type === 'DF' &&
                 (metas[i].attributes[j].value < filter?.dfRange[0] ||
                   metas[i].attributes[j].value > filter?.dfRange[1])
               ) {
-                flag = false;
+                metaFlag = false;
                 break;
               } else if (selectedPondTraits.length) {
                 selectedPondTraits = selectedPondTraits.filter(
@@ -498,7 +498,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               }
             }
 
-            if (flag === true && !selectedPondTraits.length) {
+            if (metaFlag === true && !selectedPondTraits.length) {
               newMetas.push(metas[i]);
               if (
                 newMetas.length >= offsetNum &&
