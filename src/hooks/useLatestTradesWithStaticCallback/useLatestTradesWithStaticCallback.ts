@@ -91,9 +91,8 @@ export const useLatestTradesWithStaticCallback = () => {
 
         console.log('YOLO useLatestTradesWithStaticCallback', response);
 
-        if (!response) {
-          skip += 1000;
-          continue;
+        if (!response || !response?.latestFills.length) {
+          break;
         }
 
         const latestFills: FillWithOrder[] = (response.latestFills ?? [])
@@ -125,12 +124,8 @@ export const useLatestTradesWithStaticCallback = () => {
           .filter((item: Order | undefined) => !!item);
 
         fills = fills.concat(latestFills);
-        if (fills.length < num) {
-          skip += 1000;
-        }
+        skip += 1000;
       }
-
-      setOffset?.(skip);
 
       const staticDatas = await staticCallback(assets);
 
