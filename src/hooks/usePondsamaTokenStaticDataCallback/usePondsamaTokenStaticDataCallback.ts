@@ -401,8 +401,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-        console.log('flag!!!', {idsAndUris });
+        console.log('flag!!!', { idsAndUris });
+      } else if (flag == 0 && sortBy === SortOption.TOKEN_ID_DESC) {
+        idsAndUris = idsAndUris.reverse();
       }
+
+      console.log('flag!!!!', { idsAndUris });
 
       let totalLength =
         idsAndUris.length % 1000
@@ -428,11 +432,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             sortBy === SortOption.TOKEN_ID_ASC ||
               sortBy === SortOption.PRICE_ASC
           );
+          console.log('flag!!!!!', { chosenAssets });
+
           const query = QUERY_SUBSQUID_ERC721_ID_IN(
             assetAddress,
             tempIds.map((a) => a.assetId)
           );
           const ress = await request(subsquid, query);
+          console.log('flag!!!!!', ress.erc721Tokens);
+
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             let token = ress.erc721Tokens.find(
               (t: any) => t.numericId === ca.assetId
@@ -455,6 +463,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             );
             return token.metadata;
           });
+          console.log('flag!!!!!!', { staticData, metas });
+
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
             let selectedPondTraits = filter.pondTraits;
