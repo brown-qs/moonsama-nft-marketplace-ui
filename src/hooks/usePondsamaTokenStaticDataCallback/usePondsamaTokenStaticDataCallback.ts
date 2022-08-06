@@ -429,8 +429,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            sortBy === SortOption.TOKEN_ID_ASC ||
-              sortBy === SortOption.PRICE_ASC
+            flag !== 0 || (flag === 0 && (sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC))
           );
           console.log('flag!!!!!', { chosenAssets });
 
