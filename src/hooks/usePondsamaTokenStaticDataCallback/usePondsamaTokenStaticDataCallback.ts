@@ -370,7 +370,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
+      if (flag === 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
@@ -379,7 +379,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
-      } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
+      } else if (flag === 1 && sortBy === SortOption.TOKEN_ID_DESC) {
         console.log('flag!', { theAssetNumber, orders });
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
@@ -402,7 +402,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         idsAndUris = tempIdsAndUris;
         console.log('flag!!!', { idsAndUris });
-      } else if (flag == 0 && sortBy === SortOption.TOKEN_ID_DESC) {
+      } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
         idsAndUris = idsAndUris.reverse();
       }
 
@@ -451,7 +451,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             };
           });
 
-          const metas = tempIds.map((ca) => {
+          const metas = chosenAssets.map((ca) => {
             let token = ress.erc721Tokens.find(
               (t: any) => t.numericId === ca.assetId
             );
