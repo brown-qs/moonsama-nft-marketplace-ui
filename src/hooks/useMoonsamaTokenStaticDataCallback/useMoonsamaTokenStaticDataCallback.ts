@@ -407,6 +407,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         orders = tempOrders;
       }
 
+      console.log("flag!!", {flag, theAssetNumber, orders })
+
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length || !flag) {
         theAssetNumber.map((number) => {
