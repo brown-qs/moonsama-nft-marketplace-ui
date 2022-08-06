@@ -284,7 +284,7 @@ export const collections = {
       contractURI: 'ipfs://QmPisJNXRvd1h8BBiBs1PHu8666HTDWVJWkAf2AS7c4zkM',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-samabox',
-      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/box/graphql',
+      subsquid: 'https://app.gc.subsquid.io/beta/moonsama-subsquid/box-v2/graphql',
     },
     {
       chainId: 1285,
@@ -301,7 +301,7 @@ export const collections = {
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy',
       subsquid:
-        'https://app.gc.subsquid.io/beta/moonsama-subsquid/emabsssy/graphql',
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/emabsssy-v2/graphql',
     },
     /*
     {

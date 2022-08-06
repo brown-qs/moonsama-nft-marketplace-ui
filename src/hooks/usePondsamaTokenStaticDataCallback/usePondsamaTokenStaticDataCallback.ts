@@ -359,11 +359,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
-      if (
-        sortBy === SortOption.TOKEN_ID_DESC ||
-        sortBy === SortOption.PRICE_DESC
-      )
-        ordersFetch = ordersFetch.reverse();
       const orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
