@@ -440,11 +440,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           );
           const ress = await request(subsquid, query);
           console.log('flag!!!!!', ress.erc721Tokens);
-
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
-            let token = ress.erc721Tokens.find(
-              (t: any) => t.numericId === ca.assetId
-            );
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -453,15 +449,14 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: ca.tokenURI,
-              metadata: token.meta,
             };
           });
 
-          const metas = staticData.map((ca) => {
+          const metas = tempIds.map((ca) => {
             let token = ress.erc721Tokens.find(
-              (t: any) => t.numericId === ca.asset.assetId
+              (t: any) => t.numericId === ca.assetId
             );
-            return token.metadata;
+            return token.meta;
           });
           console.log('flag!!!!!!', { staticData, metas });
 
