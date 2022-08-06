@@ -391,7 +391,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || !flag) {
+      if (flag !== 0) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
@@ -503,7 +503,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
-      } else if (theAssetNumber.length || flag) {
+      } else if (flag !== 0) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length

@@ -483,7 +483,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || !flag) {
+      if (theAssetNumber.length || flag !== 0) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
@@ -757,7 +757,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || !flag) {
+      if (flag !== 0) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;

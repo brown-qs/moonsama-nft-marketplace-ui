@@ -386,7 +386,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-      
+
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
@@ -408,7 +408,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || !flag) {
+      if (flag !== 0) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
