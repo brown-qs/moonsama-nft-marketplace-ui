@@ -505,6 +505,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             }
           }
         }
+        return newMetas.length;
       } else if (flag !== 0) {
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
