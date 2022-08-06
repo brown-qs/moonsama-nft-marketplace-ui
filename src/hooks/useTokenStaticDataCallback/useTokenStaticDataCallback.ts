@@ -425,7 +425,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
-        flag = 1;
+        flag = 2;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -450,29 +450,43 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           }
         }
       }
-      const theAssets: Asset[] = [];
-      const theAssetNumber: string[] = [];
-      const orders = ordersFetch.map((x) => {
+
+      const theAssetNumber: { assetId: string; indexer: number }[] = [];
+      let orders = ordersFetch.map((x, i) => {
         const o = parseOrder(x) as Order;
         const a =
           selectedOrderType === OrderType.BUY
             ? (o?.buyAsset as Asset)
             : (o?.sellAsset as Asset);
-        theAssets.push({
-          assetId: a?.assetId,
-          assetType: assetType,
-          assetAddress: assetAddress,
-          id: getAssetEntityId(assetAddress, a?.assetId),
-        });
-        theAssetNumber.push(a?.assetId);
+        theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
+      
+      if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
+        let tempOrders: Order[] = [];
+        theAssetNumber.sort((a, b) => {
+          return a.indexer - b.indexer;
+        });
+        theAssetNumber.map((number) => {
+          tempOrders.push(orders[number.indexer]);
+        });
+        orders = tempOrders;
+      } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
+        let tempOrders: Order[] = [];
+        theAssetNumber.sort((a, b) => {
+          return b.indexer - a.indexer;
+        });
+        theAssetNumber.map((number) => {
+          tempOrders.push(orders[number.indexer]);
+        });
+        orders = tempOrders;
+      }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || flag) {
+      if (theAssetNumber.length || !flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            return idsAndUri.assetId == number;
+            return idsAndUri.assetId == number.assetId;
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
@@ -685,7 +699,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
-        flag = 1;
+        flag = 2;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
@@ -710,29 +724,43 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           }
         }
       }
-      const theAssets: Asset[] = [];
-      const theAssetNumber: string[] = [];
-      const orders = ordersFetch.map((x) => {
+
+      const theAssetNumber: { assetId: string; indexer: number }[] = [];
+      let orders = ordersFetch.map((x, i) => {
         const o = parseOrder(x) as Order;
         const a =
           selectedOrderType === OrderType.BUY
             ? (o?.buyAsset as Asset)
             : (o?.sellAsset as Asset);
-        theAssets.push({
-          assetId: a?.assetId,
-          assetType: assetType,
-          assetAddress: assetAddress,
-          id: getAssetEntityId(assetAddress, a?.assetId),
-        });
-        theAssetNumber.push(a?.assetId);
+        theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
+      
+      if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
+        let tempOrders: Order[] = [];
+        theAssetNumber.sort((a, b) => {
+          return a.indexer - b.indexer;
+        });
+        theAssetNumber.map((number) => {
+          tempOrders.push(orders[number.indexer]);
+        });
+        orders = tempOrders;
+      } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
+        let tempOrders: Order[] = [];
+        theAssetNumber.sort((a, b) => {
+          return b.indexer - a.indexer;
+        });
+        theAssetNumber.map((number) => {
+          tempOrders.push(orders[number.indexer]);
+        });
+        orders = tempOrders;
+      }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
-      if (theAssetNumber.length || flag) {
+      if (theAssetNumber.length || !flag) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
-            return idsAndUri.assetId == number;
+            return idsAndUri.assetId == number.assetId;
           });
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
