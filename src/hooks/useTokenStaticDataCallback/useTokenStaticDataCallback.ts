@@ -755,7 +755,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           sortBy === SortOption.PRICE_DESC
         )
           newOrders = orders.reverse().slice(offsetNum, to);
-        console.log("idsAndUris", {idsAndUris,orders, newOrders })
+        console.log("idsAndUris", {idsAndUris,orders, newOrders },        sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC)
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
