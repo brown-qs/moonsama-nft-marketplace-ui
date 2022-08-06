@@ -388,6 +388,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       });
       
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
+        console.log("flag!!", {flag, theAssetNumber, orders })
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return a.indexer - b.indexer;
@@ -396,7 +397,9 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
+        console.log("flag!!!", {flag, theAssetNumber, orders })
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
+        console.log("flag!!", {flag, theAssetNumber, orders })
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return b.indexer - a.indexer;
@@ -405,9 +408,9 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
+        console.log("flag!!!", {flag, theAssetNumber, orders })
       }
 
-      console.log("flag!!", {flag, theAssetNumber, orders })
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length || !flag) {
