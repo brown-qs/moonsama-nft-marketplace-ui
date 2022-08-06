@@ -223,7 +223,7 @@ const chooseTokenAssets = (
     let chosenIds = [];
 
     if (direction) chosenIds = idsAndUris.slice(offsetNum, to);
-    else chosenIds = idsAndUris.reverse().slice(offsetNum, to);
+    else chosenIds = [...idsAndUris].reverse().slice(offsetNum, to);
 
     chosenAssets = chosenIds.map((x) => {
       return {
@@ -489,7 +489,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           sortBy === SortOption.TOKEN_ID_DESC ||
           sortBy === SortOption.PRICE_DESC
         )
-          newOrders = orders.reverse().slice(offsetNum, to);
+          newOrders = [...orders].reverse().slice(offsetNum, to);
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -754,7 +754,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           sortBy === SortOption.TOKEN_ID_DESC ||
           sortBy === SortOption.PRICE_DESC
         )
-          newOrders = orders.reverse().slice(offsetNum, to);
+          newOrders = [...orders].reverse().slice(offsetNum, to);
         console.log("idsAndUris", {idsAndUris ,orders, newOrders},        sortBy === SortOption.TOKEN_ID_DESC || sortBy === SortOption.PRICE_DESC, sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC)
         const chosenAssets = chooseTokenAssets(
           assetType,

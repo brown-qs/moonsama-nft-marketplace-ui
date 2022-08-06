@@ -359,7 +359,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const theAssets: Asset[] = [];
       const theAssetNumber: string[] = [];
-      const orders = ordersFetch.map((x) => {
+      let orders = ordersFetch.map((x) => {
         const o = parseOrder(x) as Order;
         const a =
           selectedOrderType === OrderType.BUY
@@ -384,6 +384,11 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
+        if (
+          sortBy === SortOption.TOKEN_ID_DESC ||
+          sortBy === SortOption.PRICE_DESC
+        )
+          orders = [...orders].reverse();
       }
 
       let totalLength =

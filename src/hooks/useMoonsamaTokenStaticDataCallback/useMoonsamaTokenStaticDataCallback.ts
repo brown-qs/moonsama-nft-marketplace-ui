@@ -423,7 +423,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           sortBy === SortOption.TOKEN_ID_DESC ||
           sortBy === SortOption.PRICE_DESC
         )
-          newOrders = orders.reverse().slice(offsetNum, to);
+          newOrders = [...orders].reverse().slice(offsetNum, to);
         const chosenAssets = chooseMoonsamaAssets(
           assetType,
           assetAddress,

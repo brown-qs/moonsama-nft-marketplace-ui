@@ -161,6 +161,7 @@ const CollectionDefaultPage = () => {
       setFilters(newFilter);
       setCollection([]);
       setTake(0);
+      setPage(1);
       setPageLoading(true);
       setPaginationEnded(false);
     }
@@ -256,6 +257,7 @@ const CollectionDefaultPage = () => {
     handleNavigate('&filter=', filterStrings);
     handleNavigate('page=', '1');
     setCollection([]);
+    setPage(1);
     setTake(0);
     setFilters(filters);
     setPageLoading(true);
@@ -331,6 +333,7 @@ const CollectionDefaultPage = () => {
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
     setCollection([]);
     setTake(0);
+    setPage(1);
     setSortBy(sortBy);
     handleNavigate('&sort=', sortBy);
     handleNavigate('page=', '1');

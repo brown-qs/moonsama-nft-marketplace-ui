@@ -143,6 +143,7 @@ const PondsamaCollectionPage = () => {
       setFilters(newFilter);
       setCollection([]);
       setTake(0);
+      setPage(1);
       setPageLoading(true);
       setPaginationEnded(false);
     }
@@ -232,6 +233,7 @@ const PondsamaCollectionPage = () => {
     handleNavigate('page=', '1');
     setCollection([]);
     setTake(0);
+    setPage(1);
     setFilters(filters);
     setPageLoading(true);
     setPaginationEnded(false);
@@ -241,6 +243,7 @@ const PondsamaCollectionPage = () => {
   const handleSortUpdate = useCallback(async (sortBy: SortOption) => {
     setCollection([]);
     setTake(0);
+    setPage(1);
     setSortBy(sortBy);
     handleNavigate('&sort=', sortBy);
     handleNavigate('page=', '1');
