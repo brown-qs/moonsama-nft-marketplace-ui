@@ -743,7 +743,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             ? idsAndUris.length
             : offsetNum + num;
         let newOrders = orders.slice(offsetNum, to);
-        console.log("theAssetNumber1", {idsAndUris})
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,
@@ -756,7 +755,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         let totalLength = num === 1 ? num : idsAndUris.length;
         return { data: statics, length: totalLength };
       } else {
-        console.log("theAssetNumber2", {idsAndUris, orders})
         const chosenAssets = chooseTokenAssets(
           assetType,
           assetAddress,

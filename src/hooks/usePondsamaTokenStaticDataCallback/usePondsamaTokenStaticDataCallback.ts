@@ -507,7 +507,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         );
         const statics = await fetchStatics(chosenAssets, newOrders);
         let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
+        setCollection(statics)
+        return totalLength ;
       } else {
         const chosenAssets = choosePondsamaAssets(
           assetType,
@@ -519,7 +520,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;
-        return { data: statics, length: totalLength };
+        setCollection(statics)
+        return totalLength ;
       }
     },
     [
