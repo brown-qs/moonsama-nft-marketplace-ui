@@ -373,7 +373,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return a.indexer - b.indexer;
+          return parseInt(a.assetId) - parseInt(b.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);
@@ -382,7 +382,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return b.indexer - a.indexer;
+          return parseInt(b.assetId) - parseInt(a.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);

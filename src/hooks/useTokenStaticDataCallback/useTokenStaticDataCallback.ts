@@ -465,7 +465,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return a.indexer - b.indexer;
+          return parseInt(a.assetId) - parseInt(b.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);
@@ -474,7 +474,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return b.indexer - a.indexer;
+          return parseInt(b.assetId) - parseInt(a.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);
@@ -739,7 +739,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return a.indexer - b.indexer;
+          return parseInt(a.assetId) - parseInt(b.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);
@@ -748,7 +748,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
-          return b.indexer - a.indexer;
+          return parseInt(b.assetId) - parseInt(a.assetId);
         });
         theAssetNumber.map((number) => {
           tempOrders.push(orders[number.indexer]);

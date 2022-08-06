@@ -83,7 +83,7 @@ export const useLatestTradesWithStaticCallback = () => {
       let skip = offset;
 
       while (fills.length < num) {
-        const query = QUERY_LATEST_FILLS(skip, num, sortBy, sortDirection);
+        const query = QUERY_LATEST_FILLS(skip, 1000, sortBy, sortDirection);
         const response = await request(
           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
           query
@@ -92,7 +92,7 @@ export const useLatestTradesWithStaticCallback = () => {
         console.log('YOLO useLatestTradesWithStaticCallback', response);
 
         if (!response) {
-          skip += num;
+          skip += 1000;
           continue;
         }
 
@@ -126,7 +126,7 @@ export const useLatestTradesWithStaticCallback = () => {
 
         fills = fills.concat(latestFills);
         if (fills.length < num) {
-          skip += num;
+          skip += 1000;
         }
       }
 
