@@ -380,7 +380,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        console.log("flag!",{theAssetNumber, orders})
+        console.log('flag!', { theAssetNumber, orders });
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
@@ -389,7 +389,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
-        console.log("flag!!",{theAssetNumber, orders})
+        console.log('flag!!', { theAssetNumber, orders, idsAndUris });
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
@@ -401,6 +401,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
+        console.log('flag!!!', {idsAndUris });
       }
 
       let totalLength =
@@ -427,7 +428,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             sortBy === SortOption.TOKEN_ID_ASC ||
               sortBy === SortOption.PRICE_ASC
           );
+          const query = QUERY_SUBSQUID_ERC721_ID_IN(
+            assetAddress,
+            tempIds.map((a) => a.assetId)
+          );
+          const ress = await request(subsquid, query);
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
+            let token = ress.erc721Tokens.find(
+              (t: any) => t.numericId === ca.assetId
+            );
             return {
               asset: ca,
               decimals: contractData.erc721Contracts[0].decimals,
@@ -436,18 +445,15 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
               tokenURI: ca.tokenURI,
+              metadata: token.meta,
             };
           });
-          const query = QUERY_SUBSQUID_ERC721_ID_IN(
-            assetAddress,
-            tempIds.map((a) => a.assetId)
-          );
-          const ress = await request(subsquid, query);
-          const metas = tempIds.map((ca) => {
+
+          const metas = staticData.map((ca) => {
             let token = ress.erc721Tokens.find(
-              (t: any) => t.numericId === ca.assetId
+              (t: any) => t.numericId === ca.asset.assetId
             );
-            return token.meta;
+            return token.metadata;
           });
           for (let i = 0; i < metas.length; i++) {
             let flag = true;
