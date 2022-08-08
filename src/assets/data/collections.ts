@@ -121,7 +121,7 @@ export const collections = {
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-mx',
       subsquid:
-        'https://app.gc.subsquid.io/beta/moonsama-subsquid/moonx/graphql',
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/moonx-v2/graphql',
     },
     {
       chainId: 1285,
