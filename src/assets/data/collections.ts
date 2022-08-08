@@ -133,6 +133,7 @@ export const collections = {
       symbol: 'MMAF',
       minId: 1,
       maxId: 16,
+      decimals: 18,
       idSearchOn: true,
       type: 'ERC1155',
       contractURI: 'ipfs://Qmc97e79xzzrdNuU3RumGXcK5FYh8PWTb6GyxxHMyRvUYm',
