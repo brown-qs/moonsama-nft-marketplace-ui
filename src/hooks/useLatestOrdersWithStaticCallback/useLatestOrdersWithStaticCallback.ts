@@ -23,71 +23,72 @@ import {
 import {
   StaticTokenData,
   useTokenStaticDataCallbackArray,
+  useTokenStaticDataCallbackArrayMultiCore,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { AddressZero } from '@ethersproject/constants';
 
-export const useLatestOrdersWithStaticCallback = () => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestOrdersWithStaticCallback = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestOrdersWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      console.log('order query', offset, num);
-      const query = QUERY_LATEST_ORDERS(offset, num);
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
-      const datas = await orderProcessCore(chainId, response, staticCallback);
-      return datas;
-    },
-    [chainId]
-  );
+//   const fetchLatestOrdersWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       console.log('order query', offset, num);
+//       const query = QUERY_LATEST_ORDERS(offset, num);
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
+//       const datas = await orderProcessCore(chainId, response, staticCallback);
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestOrdersWithStatic;
-};
+//   return fetchLatestOrdersWithStatic;
+// };
 
-export const useLatestBuyOrdersWithStaticCallback = () => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestBuyOrdersWithStaticCallback = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestOrdersWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      console.log('order query', offset, num);
-      const query = QUERY_LATEST_BUY_ORDERS(`${AddressZero}-0`, offset, num);
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
-      const datas = await orderProcessCore(chainId, response, staticCallback);
-      return datas;
-    },
-    [chainId]
-  );
+//   const fetchLatestOrdersWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       console.log('order query', offset, num);
+//       const query = QUERY_LATEST_BUY_ORDERS(`${AddressZero}-0`, offset, num);
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
+//       const datas = await orderProcessCore(chainId, response, staticCallback);
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestOrdersWithStatic;
-};
+//   return fetchLatestOrdersWithStatic;
+// };
 
-export const useLatestSellOrdersWithStaticCallback = () => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestSellOrdersWithStaticCallback = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestOrdersWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      console.log('order query', offset, num);
-      const query = QUERY_LATEST_SELL_ORDERS(`${AddressZero}-0`, offset, num);
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
-      const datas = await orderProcessCore(chainId, response, staticCallback);
-      return datas;
-    },
-    [chainId]
-  );
+//   const fetchLatestOrdersWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       console.log('order query', offset, num);
+//       const query = QUERY_LATEST_SELL_ORDERS(`${AddressZero}-0`, offset, num);
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
+//       const datas = await orderProcessCore(chainId, response, staticCallback);
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestOrdersWithStatic;
-};
+//   return fetchLatestOrdersWithStatic;
+// };
 
 export const useLatestSellOrdersForTokenTotalSupplyWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
@@ -132,7 +133,7 @@ export const useLatestSellOrdersForTokenTotalSupplyWithStaticCallback = () => {
 
 export const useLatestSellOrdersForTokenWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+  const staticCallback = useTokenStaticDataCallbackArrayMultiCore();
 
   const fetchLatestOrdersWithStatic = useCallback(
     async (
@@ -220,7 +221,7 @@ export const useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback = () => {
 
 export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+  const staticCallback = useTokenStaticDataCallbackArrayMultiCore();
 
   const fetchLatestOrdersWithStatic = useCallback(
     async (
@@ -265,61 +266,61 @@ export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
   return fetchLatestOrdersWithStatic;
 };
 
-export const useLatestSellOrdersWithoutTokenWithStaticCallback = (
-  tokenAddress: string
-) => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestSellOrdersWithoutTokenWithStaticCallback = (
+//   tokenAddress: string
+// ) => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestOrdersWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      console.log('order query', offset, num);
-      const query = QUERY_LATEST_SELL_ORDERS_WITHOUT_TOKEN(
-        `${AddressZero}-0`,
-        tokenAddress,
-        offset,
-        num
-      );
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
-      const datas = await orderProcessCore(chainId, response, staticCallback);
-      return datas;
-    },
-    [chainId]
-  );
+//   const fetchLatestOrdersWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       console.log('order query', offset, num);
+//       const query = QUERY_LATEST_SELL_ORDERS_WITHOUT_TOKEN(
+//         `${AddressZero}-0`,
+//         tokenAddress,
+//         offset,
+//         num
+//       );
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
+//       const datas = await orderProcessCore(chainId, response, staticCallback);
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestOrdersWithStatic;
-};
+//   return fetchLatestOrdersWithStatic;
+// };
 
-export const useLatestBuyOrdersWithoutTokenWithStaticCallback = (
-  tokenAddress: string
-) => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestBuyOrdersWithoutTokenWithStaticCallback = (
+//   tokenAddress: string
+// ) => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestOrdersWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      console.log('order query', offset, num);
-      const query = QUERY_LATEST_BUY_ORDERS_WITHOUT_TOKEN(
-        `${AddressZero}-0`,
-        tokenAddress,
-        offset,
-        num
-      );
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
-      const datas = await orderProcessCore(chainId, response, staticCallback);
-      return datas;
-    },
-    [chainId]
-  );
+//   const fetchLatestOrdersWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       console.log('order query', offset, num);
+//       const query = QUERY_LATEST_BUY_ORDERS_WITHOUT_TOKEN(
+//         `${AddressZero}-0`,
+//         tokenAddress,
+//         offset,
+//         num
+//       );
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
+//       const datas = await orderProcessCore(chainId, response, staticCallback);
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestOrdersWithStatic;
-};
+//   return fetchLatestOrdersWithStatic;
+// };
 
 const orderProcessCore = async (
   chainId: ChainId | undefined,

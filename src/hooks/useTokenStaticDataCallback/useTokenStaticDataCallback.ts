@@ -136,6 +136,7 @@ export const useTokenStaticDataCallbackArray = () => {
         if (tokens.length) {
           staticData = assets.map((ca) => {
             let token = tokens.find((t: any) => t.numericId === ca.assetId);
+            console.log("token", token)
             return {
               asset: ca,
               decimals: contractData.erc1155Contracts[0].decimals,
@@ -149,7 +150,7 @@ export const useTokenStaticDataCallbackArray = () => {
           });
         }
       }
-      console.log("aseets", assets)
+      console.log("staticData", staticData)
       return staticData.map((x, i) => {
         return {
           meta: x.metadata,
