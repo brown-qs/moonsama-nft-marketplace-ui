@@ -104,6 +104,8 @@ export const useTokenStaticDataCallbackArray = () => {
         const CONTRACT_QUERY =
           QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
         const contractData = await request(subsquid, CONTRACT_QUERY);
+        console.log("assets-erc721", assets)
+        console.log("tokens-erc721", tokens)
         if (tokens.length) {
           staticData = assets.map((ca) => {
             let token = tokens.find((t: any) => t.numericId === ca.assetId);
@@ -129,6 +131,8 @@ export const useTokenStaticDataCallbackArray = () => {
         const CONTRACT_QUERY =
           QUERY_SUBSQUID_ERC1155_CONTRACT_DATA(assetAddress);
         const contractData = await request(subsquid, CONTRACT_QUERY);
+        console.log("assets-erc1155", assets)
+        console.log("tokens-erc1155", tokens)
         if (tokens.length) {
           staticData = assets.map((ca) => {
             let token = tokens.find((t: any) => t.numericId === ca.assetId);
@@ -145,6 +149,7 @@ export const useTokenStaticDataCallbackArray = () => {
           });
         }
       }
+      console.log("aseets", assets)
       return staticData.map((x, i) => {
         return {
           meta: x.metadata,
