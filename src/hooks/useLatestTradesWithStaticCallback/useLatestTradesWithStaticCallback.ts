@@ -7,63 +7,6 @@ import { Asset, FillWithOrder, Order } from 'hooks/marketplace/types';
 import { useTokenStaticDataCallbackArray } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { QUERY_LATEST_FILLS } from 'subgraph/fillQueries';
 
-// export const useLatestTradesTotalCountWithStaticCallback = () => {
-//   const { chainId } = useActiveWeb3React();
-//   const fetchLatestTradesWithStatic = useCallback(
-//     async (sortBy: string, sortDirection: string, tokenAddress?: string) => {
-//       let totalCount = 0,
-//         skip = 0,
-//         isLoop = true;
-//       while (isLoop) {
-//         const query = QUERY_LATEST_FILLS(skip, 1000, sortBy, sortDirection);
-//         const response = await request(
-//           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-//           query
-//         );
-//         if (!response) {
-//           skip += 1000;
-//           continue;
-//         }
-//         if (!response.latestFills.length) isLoop = false;
-//         else {
-//           const latestFills: FillWithOrder[] = (response.latestFills ?? [])
-//             .map((x: any) => {
-//               const pfo = parseFillWithOrder(x);
-//               if (!!pfo) {
-//                 const ot =
-//                   inferOrderTYpe(
-//                     chainId,
-//                     pfo?.order?.sellAsset,
-//                     pfo?.order?.buyAsset
-//                   ) ?? OrderType.SELL;
-//                 const asset =
-//                   ot === OrderType.BUY
-//                     ? pfo?.order?.buyAsset
-//                     : pfo?.order?.sellAsset;
-//                 if (
-//                   !tokenAddress ||
-//                   tokenAddress.toLowerCase() ===
-//                     asset.assetAddress.toLowerCase()
-//                 ) {
-//                   return pfo;
-//                 } else {
-//                   return undefined;
-//                 }
-//               }
-//               return undefined;
-//             })
-//             .filter((item: Order | undefined) => !!item);
-//           totalCount += latestFills.length;
-//           skip += 1000;
-//         }
-//       }
-//       return totalCount;
-//     },
-//     [chainId]
-//   );
-//   return fetchLatestTradesWithStatic;
-// };
-
 export const useLatestTradesWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
   const staticCallback = useTokenStaticDataCallbackArray();
@@ -83,7 +26,7 @@ export const useLatestTradesWithStaticCallback = () => {
       let skip = offset;
 
       while (fills.length < num) {
-        const query = QUERY_LATEST_FILLS(skip, 1000, sortBy, sortDirection);
+        const query = QUERY_LATEST_FILLS(skip, num, sortBy, sortDirection);
         const response = await request(
           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
           query
@@ -124,7 +67,7 @@ export const useLatestTradesWithStaticCallback = () => {
           .filter((item: Order | undefined) => !!item);
 
         fills = fills.concat(latestFills);
-        skip += 1000;
+        skip += num;
       }
 
       const staticDatas = await staticCallback(assets);
