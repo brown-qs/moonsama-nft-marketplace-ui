@@ -23,7 +23,6 @@ import {
 import {
   StaticTokenData,
   useTokenStaticDataCallbackArray,
-  useTokenStaticDataCallbackArrayMultiCore,
 } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { AddressZero } from '@ethersproject/constants';
 
@@ -133,7 +132,7 @@ export const useLatestSellOrdersForTokenTotalSupplyWithStaticCallback = () => {
 
 export const useLatestSellOrdersForTokenWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArrayMultiCore();
+  const staticCallback = useTokenStaticDataCallbackArray();
 
   const fetchLatestOrdersWithStatic = useCallback(
     async (
@@ -221,7 +220,7 @@ export const useLatestBuyOrdersForTokenTotalSupplyWithStaticCallback = () => {
 
 export const useLatestBuyOrdersForTokenWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArrayMultiCore();
+  const staticCallback = useTokenStaticDataCallbackArray();
 
   const fetchLatestOrdersWithStatic = useCallback(
     async (

@@ -7,62 +7,62 @@ import { Asset, FillWithOrder, Order } from 'hooks/marketplace/types';
 import { useTokenStaticDataCallbackArray } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 import { QUERY_LATEST_FILLS } from 'subgraph/fillQueries';
 
-export const useLatestTradesTotalCountWithStaticCallback = () => {
-  const { chainId } = useActiveWeb3React();
-  const fetchLatestTradesWithStatic = useCallback(
-    async (sortBy: string, sortDirection: string, tokenAddress?: string) => {
-      let totalCount = 0,
-        skip = 0,
-        isLoop = true;
-      while (isLoop) {
-        const query = QUERY_LATEST_FILLS(skip, 1000, sortBy, sortDirection);
-        const response = await request(
-          MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-          query
-        );
-        if (!response) {
-          skip += 1000;
-          continue;
-        }
-        if (!response.latestFills.length) isLoop = false;
-        else {
-          const latestFills: FillWithOrder[] = (response.latestFills ?? [])
-            .map((x: any) => {
-              const pfo = parseFillWithOrder(x);
-              if (!!pfo) {
-                const ot =
-                  inferOrderTYpe(
-                    chainId,
-                    pfo?.order?.sellAsset,
-                    pfo?.order?.buyAsset
-                  ) ?? OrderType.SELL;
-                const asset =
-                  ot === OrderType.BUY
-                    ? pfo?.order?.buyAsset
-                    : pfo?.order?.sellAsset;
-                if (
-                  !tokenAddress ||
-                  tokenAddress.toLowerCase() ===
-                    asset.assetAddress.toLowerCase()
-                ) {
-                  return pfo;
-                } else {
-                  return undefined;
-                }
-              }
-              return undefined;
-            })
-            .filter((item: Order | undefined) => !!item);
-          totalCount += latestFills.length;
-          skip += 1000;
-        }
-      }
-      return totalCount;
-    },
-    [chainId]
-  );
-  return fetchLatestTradesWithStatic;
-};
+// export const useLatestTradesTotalCountWithStaticCallback = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const fetchLatestTradesWithStatic = useCallback(
+//     async (sortBy: string, sortDirection: string, tokenAddress?: string) => {
+//       let totalCount = 0,
+//         skip = 0,
+//         isLoop = true;
+//       while (isLoop) {
+//         const query = QUERY_LATEST_FILLS(skip, 1000, sortBy, sortDirection);
+//         const response = await request(
+//           MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//           query
+//         );
+//         if (!response) {
+//           skip += 1000;
+//           continue;
+//         }
+//         if (!response.latestFills.length) isLoop = false;
+//         else {
+//           const latestFills: FillWithOrder[] = (response.latestFills ?? [])
+//             .map((x: any) => {
+//               const pfo = parseFillWithOrder(x);
+//               if (!!pfo) {
+//                 const ot =
+//                   inferOrderTYpe(
+//                     chainId,
+//                     pfo?.order?.sellAsset,
+//                     pfo?.order?.buyAsset
+//                   ) ?? OrderType.SELL;
+//                 const asset =
+//                   ot === OrderType.BUY
+//                     ? pfo?.order?.buyAsset
+//                     : pfo?.order?.sellAsset;
+//                 if (
+//                   !tokenAddress ||
+//                   tokenAddress.toLowerCase() ===
+//                     asset.assetAddress.toLowerCase()
+//                 ) {
+//                   return pfo;
+//                 } else {
+//                   return undefined;
+//                 }
+//               }
+//               return undefined;
+//             })
+//             .filter((item: Order | undefined) => !!item);
+//           totalCount += latestFills.length;
+//           skip += 1000;
+//         }
+//       }
+//       return totalCount;
+//     },
+//     [chainId]
+//   );
+//   return fetchLatestTradesWithStatic;
+// };
 
 export const useLatestTradesWithStaticCallback = () => {
   const { chainId } = useActiveWeb3React();
@@ -144,58 +144,58 @@ export const useLatestTradesWithStaticCallback = () => {
   return fetchLatestTradesWithStatic;
 };
 
-export const useLatestTradesForTokenWithStaticCallback = () => {
-  const { chainId } = useActiveWeb3React();
-  const staticCallback = useTokenStaticDataCallbackArray();
+// export const useLatestTradesForTokenWithStaticCallback = () => {
+//   const { chainId } = useActiveWeb3React();
+//   const staticCallback = useTokenStaticDataCallbackArray();
 
-  const fetchLatestTradesWithStatic = useCallback(
-    async (num: number, offset: number) => {
-      const query = QUERY_LATEST_FILLS(offset, num, 'time', 'asc');
-      const response = await request(
-        MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
-        query
-      );
+//   const fetchLatestTradesWithStatic = useCallback(
+//     async (num: number, offset: number) => {
+//       const query = QUERY_LATEST_FILLS(offset, num, 'time', 'asc');
+//       const response = await request(
+//         MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+//         query
+//       );
 
-      console.log('YOLO useLatestTradesForTokenWithStaticCallback', response);
+//       console.log('YOLO useLatestTradesForTokenWithStaticCallback', response);
 
-      if (!response) {
-        return [];
-      }
+//       if (!response) {
+//         return [];
+//       }
 
-      let assets: Asset[] = [];
-      const latestFills: FillWithOrder[] = (response.latestFills ?? [])
-        .map((x: any) => {
-          const pfo = parseFillWithOrder(x);
-          if (pfo) {
-            const ot =
-              inferOrderTYpe(
-                chainId,
-                pfo?.order?.sellAsset,
-                pfo?.order?.buyAsset
-              ) ?? OrderType.SELL;
-            assets.push(
-              ot === OrderType.BUY
-                ? pfo?.order?.buyAsset
-                : pfo?.order?.sellAsset
-            );
-          }
-          return pfo;
-        })
-        .filter((item: Order | undefined) => !!item);
+//       let assets: Asset[] = [];
+//       const latestFills: FillWithOrder[] = (response.latestFills ?? [])
+//         .map((x: any) => {
+//           const pfo = parseFillWithOrder(x);
+//           if (pfo) {
+//             const ot =
+//               inferOrderTYpe(
+//                 chainId,
+//                 pfo?.order?.sellAsset,
+//                 pfo?.order?.buyAsset
+//               ) ?? OrderType.SELL;
+//             assets.push(
+//               ot === OrderType.BUY
+//                 ? pfo?.order?.buyAsset
+//                 : pfo?.order?.sellAsset
+//             );
+//           }
+//           return pfo;
+//         })
+//         .filter((item: Order | undefined) => !!item);
 
-      const staticDatas = await staticCallback(assets);
+//       const staticDatas = await staticCallback(assets);
 
-      const datas = staticDatas.map((sd, i) => {
-        return {
-          meta: sd.meta,
-          staticData: sd.staticData,
-          fill: latestFills[i],
-        };
-      });
-      return datas;
-    },
-    [chainId]
-  );
+//       const datas = staticDatas.map((sd, i) => {
+//         return {
+//           meta: sd.meta,
+//           staticData: sd.staticData,
+//           fill: latestFills[i],
+//         };
+//       });
+//       return datas;
+//     },
+//     [chainId]
+//   );
 
-  return fetchLatestTradesWithStatic;
-};
+//   return fetchLatestTradesWithStatic;
+// };
