@@ -133,14 +133,13 @@ export const collections = {
       symbol: 'MMAF',
       minId: 1,
       maxId: 16,
-      decimals: 18,
       idSearchOn: true,
       type: 'ERC1155',
       contractURI: 'ipfs://Qmc97e79xzzrdNuU3RumGXcK5FYh8PWTb6GyxxHMyRvUYm',
       subgraph:
         'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-factory',
       subsquid:
-        'https://app.gc.subsquid.io/beta/moonsama-subsquid/factory/graphql',
+        'https://app.gc.subsquid.io/beta/moonsama-subsquid/factory-v2/graphql',
     },
     {
       chainId: 1285,
