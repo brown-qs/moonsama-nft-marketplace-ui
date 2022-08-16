@@ -211,46 +211,6 @@ const FreshOrdersPage = () => {
     setPaginationEnded(false);
     setPage(1);
     if (_sortBy !== sortBy) {
-      // let href = window.location.href;
-      // let temp = href.split('?');
-      // let path = '?' + temp[1];
-      // let newPath = sampleLocation.pathname;
-      // let tempPath = '';
-      // let ind = path.search('&sortBy=');
-      // if (ind !== -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   tempPath =
-      //     tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
-      // } else tempPath = path + '&sortBy=' + _sortBy;
-
-      // path = tempPath;
-      // ind = path.search('&sortDirection=');
-      // if (ind !== -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   tempPath =
-      //     tempPath + '&sortDirection=asc' + path.slice(ind, path.length);
-      // } else tempPath = path + '&sortDirection=asc';
-
-      // path = tempPath;
-      // ind = path.search('&page=');
-      // if (ind !== -1) {
-      //   newPath = newPath + path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   newPath = newPath + '&page=1' + path.slice(ind, path.length);
-      // } else newPath = newPath + path + '&page=1';
-      // navigate(newPath);
-
       handleNavigate('&sortBy=', _sortBy);
       handleNavigate('&sortDirection=', 'asc');
       handleNavigate('&page=', '1');
@@ -260,49 +220,6 @@ const FreshOrdersPage = () => {
       let tempSortDirection: SortDirection =
         sortDirection === 'asc' ? 'desc' : 'asc';
       setSortDirection(tempSortDirection);
-      // let href = window.location.href;
-      // let temp = href.split('?');
-      // let path = '?' + temp[1];
-      // let newPath = sampleLocation.pathname;
-      // let tempPath = '';
-      // let ind = path.search('&sortBy=');
-      // if (ind !== -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   tempPath =
-      //     tempPath + '&sortBy=' + _sortBy + path.slice(ind, path.length);
-      // } else tempPath = path + '&sortBy=' + _sortBy;
-
-      // path = tempPath;
-      // ind = path.search('&sortDirection=');
-      // if (ind !== -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   tempPath =
-      //     tempPath +
-      //     '&sortDirection=' +
-      //     tempSortDirection +
-      //     path.slice(ind, path.length);
-      // } else tempPath = path + '&sortDirection=' + tempSortDirection;
-
-      // path = tempPath;
-      // ind = path.search('&page=');
-      // if (ind !== -1) {
-      //   newPath = newPath + path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   newPath = newPath + '&page=1' + path.slice(ind, path.length);
-      // } else newPath = newPath + path + '&page=1';
-      // navigate(newPath);
-
       handleNavigate('&sortBy=', _sortBy);
       handleNavigate('&sortDirection=', tempSortDirection);
       handleNavigate('&page=', '1');
@@ -325,57 +242,6 @@ const FreshOrdersPage = () => {
       setSortDirection('desc');
       setTotalCount(buyTotalCount);
     }
-    // let href = window.location.href;
-    // let temp = href.split('?');
-    // let path = '?' + temp[1];
-    // let tempPath = '';
-    // let newPath = sampleLocation.pathname;
-    // let ind = path.search('&tab=');
-    // if (ind != -1) {
-    //   tempPath = path.slice(0, ind);
-    //   ind += 3;
-    //   for (; ind < path.length; ind++) {
-    //     if (path[ind] == '&') break;
-    //   }
-    //   tempPath = tempPath + '&tab=' + newValue + path.slice(ind, path.length);
-    // } else tempPath = path + '&tab=' + newValue;
-
-    // if (ind != -1) {
-    //   tempPath = path.slice(0, ind);
-    //   ind += 3;
-    //   for (; ind < path.length; ind++) {
-    //     if (path[ind] == '&') break;
-    //   }
-    //   tempPath =
-    //     tempPath + '&sortBy=' + sortBy + path.slice(ind, path.length);
-    // } else tempPath = path + '&sortBy=' + sortBy;
-
-    // path = tempPath;
-    // ind = path.search('&sortDirection=');
-    // if (ind != -1) {
-    //   tempPath = path.slice(0, ind);
-    //   ind += 3;
-    //   for (; ind < path.length; ind++) {
-    //     if (path[ind] == '&') break;
-    //   }
-    //   tempPath =
-    //     tempPath +
-    //     '&sortDirection=' +
-    //     sortDirection +
-    //     path.slice(ind, path.length);
-    // } else tempPath = path + '&sortDirection=' + sortDirection;
-
-    // path = tempPath;
-    // ind = path.search('&page=');
-    // if (ind != -1) {
-    //   newPath = newPath + path.slice(0, ind);
-    //   ind += 3;
-    //   for (; ind < path.length; ind++) {
-    //     if (path[ind] == '&') break;
-    //   }
-    //   newPath = newPath + '&page=1' + path.slice(ind, path.length);
-    // } else newPath = newPath + path + '&page=1';
-    // navigate(newPath);
     handleNavigate('&tab=', newValue);
     handleNavigate('&sortBy=', sortBy);
     handleNavigate('&sortDirection=', sortDirection);
@@ -390,33 +256,6 @@ const FreshOrdersPage = () => {
       setTake(0);
       setPage(1);
       setPaginationEnded(false);
-      // let href = window.location.href;
-      // let temp = href.split('?');
-      // let path = '?' + temp[1];
-      // let tempPath = '';
-      // let newPath = sampleLocation.pathname;
-      // let ind = path.search('collIndex=');
-      // if (ind != -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] == '&') break;
-      //   }
-      //   tempPath = tempPath + 'collIndex=' + i + path.slice(ind, path.length);
-      // } else tempPath = path + 'collIndex=' + i;
-
-      // path = tempPath;
-      // ind = path.search('&page=');
-      // if (ind != -1) {
-      //   newPath = newPath + path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] == '&') break;
-      //   }
-      //   newPath = newPath + '&page=1' + path.slice(ind, path.length);
-      // } else newPath = newPath + path + '&page=1';
-      // navigate(newPath);
-
       handleNavigate('collIndex=', i);
       handleNavigate('&page=', '1');
     }
@@ -427,21 +266,6 @@ const FreshOrdersPage = () => {
       if (pageLoading) return;
       setPage(value);
       setTake((state) => (state = PAGE_SIZE * (value - 1)));
-      // let href = window.location.href;
-      // let temp = href.split('?');
-      // let path = '?' + temp[1];
-      // let newPath = sampleLocation.pathname;
-      // let ind = path.search('&page=');
-      // if (ind != -1) {
-      //   newPath = newPath + path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] == '&') break;
-      //   }
-      //   newPath = newPath + '&page=' + value + path.slice(ind, path.length);
-      // } else newPath = newPath + path + '&page=' + value;
-      // navigate(newPath);
-
       handleNavigate('&page=', value);
 
     },

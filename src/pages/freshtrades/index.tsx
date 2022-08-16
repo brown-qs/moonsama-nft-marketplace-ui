@@ -184,33 +184,6 @@ const FreshTradesPage = () => {
       setSearchCounter(0);
       setPage(1);
       setPaginationEnded(false);
-      // let href = window.location.href;
-      // let temp = href.split('?');
-      // let path = '?' + temp[1];
-      // let tempPath = '';
-      // let newPath = sampleLocation.pathname;
-      // let ind = path.search('collIndex=');
-      // if (ind !== -1) {
-      //   tempPath = path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   tempPath = tempPath + 'collIndex=' + i + path.slice(ind, path.length);
-      // } else tempPath = path + 'collIndex=' + i;
-
-      // path = tempPath;
-      // ind = path.search('&page=');
-      // if (ind !== -1) {
-      //   newPath = newPath + path.slice(0, ind);
-      //   ind += 3;
-      //   for (; ind < path.length; ind++) {
-      //     if (path[ind] === '&') break;
-      //   }
-      //   newPath = newPath + '&page=1' + path.slice(ind, path.length);
-      // } else newPath = newPath + path + '&page=1';
-      // navigate(newPath);
-
       handleNavigate('collIndex=', i);
       handleNavigate('&page=', '1');
     }
@@ -222,20 +195,6 @@ const FreshTradesPage = () => {
         setPage(value);
         setTake((state) => (state = PAGE_SIZE * (value - 1)));
         setSearchCounter((state) => (state += 1));
-        // let href = window.location.href;
-        // let temp = href.split('?');
-        // let path = '?' + temp[1];
-        // let newPath = sampleLocation.pathname;
-        // let ind = path.search('&page=');
-        // if (ind !== -1) {
-        //   newPath = newPath + path.slice(0, ind);
-        //   ind += 3;
-        //   for (; ind < path.length; ind++) {
-        //     if (path[ind] === '&') break;
-        //   }
-        //   newPath = newPath + '&page=' + value + path.slice(ind, path.length);
-        // } else newPath = newPath + path + '&page=' + value;
-        // navigate(newPath);
         handleNavigate('&page=', value);
       }
     },
