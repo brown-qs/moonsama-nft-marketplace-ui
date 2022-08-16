@@ -1,8 +1,8 @@
 import { StaticTokenData } from 'hooks/useTokenStaticDataCallback/useTokenStaticDataCallback';
 
 export type MetaAttributes = {
-  display_type: string;
-  trait_type: string;
+  display: string;
+  trait: string;
   value: number | string;
 };
 export type TokenMeta = {

@@ -380,7 +380,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag === 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        console.log('flag!', { theAssetNumber, orders });
         let tempOrders: Order[] = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
@@ -389,7 +388,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           tempOrders.push(orders[number.indexer]);
         });
         orders = tempOrders;
-        console.log('flag!!', { theAssetNumber, orders, idsAndUris });
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
@@ -406,7 +404,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         idsAndUris = idsAndUris.reverse();
       }
 
-      console.log('flag!!!!', { idsAndUris });
 
       let totalLength =
         idsAndUris.length % 1000
@@ -431,14 +428,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             tempIds,
             flag !== 0 || (flag === 0 && (sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC))
           );
-          console.log('flag!!!!!', { chosenAssets });
 
           const query = QUERY_SUBSQUID_ERC721_ID_IN(
             assetAddress,
             tempIds.map((a) => a.assetId)
           );
           const ress = await request(subsquid, query);
-          console.log('flag!!!!!', ress.erc721Tokens);
           const staticData: StaticTokenData[] = chosenAssets.map((ca) => {
             return {
               asset: ca,
@@ -457,35 +452,33 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             );
             return token.meta;
           });
-          console.log('flag!!!!!!', { staticData, metas });
-
           for (let i = 0; i < metas.length; i++) {
             let metaFlag = true;
             let selectedPondTraits = filter.pondTraits;
             for (let j = 0; j < metas[i].attributes.length; j++) {
               if (
-                metas[i].attributes[j].trait_type === 'HP' &&
+                metas[i].attributes[j].trait === 'HP' &&
                 (metas[i].attributes[j].value < filter.hpRange[0] ||
                   metas[i].attributes[j].value > filter.hpRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type === 'PW' &&
+                metas[i].attributes[j].trait === 'PW' &&
                 (metas[i].attributes[j].value < filter?.pwRange[0] ||
                   metas[i].attributes[j].value > filter?.pwRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type === 'SP' &&
+                metas[i].attributes[j].trait === 'SP' &&
                 (metas[i].attributes[j].value < filter?.spRange[0] ||
                   metas[i].attributes[j].value > filter?.spRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait_type === 'DF' &&
+                metas[i].attributes[j].trait === 'DF' &&
                 (metas[i].attributes[j].value < filter?.dfRange[0] ||
                   metas[i].attributes[j].value > filter?.dfRange[1])
               ) {
