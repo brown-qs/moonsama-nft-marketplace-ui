@@ -13,7 +13,7 @@ import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import {
-  QUERY_ACTIVE_ORDERS_FOR_FILTER,
+  QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW,
   QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
@@ -300,9 +300,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        ) &&
-        (sortBy === SortOption.TOKEN_ID_ASC ||
-          sortBy === SortOption.TOKEN_ID_DESC)
+        )
       ) {
         flag = 1;
         let chosenAssets = chooseMoonsamaAssetsAll(
@@ -327,18 +325,20 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             return x.id;
           });
 
-          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
+          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW(
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString()
+            rangeInWei[1].toString(),
+            'price',
+            sortBy === SortOption.PRICE_ASC
           );
 
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
           );
-          console.log('YOLO getOrders', result);
+          // console.log('YOLO getOrders', result);
           const orders = result?.orders;
 
           if (orders && orders.length > 0) {
@@ -386,7 +386,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-
       let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         tempOrders = [];
@@ -417,10 +416,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) {
             tempIdsAndUris.push(tempIdsAndUri);
-            tempOrders.push(orders[number.indexer])
           }
         });
-        orders= tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =

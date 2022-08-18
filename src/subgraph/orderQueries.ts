@@ -267,6 +267,24 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
   }
 `;
 
+export const QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW = (
+  orderType: OrderType,
+  assetIdsJSONString: string,
+  lowerPPURange: string,
+  upperPPURange: string,
+  orderBy: string,
+  orderDirection: boolean,
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    orders(where: {active: true, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", ${
+  orderType === OrderType.BUY ? 'buyAsset_in' : 'sellAsset_in'
+}: ${assetIdsJSONString}}, orderBy: ${orderBy == 'price' ? 'pricePerUnit' : 'createdAt'}, orderDirection: ${orderDirection ? 'asc' : 'desc'}) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
 export const QUERY_LATEST_SELL_ORDERS_FOR_TOKEN = (
   buyAssetId: string,
   sellAssetAddress: string,
