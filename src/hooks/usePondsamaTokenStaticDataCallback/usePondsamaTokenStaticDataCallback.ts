@@ -116,9 +116,11 @@ const choosePondsamaAssetsAll = (
   if (idsAndUris?.length > 0) {
     let chosenIds = [];
 
-    if (direction) chosenIds = idsAndUris;
-    else chosenIds = [...idsAndUris].reverse();
-
+    if (direction) {
+      chosenIds = idsAndUris;
+    } else {
+      chosenIds = [...idsAndUris].reverse();
+    }
     chosenAssets = chosenIds.map((x) => {
       return {
         assetId: x.assetId,
@@ -399,11 +401,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
         });
         idsAndUris = tempIdsAndUris;
-        console.log('flag!!!', { idsAndUris });
       } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
         idsAndUris = idsAndUris.reverse();
       }
-
 
       let totalLength =
         idsAndUris.length % 1000
@@ -426,7 +426,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             assetType,
             assetAddress,
             tempIds,
-            flag !== 0 || (flag === 0 && (sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC))
+            true
           );
 
           const query = QUERY_SUBSQUID_ERC721_ID_IN(
