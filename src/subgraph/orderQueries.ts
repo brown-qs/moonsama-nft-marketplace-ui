@@ -255,22 +255,6 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
   orderType: OrderType,
   assetIdsJSONString: string,
   lowerPPURange: string,
-  upperPPURange: string
-) => gql`
-  query getUserActiveOrders {
-    ${META}
-    orders(where: {active: true, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", ${
-  orderType === OrderType.BUY ? 'buyAsset_in' : 'sellAsset_in'
-}: ${assetIdsJSONString}}, orderBy: createdAt, orderDirection: desc) {
-      ${ORDER_FIELDS}
-    }
-  }
-`;
-
-export const QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW = (
-  orderType: OrderType,
-  assetIdsJSONString: string,
-  lowerPPURange: string,
   upperPPURange: string,
   orderBy: string,
   orderDirection: boolean,

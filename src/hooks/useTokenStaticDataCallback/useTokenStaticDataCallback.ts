@@ -375,9 +375,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        ) &&
-        (sortBy === SortOption.TOKEN_ID_ASC ||
-          sortBy === SortOption.TOKEN_ID_DESC)
+        )
       ) {
         flag = 1;
         let chosenAssets = chooseTokenAssetsAll(
@@ -406,7 +404,9 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString()
+            rangeInWei[1].toString(),
+            'price',
+            sortBy === SortOption.PRICE_ASC
           );
 
           const result = await request(
@@ -461,9 +461,9 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-      
+      let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
@@ -472,7 +472,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
@@ -484,12 +484,20 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (theAssetNumber.length || flag !== 0) {
+        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
           });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+          if (tempIdsAndUri) {
+            tempIdsAndUris.push(tempIdsAndUri);
+            tempOrders.push(orders[number.indexer]);
+          }
         });
+        if (sortBy === SortOption.TOKEN_ID_DESC) {
+          tempOrders = tempOrders.reverse();
+        }
+        orders = tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
@@ -650,9 +658,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        ) &&
-        (sortBy === SortOption.TOKEN_ID_ASC ||
-          sortBy === SortOption.TOKEN_ID_DESC)
+        )
       ) {
         flag = 1;
         let chosenAssets = chooseTokenAssetsAll(
@@ -681,7 +687,9 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString()
+            rangeInWei[1].toString(),
+            'price',
+            sortBy === SortOption.PRICE_ASC
           );
 
           const result = await request(
@@ -735,9 +743,10 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-      
+
+      let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
@@ -746,7 +755,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
@@ -758,12 +767,20 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (flag !== 0) {
+        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
           });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+          if (tempIdsAndUri) {
+            tempIdsAndUris.push(tempIdsAndUri);
+            tempOrders.push(orders[number.indexer]);
+          }
         });
+        if (sortBy === SortOption.TOKEN_ID_DESC) {
+          tempOrders = tempOrders.reverse();
+        }
+        orders = tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =

@@ -13,7 +13,7 @@ import { MoonsamaFilter } from 'ui/MoonsamaFilter/MoonsamaFilter';
 import { useMoonsamaAttrIds } from 'hooks/useMoonsamaAttrIdsCallback/useMoonsamaAttrIdsCallback';
 import { parseEther } from '@ethersproject/units';
 import {
-  QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW,
+  QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
 } from 'subgraph/orderQueries';
 import {
@@ -325,7 +325,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             return x.id;
           });
 
-          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER_NEW(
+          let query = QUERY_ACTIVE_ORDERS_FOR_FILTER(
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
@@ -415,14 +415,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) {
             tempIdsAndUris.push(tempIdsAndUri);
-            tempOrders.push(orders[number.indexer])
+            tempOrders.push(orders[number.indexer]);
           }
         });
         if(sortBy === SortOption.TOKEN_ID_DESC){
           tempOrders = tempOrders.reverse();
         }
-        idsAndUris = tempIdsAndUris;
         orders = tempOrders;
+        idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
