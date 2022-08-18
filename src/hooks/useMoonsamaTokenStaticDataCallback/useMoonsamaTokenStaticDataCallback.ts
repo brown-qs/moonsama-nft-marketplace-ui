@@ -387,8 +387,9 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
+      let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
@@ -397,7 +398,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        let tempOrders: Order[] = [];
+        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
@@ -409,12 +410,17 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (flag !== 0) {
+        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
           });
-          if (tempIdsAndUri) tempIdsAndUris.push(tempIdsAndUri);
+          if (tempIdsAndUri) {
+            tempIdsAndUris.push(tempIdsAndUri);
+            tempOrders.push(orders[number.indexer])
+          }
         });
+        orders= tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
