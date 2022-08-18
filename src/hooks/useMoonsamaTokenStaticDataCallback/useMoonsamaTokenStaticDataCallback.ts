@@ -406,7 +406,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         });
         orders = tempOrders;
       }
-
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       if (flag !== 0) {
         tempOrders = [];
@@ -416,9 +415,14 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) {
             tempIdsAndUris.push(tempIdsAndUri);
+            tempOrders.push(orders[number.indexer])
           }
         });
+        if(sortBy === SortOption.TOKEN_ID_DESC){
+          tempOrders = tempOrders.reverse();
+        }
         idsAndUris = tempIdsAndUris;
+        orders = tempOrders;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =
           offsetNum + num >= idsAndUris.length
