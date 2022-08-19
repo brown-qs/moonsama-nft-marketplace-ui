@@ -15,6 +15,7 @@ import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
+  QUERY_ORDERS_FOR_TOKEN_WITH_PRICE,
 } from 'subgraph/orderQueries';
 import {
   QUERY_SUBSQUID_ERC721_ACTIVE_ID,
@@ -28,7 +29,6 @@ import request from 'graphql-request';
 import {
   DEFAULT_CHAIN,
   MARKETPLACE_SUBGRAPH_URLS,
-  TOKEN_SUBSQUID_URLS,
 } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { SortOption } from 'ui/Sort/Sort';
@@ -300,7 +300,9 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        )
+        ) &&
+        (sortBy === SortOption.TOKEN_ID_ASC ||
+          sortBy === SortOption.TOKEN_ID_DESC)
       ) {
         flag = 1;
         let chosenAssets = chooseMoonsamaAssetsAll(
@@ -330,8 +332,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
             rangeInWei[1].toString(),
-            'price',
-            sortBy === SortOption.PRICE_ASC
           );
 
           const result = await request(
@@ -345,21 +345,60 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ordersFetch = ordersFetch.concat(orders);
           }
         }
-      } else if (
+      } 
+      else if (
+        !(
+          !priceRange ||
+          priceRange.length === 0 ||
+          priceRange.length !== 2 ||
+          !selectedOrderType
+        ) &&
+        (sortBy === SortOption.PRICE_ASC ||
+          sortBy === SortOption.PRICE_DESC)
+      ){
+        let index = 0;
+        flag = 2;
+        const rangeInWei = priceRange.map((x) =>
+        parseEther(x.toString()).mul(TEN_POW_18)
+      );
+        while (1) {
+          let query = QUERY_ORDERS_FOR_TOKEN_WITH_PRICE(
+            assetAddress,
+            selectedOrderType,
+            sortBy === SortOption.PRICE_ASC,
+            index,
+            1000,
+            rangeInWei[0].toString(),
+            rangeInWei[1].toString()
+          );
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+
+          if (!result || !result?.orders.length) {
+            break;
+          }
+          index += 1000;
+          let orders: any[] = result?.orders;
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
+        }
+      }
+      else if (
         sortBy === SortOption.PRICE_ASC ||
         sortBy === SortOption.PRICE_DESC
       ) {
         let index = 0;
-        flag = 2;
+        flag = 3;
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
           );
-
           const result = await request(
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
@@ -386,42 +425,32 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-      let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       }
+
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
+      let tempOrders: Order[] = [];
       if (flag !== 0) {
-        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
           });
           if (tempIdsAndUri) {
             tempIdsAndUris.push(tempIdsAndUri);
-            tempOrders.push(orders[number.indexer]);
+            tempOrders.push(orders[number.indexer])
           }
         });
         if(sortBy === SortOption.TOKEN_ID_DESC){
           tempOrders = tempOrders.reverse();
         }
-        orders = tempOrders;
+        orders= tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =

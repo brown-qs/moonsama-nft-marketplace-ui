@@ -157,7 +157,7 @@ export const QUERY_FLOOR_ORDER = (assetAddress: string) => gql`
       ${ORDER_FIELDS}
     }
   }
-`
+`;
 
 export const QUERY_TOKEN_PAGE_ORDERS = (
   onlyActive: boolean,
@@ -255,15 +255,52 @@ export const QUERY_ACTIVE_ORDERS_FOR_FILTER = (
   orderType: OrderType,
   assetIdsJSONString: string,
   lowerPPURange: string,
-  upperPPURange: string,
-  orderBy: string,
-  orderDirection: boolean,
+  upperPPURange: string
 ) => gql`
   query getUserActiveOrders {
     ${META}
     orders(where: {active: true, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", ${
   orderType === OrderType.BUY ? 'buyAsset_in' : 'sellAsset_in'
-}: ${assetIdsJSONString}}, orderBy: ${orderBy == 'price' ? 'pricePerUnit' : 'createdAt'}, orderDirection: ${orderDirection ? 'asc' : 'desc'}) {
+}: ${assetIdsJSONString}}, orderBy: createdAt, orderDirection: desc) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_ORDERS_FOR_TOKEN = (
+  assetAddress: string,
+  orderDirection: boolean,
+  from: number,
+  num: number
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    orders: orders(where: {active: true, sellAsset_starts_with : "${assetAddress?.toLowerCase()}"}, orderBy: askPerUnitNominator , orderDirection: ${
+  orderDirection ? 'asc' : 'desc'
+}, skip: ${from}, first: ${num ?? DEFAULT_ORDERBOOK_PAGINATION}) {
+      ${ORDER_FIELDS}
+    }
+  }
+`;
+
+export const QUERY_ORDERS_FOR_TOKEN_WITH_PRICE = (
+  assetAddress: string,
+  orderType: OrderType,
+  orderDirection: boolean,
+  from: number,
+  num: number,
+  lowerPPURange: string,
+  upperPPURange: string
+) => gql`
+  query getUserActiveOrders {
+    ${META}
+    orders: orders(where: {active: true,  ${
+      orderType === OrderType.BUY
+        ? 'buyAsset_starts_with'
+        : 'sellAsset_starts_with'
+    }: "${assetAddress?.toLowerCase()}"}, pricePerUnit_lte: "${upperPPURange}", pricePerUnit_gte: "${lowerPPURange}", orderBy: pricePerUnit, orderDirection: ${
+  orderDirection ? 'asc' : 'desc'
+}, skip: ${from}, first: ${num ?? DEFAULT_ORDERBOOK_PAGINATION}) {
       ${ORDER_FIELDS}
     }
   }
@@ -275,11 +312,13 @@ export const QUERY_LATEST_SELL_ORDERS_FOR_TOKEN = (
   from: number,
   num: number,
   sortBy: string,
-  direction: string,
+  direction: string
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, buyAsset: "${buyAssetId}", sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, buyAsset: "${buyAssetId}", sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${
+  { time: 'createdAt', price: 'pricePerUnit', quantity: 'quantity' }[sortBy]
+}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -292,11 +331,13 @@ export const QUERY_LATEST_PAYMENTTOKEN_SELL_ORDERS_FOR_TOKEN = (
   from: number,
   num: number,
   sortBy: string,
-  direction: string,
+  direction: string
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, sellAsset_starts_with: "${sellAssetAddress?.toLowerCase()}"}, orderBy: ${
+  { time: 'createdAt', price: 'pricePerUnit', quantity: 'quantity' }[sortBy]
+}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -310,11 +351,13 @@ export const QUERY_LATEST_BUY_ORDERS_FOR_TOKEN = (
   from: number,
   num: number,
   sortBy: string,
-  direction: string,
+  direction: string
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, sellAsset: "${sellAssetId}", buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, sellAsset: "${sellAssetId}", buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${
+  { time: 'createdAt', price: 'pricePerUnit', quantity: 'quantity' }[sortBy]
+}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -327,11 +370,13 @@ export const QUERY_LATEST_PAYMENTTOKEN_BUY_ORDERS_FOR_TOKEN = (
   from: number,
   num: number,
   sortBy: string,
-  direction: string,
+  direction: string
 ) => gql`
   query getUserActiveOrders {
     ${META}
-    latestOrders: orders(where: {active: true, buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${{'time': 'createdAt', 'price': 'pricePerUnit', 'quantity': 'quantity'}[sortBy]}, orderDirection: ${direction}, skip: ${from}, first: ${
+    latestOrders: orders(where: {active: true, buyAsset_starts_with: "${buyAssetAddress?.toLowerCase()}"}, orderBy: ${
+  { time: 'createdAt', price: 'pricePerUnit', quantity: 'quantity' }[sortBy]
+}, orderDirection: ${direction}, skip: ${from}, first: ${
   num ?? DEFAULT_ORDERBOOK_PAGINATION
 }) {
       ${ORDER_FIELDS}
@@ -371,28 +416,11 @@ export const QUERY_LATEST_BUY_ORDERS_WITHOUT_TOKEN = (
   }
 `;
 
-export const QUERY_ORDERS_FOR_TOKEN = (
-  assetAddress: string,
-  orderBy: string,
-  orderDirection: boolean,
-  from: number,
-  num: number,
-) => gql`
-  query getUserActiveOrders {
-    ${META}
-    orders: orders(where: {active: true, sellAsset_starts_with: "${assetAddress?.toLowerCase()}"}, orderBy: ${orderBy == 'price' ? 'askPerUnitNominator' : 'createdAt'}, orderDirection: ${orderDirection ? 'asc' : 'desc'}, skip: ${from}, first: ${
-      num ?? DEFAULT_ORDERBOOK_PAGINATION
-    }) {
-      ${ORDER_FIELDS}
-    }
-  }
-`;
-
 export const QUERY_ASSETS_BY_PRICE = (
   assetIdsJSONString: string,
   from: number,
   num: number,
-  orderDirection: boolean,
+  orderDirection: boolean
 ) => gql`
   query getAssesByPriceOrder {
     ${META}
@@ -406,7 +434,9 @@ export const QUERY_ASSETS_BY_PRICE = (
         }
       },
       sort: [
-        { alias: "minOfPricePerUnit", direction: ${orderDirection ? 'ASC' : 'DESC'} }
+        { alias: "minOfPricePerUnit", direction: ${
+          orderDirection ? 'ASC' : 'DESC'
+        } }
       ],
       having: {active: true, sellAsset_in: ${assetIdsJSONString}}
     }, skip: ${from}, first: ${num}) {

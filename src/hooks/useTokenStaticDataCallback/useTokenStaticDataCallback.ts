@@ -20,6 +20,7 @@ import { parseEther } from '@ethersproject/units';
 import {
   QUERY_ACTIVE_ORDERS_FOR_FILTER,
   QUERY_ORDERS_FOR_TOKEN,
+  QUERY_ORDERS_FOR_TOKEN_WITH_PRICE,
 } from 'subgraph/orderQueries';
 import {
   QUERY_SUBSQUID_ERC721_ACTIVE_ID,
@@ -375,7 +376,9 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        )
+        ) &&
+        (sortBy === SortOption.TOKEN_ID_ASC ||
+          sortBy === SortOption.TOKEN_ID_DESC)
       ) {
         flag = 1;
         let chosenAssets = chooseTokenAssetsAll(
@@ -404,9 +407,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString(),
-            'price',
-            sortBy === SortOption.PRICE_ASC
+            rangeInWei[1].toString()
           );
 
           const result = await request(
@@ -421,6 +422,44 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
           }
         }
       } else if (
+        !(
+          !priceRange ||
+          priceRange.length === 0 ||
+          priceRange.length !== 2 ||
+          !selectedOrderType
+        ) &&
+        (sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC)
+      ) {
+        let index = 0;
+        flag = 2;
+        const rangeInWei = priceRange.map((x) =>
+          parseEther(x.toString()).mul(TEN_POW_18)
+        );
+        while (1) {
+          let query = QUERY_ORDERS_FOR_TOKEN_WITH_PRICE(
+            assetAddress,
+            selectedOrderType,
+            sortBy === SortOption.PRICE_ASC,
+            index,
+            1000,
+            rangeInWei[0].toString(),
+            rangeInWei[1].toString()
+          );
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+
+          if (!result || !result?.orders.length) {
+            break;
+          }
+          index += 1000;
+          let orders: any[] = result?.orders;
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
+        }
+      } else if (
         sortBy === SortOption.PRICE_ASC ||
         sortBy === SortOption.PRICE_DESC
       ) {
@@ -429,7 +468,6 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -461,30 +499,20 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         theAssetNumber.push({ assetId: a?.assetId, indexer: i });
         return o;
       });
-      let tempOrders: Order[] = [];
+
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
+      let tempOrders: Order[] = [];
       if (theAssetNumber.length || flag !== 0) {
-        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
@@ -658,7 +686,9 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
-        )
+        ) &&
+        (sortBy === SortOption.TOKEN_ID_ASC ||
+          sortBy === SortOption.TOKEN_ID_DESC)
       ) {
         flag = 1;
         let chosenAssets = chooseTokenAssetsAll(
@@ -687,9 +717,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString(),
-            'price',
-            sortBy === SortOption.PRICE_ASC
+            rangeInWei[1].toString()
           );
 
           const result = await request(
@@ -703,6 +731,44 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
           }
         }
       } else if (
+        !(
+          !priceRange ||
+          priceRange.length === 0 ||
+          priceRange.length !== 2 ||
+          !selectedOrderType
+        ) &&
+        (sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC)
+      ) {
+        let index = 0;
+        flag = 2;
+        const rangeInWei = priceRange.map((x) =>
+          parseEther(x.toString()).mul(TEN_POW_18)
+        );
+        while (1) {
+          let query = QUERY_ORDERS_FOR_TOKEN_WITH_PRICE(
+            assetAddress,
+            selectedOrderType,
+            sortBy === SortOption.PRICE_ASC,
+            index,
+            1000,
+            rangeInWei[0].toString(),
+            rangeInWei[1].toString()
+          );
+          const result = await request(
+            MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
+            query
+          );
+
+          if (!result || !result?.orders.length) {
+            break;
+          }
+          index += 1000;
+          let orders: any[] = result?.orders;
+          if (orders && orders.length > 0) {
+            ordersFetch = ordersFetch.concat(orders);
+          }
+        }
+      } else if (
         sortBy === SortOption.PRICE_ASC ||
         sortBy === SortOption.PRICE_DESC
       ) {
@@ -711,7 +777,6 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN(
             assetAddress,
-            'price',
             sortBy === SortOption.PRICE_ASC,
             index,
             1000
@@ -744,30 +809,19 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      let tempOrders: Order[] = [];
       if (flag == 1 && sortBy === SortOption.TOKEN_ID_ASC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       } else if (flag == 1 && sortBy === SortOption.TOKEN_ID_DESC) {
-        tempOrders = [];
         theAssetNumber.sort((a, b) => {
           return parseInt(b.assetId) - parseInt(a.assetId);
         });
-        theAssetNumber.map((number) => {
-          tempOrders.push(orders[number.indexer]);
-        });
-        orders = tempOrders;
       }
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
+      let tempOrders: Order[] = [];
       if (flag !== 0) {
-        tempOrders = [];
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
             return idsAndUri.assetId == number.assetId;
