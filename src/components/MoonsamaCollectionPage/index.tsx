@@ -156,7 +156,8 @@ const MoonsamaCollectionPage = () => {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
-          setTake
+          setTake,
+          0
         );
         data = res.data;
         setTotalLength(
@@ -166,9 +167,10 @@ const MoonsamaCollectionPage = () => {
         );
       } else {
         const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(parseInt(search) - 1),
-          setTake
+          searchSize,
+          BigNumber.from(0),
+          setTake,
+          parseInt(search)
         );
         data = res.data;
         setTotalLength(
@@ -235,9 +237,10 @@ const MoonsamaCollectionPage = () => {
         setPageLoading(true);
 
         const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(tokenID - 1),
-          setTake
+          searchSize,
+          BigNumber.from(0),
+          setTake,
+          tokenID
         );
         setTotalLength(
           res.length % searchSize
@@ -256,7 +259,8 @@ const MoonsamaCollectionPage = () => {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
-          setTake
+          setTake,
+          0
         );
         setTotalLength(
           res.length % searchSize

@@ -26,10 +26,7 @@ import {
 } from 'subgraph/erc721Queries';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import request from 'graphql-request';
-import {
-  DEFAULT_CHAIN,
-  MARKETPLACE_SUBGRAPH_URLS,
-} from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { SortOption } from 'ui/Sort/Sort';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
@@ -159,7 +156,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
     async (
       num: number,
       offset: BigNumber,
-      setTake?: (take: number) => void
+      setTake: (take: number) => void,
+      searchId: number
     ) => {
       if (!assetAddress || !assetType) {
         console.log({ assetAddress, assetType });
@@ -243,10 +241,18 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
       }
       for (let i = 0; i < res.length; i++) {
         if (
-          !ids.length ||
-          (ids.length && ids.includes(parseInt(res[i].numericId)))
-        )
+          (!ids.length && !searchId) ||
+          (!ids.length && searchId && searchId == parseInt(res[i].numericId)) ||
+          (ids.length &&
+            !searchId &&
+            ids.includes(parseInt(res[i].numericId))) ||
+          (ids.length &&
+            searchId &&
+            searchId == parseInt(res[i].numericId) &&
+            ids.includes(parseInt(res[i].numericId)))
+        ) {
           idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        }
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
@@ -331,7 +337,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             selectedOrderType,
             JSON.stringify(sgAssets),
             rangeInWei[0].toString(),
-            rangeInWei[1].toString(),
+            rangeInWei[1].toString()
           );
 
           const result = await request(
@@ -345,22 +351,20 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ordersFetch = ordersFetch.concat(orders);
           }
         }
-      } 
-      else if (
+      } else if (
         !(
           !priceRange ||
           priceRange.length === 0 ||
           priceRange.length !== 2 ||
           !selectedOrderType
         ) &&
-        (sortBy === SortOption.PRICE_ASC ||
-          sortBy === SortOption.PRICE_DESC)
-      ){
+        (sortBy === SortOption.PRICE_ASC || sortBy === SortOption.PRICE_DESC)
+      ) {
         let index = 0;
         flag = 2;
         const rangeInWei = priceRange.map((x) =>
-        parseEther(x.toString()).mul(TEN_POW_18)
-      );
+          parseEther(x.toString()).mul(TEN_POW_18)
+        );
         while (1) {
           let query = QUERY_ORDERS_FOR_TOKEN_WITH_PRICE(
             assetAddress,
@@ -385,8 +389,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             ordersFetch = ordersFetch.concat(orders);
           }
         }
-      }
-      else if (
+      } else if (
         sortBy === SortOption.PRICE_ASC ||
         sortBy === SortOption.PRICE_DESC
       ) {
@@ -444,13 +447,13 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           });
           if (tempIdsAndUri) {
             tempIdsAndUris.push(tempIdsAndUri);
-            tempOrders.push(orders[number.indexer])
+            tempOrders.push(orders[number.indexer]);
           }
         });
-        if(sortBy === SortOption.TOKEN_ID_DESC){
+        if (sortBy === SortOption.TOKEN_ID_DESC) {
           tempOrders = tempOrders.reverse();
         }
-        orders= tempOrders;
+        orders = tempOrders;
         idsAndUris = tempIdsAndUris;
         let offsetNum = BigNumber.from(offset).toNumber();
         const to =

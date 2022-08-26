@@ -439,6 +439,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         }
         orders = tempOrders;
         idsAndUris = tempIdsAndUris;
+      } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
+        idsAndUris = idsAndUris.reverse();
       }
 
       let totalLength =
@@ -581,7 +583,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
           offset,
           num,
           idsAndUris,
-          sortBy === SortOption.TOKEN_ID_ASC || sortBy === SortOption.PRICE_ASC
+          true
         );
         const statics = await fetchStatics(chosenAssets);
         let totalLength = num === 1 ? num : idsAndUris.length;

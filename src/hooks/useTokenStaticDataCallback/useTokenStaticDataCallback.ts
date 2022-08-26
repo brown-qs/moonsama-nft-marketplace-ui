@@ -294,7 +294,8 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
     async (
       num: number,
       offset: BigNumber,
-      setTake?: (take: number) => void
+      setTake: (take: number) => void,
+      searchId: number
     ) => {
       if (!assetAddress || !assetType) {
         console.log({ assetAddress, assetType });
@@ -324,7 +325,9 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
         }
       }
       for (let i = 0; i < res.length; i++) {
-        idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        if (!searchId || searchId == parseInt(res[i].numericId)) {
+          idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        }
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
@@ -600,7 +603,8 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
     async (
       num: number,
       offset: BigNumber,
-      setTake?: (take: number) => void
+      setTake: (take: number) => void,
+      searchId: number
     ) => {
       if (!assetAddress || !assetType) {
         console.log({ assetAddress, assetType });
@@ -631,10 +635,18 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
       }
       for (let i = 0; i < res.length; i++) {
         if (
-          !ids.length ||
-          (ids.length && ids.includes(parseInt(res[i].numericId)))
-        )
+          (!ids.length && !searchId) ||
+          (!ids.length && searchId && searchId == parseInt(res[i].numericId)) ||
+          (ids.length &&
+            !searchId &&
+            ids.includes(parseInt(res[i].numericId))) ||
+          (ids.length &&
+            searchId &&
+            searchId == parseInt(res[i].numericId) &&
+            ids.includes(parseInt(res[i].numericId)))
+        ) {
           idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        }
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
