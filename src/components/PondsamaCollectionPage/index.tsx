@@ -157,7 +157,8 @@ const PondsamaCollectionPage = () => {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
-          setCollection
+          setCollection,
+          0
         );
         setTotalLength(
           res % searchSize
@@ -166,9 +167,10 @@ const PondsamaCollectionPage = () => {
         );
       } else {
         const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(parseInt(search) - 1),
-          setCollection
+          searchSize,
+          BigNumber.from(0),
+          setCollection,
+          parseInt(search)
         );
         setTotalLength(
           res % searchSize
@@ -198,9 +200,10 @@ const PondsamaCollectionPage = () => {
         setPaginationEnded(true);
         setPageLoading(true);
         const res: any = await getItemsWithFilterAndSort(
-          1,
-          BigNumber.from(tokenID - 1),
-          setCollection
+          searchSize,
+          BigNumber.from(0),
+          setCollection,
+          tokenID
         );
         setTotalLength(
           res % searchSize
@@ -214,7 +217,8 @@ const PondsamaCollectionPage = () => {
         const res: any = await getItemsWithFilterAndSort(
           searchSize,
           BigNumber.from(take),
-          setCollection
+          setCollection,
+          0
         );
         setTotalLength(
           res % searchSize

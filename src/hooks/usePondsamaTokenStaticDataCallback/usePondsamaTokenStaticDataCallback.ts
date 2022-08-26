@@ -156,7 +156,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   const coll = useRawcollection(assetAddress ?? '');
   const subsquid = coll?.subsquid ?? '';
   const fetchTokenStaticData = useCallback(
-    async (num: number, offset: BigNumber, setCollection) => {
+    async (num: number, offset: BigNumber, setCollection, searchId: number) => {
       if (!assetAddress || !assetType) {
         return [];
       }
@@ -237,7 +237,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       let idsAndUris: { tokenURI: string; assetId: string }[] = [];
 
       for (let i = 0; i < res.length; i++) {
-        idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        if (!searchId || searchId == parseInt(res[i].numericId)) {
+          idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+        }
       }
 
       const fetchStatics = async (assets: Asset[], orders?: Order[]) => {
@@ -437,8 +439,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         }
         orders = tempOrders;
         idsAndUris = tempIdsAndUris;
-      } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
-        idsAndUris = idsAndUris.reverse();
       }
 
       let totalLength =
@@ -451,7 +451,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         staticData: StaticTokenData;
       }[] = [];
       const offsetNum = BigNumber.from(offset).toNumber();
-      console.log("piece!", {theAssetNumber, orders})
+      console.log('piece!', { theAssetNumber, orders });
       if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
@@ -535,15 +535,14 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
                 newMetas.length < offsetNum + num
               ) {
                 //add orders when it have someday
-                if(orders[k * 1000+i]){
+                if (orders[k * 1000 + i]) {
                   let piece1 = {
                     meta: metas[i],
                     staticData: staticData[i],
-                    order: orders[k * 1000+i]
+                    order: orders[k * 1000 + i],
                   };
                   pieces.push(piece1);
-                }
-                else{
+                } else {
                   let piece = {
                     meta: metas[i],
                     staticData: staticData[i],
