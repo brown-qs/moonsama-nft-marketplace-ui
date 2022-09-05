@@ -525,7 +525,7 @@ export const useERC721TokenStaticDataCallbackArrayWithFilter = (
             tempOrders.push(orders[number.indexer]);
           }
         });
-        if (sortBy === SortOption.TOKEN_ID_DESC) {
+        if (sortBy === SortOption.TOKEN_ID_DESC && flag !==1) {
           tempOrders = tempOrders.reverse();
         }
         orders = tempOrders;
@@ -843,7 +843,7 @@ export const useERC1155TokenStaticDataCallbackArrayWithFilter = (
             tempOrders.push(orders[number.indexer]);
           }
         });
-        if (sortBy === SortOption.TOKEN_ID_DESC) {
+        if (sortBy === SortOption.TOKEN_ID_DESC && flag !==1) {
           tempOrders = tempOrders.reverse();
         }
         orders = tempOrders;

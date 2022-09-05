@@ -450,7 +450,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             tempOrders.push(orders[number.indexer]);
           }
         });
-        if (sortBy === SortOption.TOKEN_ID_DESC) {
+        if (sortBy === SortOption.TOKEN_ID_DESC && flag !==1) {
           tempOrders = tempOrders.reverse();
         }
         orders = tempOrders;

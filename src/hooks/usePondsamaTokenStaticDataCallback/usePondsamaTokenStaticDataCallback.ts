@@ -328,7 +328,10 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             MARKETPLACE_SUBGRAPH_URLS[chainId ?? DEFAULT_CHAIN],
             query
           );
-          const orders = result?.orders;
+          let orders = result?.orders;
+          // if( sortBy === SortOption.TOKEN_ID_DESC){
+          //   orders = [...orders].reverse();
+          // }
           if (orders && orders.length > 0) {
             ordersFetch = ordersFetch.concat(orders);
           }
@@ -412,6 +415,7 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
+      console.log("flag1", flag, orders,theAssetNumber )
       if (flag === 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
@@ -424,6 +428,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       let tempOrders: Order[] = [];
+      console.log("flag2", flag, orders, theAssetNumber )
+
       if (flag !== 0) {
         theAssetNumber.map((number) => {
           let tempIdsAndUri = idsAndUris.find((idsAndUri) => {
@@ -434,11 +440,12 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             tempOrders.push(orders[number.indexer]);
           }
         });
-        if (sortBy === SortOption.TOKEN_ID_DESC) {
+        if (sortBy === SortOption.TOKEN_ID_DESC && flag !==1) {
           tempOrders = tempOrders.reverse();
         }
         orders = tempOrders;
         idsAndUris = tempIdsAndUris;
+        console.log("flag3", flag, orders, theAssetNumber )
       } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
         idsAndUris = idsAndUris.reverse();
       }
