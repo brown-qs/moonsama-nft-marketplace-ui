@@ -49,11 +49,9 @@ export const useUserCollection = () => {
       const fetches = rawCollections.map(async (collection) => {
 
         let assetsAndBalances: {assets: Asset[], balances: string[]};
-        let subsquid = collection.subsquid?? "";
-
         if (collection.type === 'ERC721') {
           const query = QUERY_SUBSQUID_USER_ERC721(account);
-          const response = await request( subsquid, query);
+          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
 
           if (!response) {
             result[collection.display_name] = [];
@@ -85,7 +83,7 @@ export const useUserCollection = () => {
           }
         } else {
           const query = QUERY_SUBSQUID_USER_ERC1155(account);
-          const response = await request( subsquid, query);
+          const response = await request( TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
 
           if (!response) {
             result[collection.display_name] = [];
