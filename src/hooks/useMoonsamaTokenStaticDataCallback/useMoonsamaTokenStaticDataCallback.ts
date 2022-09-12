@@ -26,7 +26,7 @@ import {
 } from 'subgraph/erc721Queries';
 import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 import request from 'graphql-request';
-import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS } from '../../constants';
+import { DEFAULT_CHAIN, MARKETPLACE_SUBGRAPH_URLS, TOKEN_SUBSQUID_URLS } from '../../constants';
 import { TEN_POW_18 } from 'utils';
 import { SortOption } from 'ui/Sort/Sort';
 import { TokenMeta } from 'hooks/useFetchTokenUri.ts/useFetchTokenUri.types';
@@ -150,8 +150,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   let ids = useMoonsamaAttrIds(filter?.traits);
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  const recognizedCollection = useRawcollection(assetAddress ?? '');
-  const subsquid = recognizedCollection?.subsquid ?? '';
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -168,7 +166,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
       const owned: OwnedFilterType | undefined = filter?.owned;
       const CONTRACT_QUERY = QUERY_SUBSQUID_ERC721_CONTRACT_DATA(assetAddress);
-      const contractData = await request(subsquid, CONTRACT_QUERY);
+      const contractData = await request(TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], CONTRACT_QUERY);
       let moonsamaTotalSupply = parseInt(
         contractData.erc721Contracts[0].totalSupply
       );
@@ -202,7 +200,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             0,
             moonsamaTotalSupply
           );
-        res1 = await request(subsquid, moonsamaQuery);
+        res1 = await request(TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], moonsamaQuery);
         res = res1.erc721Tokens;
       } else {
         let from = 0;
@@ -233,7 +231,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               from,
               1000
             );
-          let res1 = await request(subsquid, moonsamaQuery);
+          let res1 = await request(TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], moonsamaQuery);
           for (let i = 0; i < res1.erc721Tokens.length; i++)
             res.push(res1.erc721Tokens[i]);
           from += 1000;
@@ -270,7 +268,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
           assets.map((a) => a.assetId)
         );
 
-        const ress = await request(subsquid, query);
+        const ress = await request(TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
         let tokens: any[] = ress.erc721Tokens;
         console.log('tokens', tokens);
 
@@ -285,8 +283,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: token.uri,
-              metadata: token.meta,
+              tokenURI: token.tokenUri,
+              metadata: token.metadata,
             };
           });
         }
