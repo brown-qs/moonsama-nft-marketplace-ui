@@ -124,6 +124,7 @@ const PondsamaCollectionPage = () => {
   const handlePageChange = useCallback(
     (event: React.ChangeEvent<unknown>, value: number) => {
       if (pageLoading) return;
+      setCollection([]);
       handleNavigate('page=', value);
       setPage(value);
       setTake((state) => (state = searchSize * (value - 1)));
