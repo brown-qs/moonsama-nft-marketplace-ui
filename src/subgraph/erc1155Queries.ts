@@ -41,13 +41,12 @@ export const QUERY_SUBSQUID_ERC1155_ACTIVE_ID = (
     erc1155Tokens(orderBy: numericId_ASC, where: {contract: {address_eq: "${address.toLowerCase()}"}}, limit: ${count}, offset:  ${from}) {
       id
       numericId
-      uri
+      tokenUri
       totalSupply
-      meta {
-        animationUrl
+      metadata {
         attributes {
-          display
-          trait
+          displayType
+          traitType
           value
         }
         description
@@ -77,13 +76,12 @@ export const QUERY_SUBSQUID_ERC1155_OWNED_ID = (
     ) {
       id
       numericId
-      uri
+      tokenUri
       totalSupply
-      meta {
-        animationUrl
+      metadata {
         attributes {
-          display
-          trait
+          displayType
+          traitType
           value
         }
         description
@@ -113,13 +111,12 @@ export const QUERY_SUBSQUID_ERC1155_NOTOWNED_ID = (
     ) {
       id
       numericId
-      uri
+      tokenUri
       totalSupply
-      meta {
-        animationUrl
+      metadata {
         attributes {
-          display
-          trait
+          displayType
+          traitType
           value
         }
         description
@@ -148,13 +145,12 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
     ) {
       id
       numericId
-      uri
+      tokenUri
       totalSupply
-      meta {
-        animationUrl
+      metadata {
         attributes {
-          display
-          trait
+          displayType
+          traitType
           value
         }
         description

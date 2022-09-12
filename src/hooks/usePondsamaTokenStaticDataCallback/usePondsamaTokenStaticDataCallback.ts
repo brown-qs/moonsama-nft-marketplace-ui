@@ -153,7 +153,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
   const { account, chainId } = useActiveWeb3React();
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  const coll = useRawcollection(assetAddress ?? '');
   const fetchTokenStaticData = useCallback(
     async (num: number, offset: BigNumber, setCollection, searchId: number) => {
       if (!assetAddress || !assetType) {
@@ -267,8 +266,8 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: token.uri,
-              metadata: token.meta,
+              tokenURI: token.tokenUri,
+              metadata: token.metadata,
             };
           });
         }
@@ -495,35 +494,35 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
             let token = ress.erc721Tokens.find(
               (t: any) => t.numericId === ca.assetId
             );
-            return token.meta;
+            return token.metadata;
           });
           for (let i = 0; i < metas.length; i++) {
             let metaFlag = true;
             let selectedPondTraits = filter.pondTraits;
             for (let j = 0; j < metas[i].attributes.length; j++) {
               if (
-                metas[i].attributes[j].trait === 'HP' &&
+                metas[i].attributes[j].traitType === 'HP' &&
                 (metas[i].attributes[j].value < filter.hpRange[0] ||
                   metas[i].attributes[j].value > filter.hpRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait === 'PW' &&
+                metas[i].attributes[j].traitType === 'PW' &&
                 (metas[i].attributes[j].value < filter?.pwRange[0] ||
                   metas[i].attributes[j].value > filter?.pwRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait === 'SP' &&
+                metas[i].attributes[j].traitType === 'SP' &&
                 (metas[i].attributes[j].value < filter?.spRange[0] ||
                   metas[i].attributes[j].value > filter?.spRange[1])
               ) {
                 metaFlag = false;
                 break;
               } else if (
-                metas[i].attributes[j].trait === 'DF' &&
+                metas[i].attributes[j].traitType === 'DF' &&
                 (metas[i].attributes[j].value < filter?.dfRange[0] ||
                   metas[i].attributes[j].value > filter?.dfRange[1])
               ) {

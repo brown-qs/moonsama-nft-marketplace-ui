@@ -150,7 +150,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
   let ids = useMoonsamaAttrIds(filter?.traits);
   const priceRange = filter?.priceRange;
   const selectedOrderType = filter?.selectedOrderType;
-  const recognizedCollection = useRawcollection(assetAddress ?? '');
   const fetchTokenStaticData = useCallback(
     async (
       num: number,
@@ -284,8 +283,8 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
               name: contractData.erc721Contracts[0].name,
               symbol: contractData.erc721Contracts[0].symbol,
               totalSupply: contractData.erc721Contracts[0].totalSupply,
-              tokenURI: token.uri,
-              metadata: token.meta,
+              tokenURI: token.tokenUri,
+              metadata: token.metadata,
             };
           });
         }
