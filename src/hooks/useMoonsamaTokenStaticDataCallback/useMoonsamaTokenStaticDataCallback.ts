@@ -249,7 +249,7 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
             searchId == parseInt(res[i].numericId) &&
             ids.includes(parseInt(res[i].numericId)))
         ) {
-          idsAndUris.push({ tokenURI: res[i].uri, assetId: res[i].numericId });
+          idsAndUris.push({ tokenURI: res[i].tokenUri, assetId: res[i].numericId });
         }
       }
 
@@ -270,7 +270,6 @@ export const useMoonsamaTokenStaticDataCallbackArrayWithFilter = (
 
         const ress = await request(TOKEN_SUBSQUID_URLS[chainId ?? DEFAULT_CHAIN], query);
         let tokens: any[] = ress.erc721Tokens;
-        console.log('tokens', tokens);
 
         let staticData: StaticTokenData[] = [];
         if (tokens.length) {

@@ -29,7 +29,6 @@ export const QUERY_SUBSQUID_ERC721_ACTIVE_ID = (
       offset: ${from}
       limit: ${count}
     ){
-      id
       numericId
       tokenUri
     }
@@ -52,7 +51,6 @@ export const QUERY_SUBSQUID_ERC721_OWNED_ID = (
       offset: ${from}
       limit: ${count}
     ){
-      id
       numericId
       tokenUri
     }
@@ -75,7 +73,6 @@ export const QUERY_SUBSQUID_ERC721_NOTOWNED_ID = (
       offset: ${from}
       limit: ${count}
     ){
-      id
       numericId
       tokenUri
     }
@@ -96,7 +93,6 @@ export const QUERY_SUBSQUID_ERC721_ID_IN = (
 )}]
       }
     ){
-      id
       numericId
       tokenUri
       metadata {

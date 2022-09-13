@@ -22,7 +22,6 @@ export const QUERY_SUBSQUID_ERC1155_ACTIVE_ID = (
 ) => gql`
   query getUserActiveOrders {
     erc1155Tokens(orderBy: numericId_ASC, where: {contract: {id_startsWith: "${address.toLowerCase()}"}}, limit: ${count}, offset:  ${from}) {
-      id
       numericId
       tokenUri
       totalSupply
@@ -45,7 +44,6 @@ export const QUERY_SUBSQUID_ERC1155_OWNED_ID = (
       offset: ${from}
       limit: ${count}
     ) {
-      id
       numericId
       tokenUri
       totalSupply
@@ -68,7 +66,6 @@ export const QUERY_SUBSQUID_ERC1155_NOTOWNED_ID = (
       offset: ${from}
       limit: ${count}
     ) {
-      id
       numericId
       tokenUri
       totalSupply
@@ -90,7 +87,6 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
         )}]
       }
     ) {
-      id
       numericId
       tokenUri
       totalSupply
