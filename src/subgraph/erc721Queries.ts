@@ -22,7 +22,7 @@ export const QUERY_SUBSQUID_ERC721_ACTIVE_ID = (
   query getUserActiveOrders {
     erc721Tokens(
       where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
         owner: { id_not_eq: "0x0000000000000000000000000000000000000000" }
       }
       orderBy: numericId_ASC
@@ -32,18 +32,6 @@ export const QUERY_SUBSQUID_ERC721_ACTIVE_ID = (
       id
       numericId
       tokenUri
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -57,7 +45,7 @@ export const QUERY_SUBSQUID_ERC721_OWNED_ID = (
   query getUserActiveOrders {
     erc721Tokens(
       where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
         owner: { id_eq: "${owner.toLowerCase()}" }
       }
       orderBy: numericId_ASC
@@ -67,18 +55,6 @@ export const QUERY_SUBSQUID_ERC721_OWNED_ID = (
       id
       numericId
       tokenUri
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -92,7 +68,7 @@ export const QUERY_SUBSQUID_ERC721_NOTOWNED_ID = (
   query getUserActiveOrders {
     erc721Tokens(
       where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
         owner: { id_not_eq: "${owner.toLowerCase()}" }
       }
       orderBy: numericId_ASC
@@ -102,18 +78,6 @@ export const QUERY_SUBSQUID_ERC721_NOTOWNED_ID = (
       id
       numericId
       tokenUri
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -126,7 +90,7 @@ export const QUERY_SUBSQUID_ERC721_ID_IN = (
     erc721Tokens(
       orderBy: numericId_ASC,
       where: { 
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
         numericId_in: [${ids.map((id) =>
   typeof id === 'string' ? Number.parseInt(id) : id
 )}]
@@ -153,7 +117,7 @@ export const QUERY_SUBSQUID_ERC721_ID_IN = (
 
 export const QUERY_SUBSQUID_ERC721_CONTRACT_DATA = (address: string) => gql`
 query getUserActiveOrders {
-  erc721Contracts(where: {address_eq: "${address.toLowerCase()}"}) {
+  erc721Contracts(where: {id_startsWith: "${address.toLowerCase()}"}) {
     name
     symbol
     totalSupply

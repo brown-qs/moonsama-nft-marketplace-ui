@@ -413,7 +413,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         return o;
       });
 
-      console.log("flag1", flag, orders,theAssetNumber )
       if (flag === 1 && sortBy === SortOption.TOKEN_ID_ASC) {
         theAssetNumber.sort((a, b) => {
           return parseInt(a.assetId) - parseInt(b.assetId);
@@ -426,7 +425,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
 
       let tempIdsAndUris: { tokenURI: string; assetId: string }[] = [];
       let tempOrders: Order[] = [];
-      console.log("flag2", flag, orders, theAssetNumber )
 
       if (flag !== 0) {
         theAssetNumber.map((number) => {
@@ -447,8 +445,9 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
       } else if (flag === 0 && sortBy === SortOption.TOKEN_ID_DESC) {
         idsAndUris = idsAndUris.reverse();
       }
-
-      let totalLength =
+      const offsetNum = BigNumber.from(offset).toNumber();
+      if (filter && filter.dfRange && filter.dfRange.length === 2) {
+        let totalLength =
         idsAndUris.length % 1000
           ? Math.floor(idsAndUris.length / 1000) + 1
           : Math.floor(idsAndUris.length / 1000);
@@ -457,9 +456,6 @@ export const usePondsamaTokenStaticDataCallbackArrayWithFilter = (
         meta: TokenMeta | undefined;
         staticData: StaticTokenData;
       }[] = [];
-      const offsetNum = BigNumber.from(offset).toNumber();
-      console.log('piece!', { theAssetNumber, orders });
-      if (filter && filter.dfRange && filter.dfRange.length === 2) {
         for (let k = 0; k < totalLength; k++) {
           let tempIds: { tokenURI: string; assetId: string }[] = [];
           if (k * 1000 + 1000 < res.length)

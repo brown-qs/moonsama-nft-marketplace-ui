@@ -1,21 +1,4 @@
 import { gql } from 'graphql-request';
-import { META } from './common';
-
-// export const QUERY_USER_ERC1155 = (account: string) => gql`
-//   query getUserTokens {
-//     ${META}
-//     tokenOwners(where: {owner: "${account.toLowerCase()}"}) {
-//       id,
-//       balance
-//       token {
-//         id
-//         contract {
-//           id
-//         }
-//       }
-//     }
-//   }
-// `;
 
 export const QUERY_SUBSQUID_USER_ERC1155 = (account: string) => gql`
   query getUserTokens {
@@ -38,23 +21,11 @@ export const QUERY_SUBSQUID_ERC1155_ACTIVE_ID = (
   count: number
 ) => gql`
   query getUserActiveOrders {
-    erc1155Tokens(orderBy: numericId_ASC, where: {contract: {address_eq: "${address.toLowerCase()}"}}, limit: ${count}, offset:  ${from}) {
+    erc1155Tokens(orderBy: numericId_ASC, where: {contract: {id_startsWith: "${address.toLowerCase()}"}}, limit: ${count}, offset:  ${from}) {
       id
       numericId
       tokenUri
       totalSupply
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -68,7 +39,7 @@ export const QUERY_SUBSQUID_ERC1155_OWNED_ID = (
   query getUserActiveOrders {
     erc1155Tokens(
       where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
       }
       orderBy: numericId_ASC
       offset: ${from}
@@ -78,18 +49,6 @@ export const QUERY_SUBSQUID_ERC1155_OWNED_ID = (
       numericId
       tokenUri
       totalSupply
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -103,7 +62,7 @@ export const QUERY_SUBSQUID_ERC1155_NOTOWNED_ID = (
   query getUserActiveOrders {
     erc1155Tokens(
       where: {
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
       }
       orderBy: numericId_ASC
       offset: ${from}
@@ -113,18 +72,6 @@ export const QUERY_SUBSQUID_ERC1155_NOTOWNED_ID = (
       numericId
       tokenUri
       totalSupply
-      metadata {
-        attributes {
-          displayType
-          traitType
-          value
-        }
-        description
-        id
-        image
-        name
-        type
-      }
     }
   }
 `;
@@ -137,7 +84,7 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
     erc1155Tokens(
       orderBy: numericId_ASC,
       where: { 
-        contract: { address_eq: "${address.toLowerCase()}" }
+        contract: { id_startsWith: "${address.toLowerCase()}" }
         numericId_in: [${ids.map((id) =>
           typeof id === 'string' ? Number.parseInt(id) : id
         )}]
@@ -165,7 +112,7 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
 
 export const QUERY_SUBSQUID_ERC1155_CONTRACT_DATA = (address: string) => gql`
 query getUserActiveOrders {
-  erc1155Contracts(where: {address_eq: "${address.toLowerCase()}"}) {
+  erc1155Contracts(where: {id_startsWith: "${address.toLowerCase()}"}) {
     name
     symbol
     totalSupply
