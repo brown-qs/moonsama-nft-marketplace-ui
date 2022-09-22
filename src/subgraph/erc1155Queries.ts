@@ -2,7 +2,7 @@ import { gql } from 'graphql-request';
 
 export const QUERY_SUBSQUID_USER_ERC1155 = (account: string) => gql`
   query getUserTokens {
-    erc1155TokenOwners(where: {owner: {id_eq: "${account.toLowerCase()}"}}) {
+    erc1155TokenOwners(limit: 1000, where: {owner: {id_eq: "${account.toLowerCase()}"}}) {
       id,
       balance
       token {
@@ -79,6 +79,7 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
 ) => gql`
   query getTokensIdInArray {
     erc1155Tokens(
+      limit: 1000,
       orderBy: numericId_ASC,
       where: { 
         contract: { id_startsWith: "${address.toLowerCase()}" }
@@ -108,7 +109,7 @@ export const QUERY_SUBSQUID_ERC1155_ID_IN = (
 
 export const QUERY_SUBSQUID_ERC1155_CONTRACT_DATA = (address: string) => gql`
 query getUserActiveOrders {
-  erc1155Contracts(where: {id_startsWith: "${address.toLowerCase()}"}) {
+  erc1155Contracts(limit: 1000, where: {id_startsWith: "${address.toLowerCase()}"}) {
     name
     symbol
     totalSupply
