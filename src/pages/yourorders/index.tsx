@@ -38,6 +38,7 @@ import {
   useApprovedPaymentCurrencyCallback,
 } from 'hooks/useApprovedPaymentCurrencies/useApprovedPaymentCurrencies';
 import { useState } from 'react';
+import { useRawcollection } from 'hooks/useRawCollectionsFromList/useRawCollectionsFromList';
 
 const geTableHeader = () => {
   return (
@@ -101,6 +102,11 @@ export const MyOrdersPage = () => {
         : x.sellAsset;
     })
   );
+  
+  // const rawCollection = useRawcollection(asset.assetAddress);
+  // const ordersDisabled =
+  //   (rawCollection?.ordersDisabled ?? false) ||
+  //   (rawCollection?.ordersDisabledFor?.includes(asset?.assetId ?? '') ?? false);
 
   const approvedPaymentCurrencyCallback = useApprovedPaymentCurrencyCallback();
 

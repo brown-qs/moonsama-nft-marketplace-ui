@@ -21,7 +21,7 @@ const HomePage = () => {
         Discover, collect, and sell NFTs
       </GlitchText>
       <GlitchText variant="h2">
-        Moonsama, Moonriver's first NFT marketplace
+        Moonsama, the leading NFT ecosystem of DotSama
       </GlitchText>
 
       {/*<div className={iconBlock}>*/}

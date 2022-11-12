@@ -803,7 +803,7 @@ const TokenPage = () => {
           </Box>
         </Paper>
       </Grid>
-      <Tabs
+      {!ordersDisabled && <Tabs
         containerClassName={tabsContainer}
         tabsClassName={tabs}
         currentTab={currentTab}
@@ -849,7 +849,7 @@ const TokenPage = () => {
             ),
           },
         ]}
-      />
+      />}
       <div style={{ marginTop: 40, width: '100%' }} />
     </Grid>
   );

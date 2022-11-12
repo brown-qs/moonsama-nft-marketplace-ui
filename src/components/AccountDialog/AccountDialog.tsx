@@ -404,7 +404,17 @@ export const AccountDialog = () => {
           {error instanceof UnsupportedChainIdError && (
             <>
               <div>Wrong Network</div>
-              <h5>Please connect to the appropriate Ethereum network.</h5>
+              <h5>Please connect to the appropriate EVM chain.</h5>
+              <Button
+                //className={formButton}
+                onClick={() => {
+                  addNetwork(ChainId.EXN);
+                }}
+                startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.EXN]} alt='' />}
+                color="primary"
+              >
+                Switch to Exosama Network
+              </Button>
               <Button
                 //className={formButton}
                 onClick={() => {

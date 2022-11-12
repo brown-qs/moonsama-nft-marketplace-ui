@@ -22,6 +22,17 @@ export const NetworkSelectorDialog = ({ open, onClose }: { open: boolean, onClos
             //className={formButton}
             onClick={() => {
               onClose(false)
+              addNetwork(ChainId.EXN);
+            }}
+            startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.EXN]} alt='' />}
+            color="primary"
+          >
+            Switch to Exosama Network
+          </Button>
+          <Button
+            //className={formButton}
+            onClick={() => {
+              onClose(false)
               addNetwork(ChainId.MOONRIVER);
             }}
             startIcon={<img height={'16px'} src={NETWORK_ICONS[ChainId.MOONRIVER]} alt=''/>}

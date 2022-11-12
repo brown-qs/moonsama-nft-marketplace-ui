@@ -122,8 +122,8 @@ export const collections = {
       address: '0x1b30a3b5744e733d8d2f19f0812e3f79152a8777',
       display_name: 'Multiverse Asset Factory',
       floorDisplay: false,
-      transferDisabledFor: ['11'],
-      ordersDisabledFor: ['11'],
+      transferDisabledFor: ['11', '15'],
+      ordersDisabledFor: ['11', '15'],
       symbol: 'MMAF',
       minId: 1,
       maxId: 16,
@@ -286,6 +286,36 @@ export const collections = {
       type: 'ERC1155',
       contractURI: 'ipfs://QmWzBDhV5nuPrud7XZo2vBLBWtTStwc6N8xSwCzuMdewd8',
       subgraph: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-embassy'
+    },
+    // {
+    //   chainId: 2109,
+    //   address: '0x74cc11c9e19548cb3dcceb340e472b93db576d4b',
+    //   display_name: 'Test Resources',
+    //   decimals: 18,
+    //   ordersDisabled: false,
+    //   transferDisabled: false,
+    //   floorDisplay: false,
+    //   symbol: 'TR',
+    //   minId: 1,
+    //   maxId: 18,
+    //   type: 'ERC1155',
+    //   contractURI: 'ipfs://QmV46bLqtUgECjGZHxtj4qTzoMoJ5UrUU5yeBiUPHuAegG',
+    //   subgraph: 'https://exosama-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-rss-test/graphql'
+    // },
+    {
+      chainId: 2109,
+      address: '0xA402b15ac207b881c049E472755a7814148Dd191',
+      display_name: 'Moonsama Multiverse Resources',
+      decimals: 18,
+      ordersDisabled: false,
+      transferDisabled: false,
+      floorDisplay: false,
+      symbol: 'MMBR',
+      minId: 1,
+      maxId: 18,
+      type: 'ERC1155',
+      contractURI: 'ipfs://QmV46bLqtUgECjGZHxtj4qTzoMoJ5UrUU5yeBiUPHuAegG',
+      subgraph: 'https://exosama-subgraph.moonsama.com/subgraphs/name/moonsama/nft-1155-rss/graphql'
     },
     /*
     {

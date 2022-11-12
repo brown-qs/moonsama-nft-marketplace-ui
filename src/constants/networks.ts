@@ -14,6 +14,17 @@ export interface AddEthereumChainParameter {
 }
 
 export const SUPPORTED_METAMASK_NETWORKS: {[key: number]: AddEthereumChainParameter} = {
+    [ChainId.EXN]: {
+        chainId: '0x83D',
+        chainName: 'Exosama Network',
+        rpcUrls: ['https://rpc.exosama.com'],
+        blockExplorerUrls: ['https://explorer.exosama.com'],
+        nativeCurrency: {
+            name: 'SAMA',
+            symbol: 'SAMA',
+            decimals: 18
+        }
+    },
     [ChainId.MOONRIVER]: {
         chainId: '0x505',
         chainName: 'Moonriver',

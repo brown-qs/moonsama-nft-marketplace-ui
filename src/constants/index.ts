@@ -1,5 +1,6 @@
 import MoonriverIcon from '../assets/images/moonriver_icon.svg'
 import MoonbeamIcon from '../assets/images/moonbeam_icon.svg'
+import ExnIcon from '../assets/images/exn_icon.svg'
 
 export const CHAIN_ID = parseInt(process.env.REACT_APP_CHAIN_ID ?? '1285', 10);
 
@@ -24,37 +25,44 @@ export enum ChainId {
   EWC = 246,
   VOLTA = 73799,
   MOONRIVER = 1285,
-  MOONBEAM= 1284
+  MOONBEAM= 1284,
+  EXN=2109
 }
 
-export const PERMISSIONED_CHAINS = [ChainId.MOONRIVER, ChainId.MOONBEAM]
+export const PERMISSIONED_CHAINS = [ChainId.EXN, ChainId.MOONRIVER, ChainId.MOONBEAM]
 
 export const DEFAULT_CHAIN = ChainId.MOONRIVER
 
 export const RPC_URLS: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: 'https://rpc.api.moonriver.moonbeam.network',
-  [ChainId.MOONBEAM]: 'https://moonbeam-rpc.moonsama.com'
+  [ChainId.MOONBEAM]: 'https://moonbeam-rpc.moonsama.com',
+  [ChainId.EXN]: 'https://rpc.exosama.com'
 };
 
 export const NATIVE_TOKEN_SYMBOL: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: 'MOVR',
-  [ChainId.MOONBEAM]: 'GLMR'
+  [ChainId.MOONBEAM]: 'GLMR',
+  [ChainId.EXN]: 'SAMA'
 };
 
 export const NETWORK_NAME: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: 'Moonriver',
-  [ChainId.MOONBEAM]: 'Moonbeam'
+  [ChainId.MOONBEAM]: 'Moonbeam',
+  [ChainId.EXN]: 'Exosama Network'
 };
 
 export const NETWORK_ICONS: { [chainId: number]: string } = {
   [ChainId.MOONRIVER]: MoonriverIcon,
-  [ChainId.MOONBEAM]: MoonbeamIcon
+  [ChainId.MOONBEAM]: MoonbeamIcon,
+  [ChainId.EXN]: ExnIcon
+
 };
 
 export const MARKETPLACE_SUBGRAPH_URLS: { [chainId: number]: string } = {
 
   [ChainId.MOONRIVER]: 'https://moonriver-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev8',
-  [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4'
+  [ChainId.MOONBEAM]: 'https://moonbeam-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev4',
+  [ChainId.EXN]: 'https://exosama-subgraph.moonsama.com/subgraphs/name/moonsama/marketplacev8'
 };
 
 export const MULTICALL_NETWORKS: { [chainId: number]: string } = {
@@ -65,7 +73,8 @@ export const MULTICALL_NETWORKS: { [chainId: number]: string } = {
   [ChainId.GÖRLI]: '0x77dCa2C955b15e9dE4dbBCf1246B4B85b651e50e',
   [ChainId.VOLTA]: '0xf097d0eAb2dC8B6396a6433978567C443a691815', // latest multicall 2 deployments
   [ChainId.MOONRIVER]: '0x8B60499C8e99d1218Df15ba6e8f0937e1878b86c', // latest multicall 2 deployments
-  [ChainId.MOONBEAM]: '0x62614aee098C7a84dC070fF06688F4C35D3868F9'
+  [ChainId.MOONBEAM]: '0x62614aee098C7a84dC070fF06688F4C35D3868F9',
+  [ChainId.EXN]: '0x2feFC828e2fEfdE0C9f7740919c6A9139F886067'
 };
 
 export const WORKBENCH_ADDRESSES: { [chainId: number]: string } = {
@@ -87,20 +96,23 @@ export enum SUPPORTED_CONTRACTS {
 export const MARKETPLACE_V1_ADDRESS: { [chainId in ChainId]?: string } = {
   [ChainId.VOLTA]: '0xE1681925E9d1fa2c735184835b348a98c34017C7',
   [ChainId.MOONRIVER]: '0x7292b493c3b6E02d025fC0340846a2fCA8b424e7', //'0x56f33FaAc598f6761bE886506bD41eC2304D74af',
-  [ChainId.MOONBEAM]: '0x46B6062Ad95239e30E3506f42147D5cCA00B5f0E'
+  [ChainId.MOONBEAM]: '0x46B6062Ad95239e30E3506f42147D5cCA00B5f0E',
+  [ChainId.EXN]: '0x5859d317181e35519ecf5f1685f401568e23e011'
 };
 
 export const WAREHOUSE_ADDRESS: { [chainId in ChainId]?: string } = {
   [ChainId.VOLTA]: '0xE796e4CC54856b5d88E44aAca85e3B7D633c34a1',
   [ChainId.MOONRIVER]: '0xe41509E3034f3f1C7Ea918423Da60B2bA6F14087',
-  [ChainId.MOONBEAM]: '0x108E9B2BFB98402208E4172f5045BF605F148eEb'
+  [ChainId.MOONBEAM]: '0x108E9B2BFB98402208E4172f5045BF605F148eEb',
+  [ChainId.EXN]: '0x2b7b01fdd1a83279bf07201a3a4d96a29eb7dd9a'
 };
 
 export const RECOGNIZED_COLLECTIONS_ADDRESS: { [chainId in ChainId]?: string } =
   {
     [ChainId.VOLTA]: '0xe35D9ACD226165d21d8bC7cf2C6D71b0deCb67d6',
     [ChainId.MOONRIVER]: '0x45613dAd51D4262dB6c0F94Fc96435D8800500cD',
-    [ChainId.MOONBEAM]: '0x9b7c849864F246b1A963fdbbbfC198083e646e5b'
+    [ChainId.MOONBEAM]: '0x9b7c849864F246b1A963fdbbbfC198083e646e5b',
+    [ChainId.EXN]: '0x811d568cbcd9387499be37652a71ac5563f75360'
   };
 
 export const WMOVR_ADDRESS: { [chainId in ChainId]?: string } = {
@@ -111,7 +123,8 @@ export const WMOVR_ADDRESS: { [chainId in ChainId]?: string } = {
 export const EXPLORER_URL: { [chainId in ChainId]?: string } = {
   [ChainId.VOLTA]: 'https://volta-explorer.energyweb.org',
   [ChainId.MOONRIVER]: 'https://moonriver.moonscan.io',
-  [ChainId.MOONBEAM]: 'https://blockscout.moonbeam.network'
+  [ChainId.MOONBEAM]: 'https://blockscout.moonbeam.network',
+  [ChainId.EXN]: 'https://explorer.exosama.com'
 };
 
 export const PROTOCOL_FEE_BPS = '200';
