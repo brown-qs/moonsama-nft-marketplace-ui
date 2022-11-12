@@ -310,7 +310,7 @@ export const collections = {
       ordersDisabled: false,
       transferDisabled: false,
       floorDisplay: false,
-      symbol: 'MMBR',
+      symbol: 'MMR',
       minId: 1,
       maxId: 18,
       type: 'ERC1155',
