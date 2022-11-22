@@ -81,7 +81,7 @@ export const Layout = ({ children }: LayoutProps) => {
                     Docs↗
                   </ExternalLink>
                   <ExternalLink href="https://minecraft-metaverse.moonsama.com" className={navItem}>
-                    Bridge↗
+                    Portal↗
                   </ExternalLink>
 
                   {/*<NavLink href="/explore" className={navItem}>
@@ -121,7 +121,7 @@ export const Layout = ({ children }: LayoutProps) => {
                       Docs↗
                     </ExternalLink>
                     <ExternalLink href="https://minecraft-metaverse.moonsama.com" className={navItemDrawer}>
-                      Bridge↗
+                      Portal↗
                     </ExternalLink>
                   </Box>
                 </Drawer>
